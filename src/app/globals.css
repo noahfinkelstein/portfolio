@@ -1,0 +1,64 @@
+/* ===========================================================================
+ *  GLOBAL STYLES
+ *  - Tailwind is imported first (the three @tailwind lines).
+ *  - Below that are a few small site-wide defaults.
+ *  - COLORS are NOT defined here — they come from theme.config.ts.
+ * ======================================================================== */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth; /* smooth scrolling for the #about, #projects nav links */
+    scroll-padding-top: 5rem; /* so sections aren't hidden behind the sticky nav */
+  }
+
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+    /* Subtle radial glow in the top-left using your accent color. Tweak or
+       delete this whole background line to change the page's ambient look. */
+    background-image: radial-gradient(
+      60rem 60rem at 15% -10%,
+      rgb(var(--color-accent) / 0.14),
+      transparent 60%
+    );
+    background-attachment: fixed;
+  }
+
+  /* Nice default for selected text */
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+}
+
+@layer components {
+  /* A reusable centered content column. Use <div className="container-col"> */
+  .container-col {
+    @apply mx-auto w-full max-w-content px-5 sm:px-8;
+  }
+
+  /* Small uppercase label used above section titles ("01 / Projects"). */
+  .eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.2em] text-accent;
+  }
+
+  /* Glassy card surface used across the site. */
+  .card {
+    @apply rounded-2xl border border-border bg-bg-soft/70 backdrop-blur-sm;
+  }
+}
+
+/* Respect users who prefer reduced motion: disable big animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

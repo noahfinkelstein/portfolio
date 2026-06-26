@@ -1,0 +1,45 @@
+---
+title: Hello, World
+date: 2026-06-25
+summary: Why I built this site, and how this blog works.
+tags: [meta, code]
+---
+
+Welcome to my corner of the internet. This is the first post on my new site.
+
+## Why a personal site?
+
+A personal site is a place to think out loud — to collect projects, writing,
+and the occasional half-formed idea in one spot that I actually own.
+
+## How this blog works
+
+Each post is a single Markdown file in `content/blog/`. To write a new one, I
+just create a file like `content/blog/my-new-post.mdx` with a little block of
+info at the top (the "frontmatter"):
+
+```md
+---
+title: My New Post
+date: 2026-07-01
+summary: A one-line teaser.
+tags: [physics, notes]
+---
+
+Then I write the post right here in Markdown.
+```
+
+That's it — it shows up automatically on the [blog index](/blog).
+
+### Markdown supports the usual things
+
+- **Bold** and *italic* text
+- Lists, like this one
+- [Links](/)
+- `inline code` and fenced code blocks
+- Images: `![alt text](/images/blog/example.png)`
+
+> And blockquotes, for when I want to sound profound.
+
+Because these are **MDX** files, I can even drop in interactive React
+components later if I want. For now, plain Markdown is plenty.
