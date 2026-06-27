@@ -1,7 +1,14 @@
 /**
- * GALLERY PAGE (/gallery) — a masonry-style grid of general photos.
- * Edit the photos in src/config/gallery.ts.
+ * ============================================================================
+ *  GALLERY PAGE  —  /gallery masonry-style photo grid.
+ * ============================================================================
+ *
+ * PHOTOS: src/config/gallery.ts — add entries with paths under /public/images/gallery/.
+ *
+ * LAYOUT: CSS grid with auto-rows-[180px]. The `span` field on each photo
+ * makes some cells 2× wide, 2× tall, or 2×2 for visual variety.
  */
+
 import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -13,7 +20,7 @@ export const metadata: Metadata = {
   description: "A gallery of photos.",
 };
 
-// Maps a photo's `span` to the grid classes that make it bigger.
+// Maps gallery.ts `span` values to Tailwind grid span classes
 const spanClass: Record<string, string> = {
   tall: "row-span-2",
   wide: "col-span-2",
@@ -33,7 +40,6 @@ export default function GalleryPage() {
           A mix of moments — projects in the wild, travel, and life at Brown.
         </p>
 
-        {/* Auto-rows give the masonry effect; `span` makes some photos bigger. */}
         <div className="mt-10 grid auto-rows-[180px] grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {gallery.map((photo, i) => (
             <figure
@@ -51,7 +57,7 @@ export default function GalleryPage() {
                 placeholderLabel="add a photo"
               />
 
-              {/* Caption overlay (only if a caption is set). */}
+              {/* Caption slides up on hover (translate-y-full → translate-y-0) */}
               {photo.caption && (
                 <figcaption className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-bg to-transparent p-3 text-sm text-fg transition-transform duration-300 group-hover:translate-y-0">
                   {photo.caption}

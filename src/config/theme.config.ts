@@ -3,60 +3,61 @@
  *  THEME  —  the #1 file to edit to change how the site LOOKS.
  * ============================================================================
  *
- * Everything visual that isn't layout lives here: colors, the accent color,
- * the content width, and notes on which fonts are used. Change a value, save,
- * and the whole site updates.
+ * Controls: colors (hex), content width, font name notes.
+ * Change a value here → save → entire site updates.
  *
- * ►► You edit plain HEX colors below (like "#7c5cff"). ◄◄
+ * COLOR PIPELINE (end-to-end):
+ *   1. You edit hex strings below (e.g. accent: "#7c5cff")
+ *   2. themeToCssVariables() converts each to "r g b" channels
+ *   3. layout.tsx injects :root { --color-accent: 124 92 255; ... }
+ *   4. tailwind.config.ts maps bg-bg → rgb(var(--color-bg) / <alpha-value>)
+ *   5. Components use classes like bg-bg, text-accent, border-border
  *
- * HOW IT WORKS (you don't need to understand this to use it):
- *  - Each hex color is converted to "r g b" channels and injected as a CSS
- *    variable (--color-bg, etc.) in src/app/layout.tsx.
- *  - Tailwind reads them as rgb(var(--color-bg) / <alpha>) so opacity helpers
- *    like `bg-bg/70` or `text-accent/40` work everywhere.
+ * Opacity modifiers (bg-bg/70, text-accent/40) work because channels omit "rgb()".
  */
 
 export const theme = {
   /**
-   * COLORS — all plain hex strings. Pick any colors you like.
-   * The only "special" one is `accent`: your signature color, used for links,
-   * highlights, buttons, and the particle network. Change it first.
+   * COLORS — plain hex. `accent` is your signature color (links, buttons,
+   * hero backgrounds, highlights). Change accent first when re-skinning.
    */
   colors: {
-    bg: "#0a0a0f", //  page background (near-black)
-    bgSoft: "#13131c", //  cards, panels
-    bgSofter: "#1c1c2a", //  hover backgrounds
-    fg: "#f5f5fa", //  main text (near-white)
-    fgMuted: "#9a9ab0", //  secondary text
-    accent: "#7c5cff", //  ★ signature color (violet). Try #22d3ee (cyan) or #a3e635 (lime)
-    border: "#26263a", //  hairline borders
+    bg: "#0a0a0f", // page background (near-black)
+    bgSoft: "#13131c", // cards, panels (.card class)
+    bgSofter: "#1c1c2a", // chips, hover states, tag backgrounds
+    fg: "#f5f5fa", // primary body text (near-white)
+    fgMuted: "#9a9ab0", // secondary text, captions, nav links
+    accent: "#7c5cff", // ★ signature violet — try #22d3ee (cyan) or #a3e635 (lime)
+    border: "#26263a", // hairline borders between sections/cards
   },
 
   /**
-   * FONTS — the actual font files are loaded in src/app/layout.tsx using
-   * next/font (Google Fonts). To change a font:
-   *   1. Open src/app/layout.tsx
-   *   2. Follow the clearly-commented instructions there (swap the import).
-   * This block is just a human-readable note of what's currently in use.
+   * FONTS — human-readable notes only. Actual font loading happens in
+   * layout.tsx via next/font. To swap fonts, edit layout.tsx imports.
    */
   fonts: {
-    sans: "Inter", //  body text
-    display: "Sora", //  big headings / hero
-    mono: "JetBrains Mono", //  code, labels, terminal bits
+    sans: "Inter", // body text, UI
+    display: "Sora", // hero headline, section titles
+    mono: "JetBrains Mono", // eyebrows, dates, tags, code
   },
 
   /**
-   * LAYOUT
+   * LAYOUT — max width of .container-col (Nav, sections, Footer, blog pages).
+   * Flows: here → --content-width CSS var → max-w-content in Tailwind.
    */
-  contentWidth: "1100px", // max width of the centered content column
+  contentWidth: "1400px",
 } as const;
 
-/** Convert "#7c5cff" (or "#abc") into "124 92 255" (space-separated channels). */
+/**
+ * Converts hex color to space-separated RGB channels for CSS variables.
+ * Supports #rgb shorthand and #rrggbb full form.
+ * Example: "#7c5cff" → "124 92 255"
+ */
 function hexToChannels(hex: string): string {
   const h = hex.replace("#", "").trim();
   const full =
     h.length === 3
-      ? h.split("").map((c) => c + c).join("")
+      ? h.split("").map((c) => c + c).join("") // #abc → aabbcc
       : h.padEnd(6, "0").slice(0, 6);
   const r = parseInt(full.slice(0, 2), 16);
   const g = parseInt(full.slice(2, 4), 16);
@@ -65,9 +66,8 @@ function hexToChannels(hex: string): string {
 }
 
 /**
- * Turns the theme above into a CSS variables string (injected in layout.tsx).
- * Colors are emitted as channels so Tailwind's `/opacity` helpers work.
- * You usually never call this yourself.
+ * Builds the :root CSS block injected in layout.tsx <head>.
+ * Called once at render — you don't use this directly in components.
  */
 export function themeToCssVariables(t: typeof theme): string {
   const c = t.colors;
@@ -84,7 +84,7 @@ export function themeToCssVariables(t: typeof theme): string {
 }
 
 /* ===========================================================================
- *  PRESETS — copy one of these over the `colors` block above to re-skin fast.
+ *  COLOR PRESETS — copy a block over `colors` above to re-skin quickly.
  * ===========================================================================
  *
  * // Light & minimal:

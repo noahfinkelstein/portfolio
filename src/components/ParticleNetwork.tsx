@@ -2,32 +2,34 @@
 
 /**
  * ============================================================================
- *  PARTICLE NETWORK  —  the signature animated background.
+ *  PARTICLE NETWORK  —  interactive floating nodes + connecting lines.
  * ============================================================================
  *
- * Floating nodes connected by lines that react to your mouse. It draws on a
- * <canvas>, uses your theme's accent color, and is fully tunable below.
+ * Hero background option #3. Selected when HERO_BACKGROUND = "particles" in
+ * HeroBackground.tsx.
  *
- * ►► To tune the look, edit the CONFIG object. Nothing else needs changing. ◄◄
+ * HOW IT WORKS:
+ *   1. Spawn N nodes with random positions and velocities (buildNodes)
+ *   2. Each frame: move nodes, bounce off edges, draw lines between nearby pairs
+ *   3. Lines near the cursor brighten (proximity glow)
+ *   4. Accent color read from CSS --color-accent
  *
- * Want a totally different centerpiece instead (e.g. a 3D object or gradient
- * blobs)? This is a self-contained component — just swap <ParticleNetwork/>
- * for your own component in src/components/sections/Hero.tsx.
+ * TUNE: edit CONFIG below. Canvas uses pointer-events-none (mouse tracked on window).
  */
 
 import { useEffect, useRef } from "react";
 
-// --- TUNING -----------------------------------------------------------------
+// --- DEVELOPER TUNING KNOBS -------------------------------------------------
 const CONFIG = {
-  density: 0.00009, // nodes per pixel. Higher = more dots. Try 0.00005–0.00015
-  maxNodes: 140, // hard cap on node count (keeps it fast on big screens)
-  speed: 0.25, // base drift speed of nodes
-  linkDistance: 130, // px: draw a line between two nodes closer than this
-  mouseRadius: 170, // px: nodes/links within this of the cursor light up
-  dotRadius: 1.8, // px: size of each node
-  lineWidth: 1, // px: thickness of links
-  baseOpacity: 0.35, // opacity of links when far from the mouse
-  glowOpacity: 0.9, // opacity of links near the mouse
+  density: 0.00009, // nodes per pixel² — higher = denser field
+  maxNodes: 140, // hard cap (prevents slowdown on 4K displays)
+  speed: 0.25, // max initial velocity magnitude per axis
+  linkDistance: 130, // px — draw line if two nodes are closer than this
+  mouseRadius: 170, // px — cursor influence radius for line brightness
+  dotRadius: 1.8, // px — node dot size
+  lineWidth: 1, // px — connection line thickness
+  baseOpacity: 0.35, // line opacity when far from cursor
+  glowOpacity: 0.9, // line opacity when near cursor
 };
 
 type Node = { x: number; y: number; vx: number; vy: number };
@@ -40,13 +42,11 @@ export default function ParticleNetwork() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    // Local non-null aliases so TypeScript keeps the narrowing inside the
-    // nested animation functions below (closures otherwise widen back to null).
+    // Non-null aliases — TypeScript loses narrowing inside nested closures
     const cv: HTMLCanvasElement = canvas;
     const c2d: CanvasRenderingContext2D = ctx;
 
-    // Read the accent color from the CSS variable so it always matches theme.
-    // The variable holds space-separated RGB channels, e.g. "124 92 255".
+    // --color-accent holds space-separated RGB channels e.g. "124 92 255"
     const accentChannels =
       getComputedStyle(document.documentElement)
         .getPropertyValue("--color-accent")
@@ -56,13 +56,13 @@ export default function ParticleNetwork() {
     let height = 0;
     let nodes: Node[] = [];
     let raf = 0;
-    const mouse = { x: -9999, y: -9999 };
+    const mouse = { x: -9999, y: -9999 }; // off-screen until first mousemove
 
-    // Respect reduced-motion: render a single static frame, no animation loop.
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
+    /** Create nodes based on canvas area × density, capped at maxNodes */
     function buildNodes() {
       const target = Math.min(
         CONFIG.maxNodes,
@@ -76,8 +76,9 @@ export default function ParticleNetwork() {
       }));
     }
 
+    /** Sync canvas internal resolution with CSS size (retina via dpr cap at 2) */
     function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2); // cap DPR for perf
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const rect = cv.getBoundingClientRect();
       width = rect.width;
       height = rect.height;
@@ -87,7 +88,7 @@ export default function ParticleNetwork() {
       buildNodes();
     }
 
-    // Build "rgba(r,g,b,a)" from the accent channels so we can vary opacity.
+    /** Build rgba() string from accent channels + alpha */
     function rgba(alpha: number) {
       return `rgba(${accentChannels.split(/\s+/).join(",")},${alpha})`;
     }
@@ -95,7 +96,7 @@ export default function ParticleNetwork() {
     function draw() {
       c2d.clearRect(0, 0, width, height);
 
-      // Move nodes + bounce off edges.
+      // --- Physics: drift + edge bounce ---
       for (const n of nodes) {
         n.x += n.vx;
         n.y += n.vy;
@@ -103,7 +104,7 @@ export default function ParticleNetwork() {
         if (n.y < 0 || n.y > height) n.vy *= -1;
       }
 
-      // Draw links between nearby nodes.
+      // --- Draw connection lines (O(n²) pairwise — fine for ~140 nodes) ---
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const a = nodes[i];
@@ -113,13 +114,14 @@ export default function ParticleNetwork() {
           const dist = Math.hypot(dx, dy);
           if (dist > CONFIG.linkDistance) continue;
 
-          // Brighten links whose midpoint is near the cursor.
+          // Brighten lines whose midpoint is near the cursor
           const mx = (a.x + b.x) / 2;
           const my = (a.y + b.y) / 2;
           const near = Math.hypot(mx - mouse.x, my - mouse.y);
           const proximity =
             near < CONFIG.mouseRadius ? 1 - near / CONFIG.mouseRadius : 0;
 
+          // Fade line opacity with distance between nodes
           const fade = 1 - dist / CONFIG.linkDistance;
           const opacity =
             (CONFIG.baseOpacity +
@@ -135,7 +137,7 @@ export default function ParticleNetwork() {
         }
       }
 
-      // Draw the nodes themselves.
+      // --- Draw node dots ---
       c2d.fillStyle = rgba(0.9);
       for (const n of nodes) {
         c2d.beginPath();
@@ -171,8 +173,6 @@ export default function ParticleNetwork() {
   }, []);
 
   return (
-    // The canvas sits behind content (z-0) and ignores pointer events so it
-    // never blocks clicks. `absolute inset-0` makes it fill its parent.
     <canvas
       ref={canvasRef}
       aria-hidden="true"

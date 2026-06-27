@@ -1,20 +1,19 @@
 /**
  * ============================================================================
- *  EDUCATION  —  schools shown in the "Education" section.
+ *  EDUCATION DATA  —  school cards in the Education section.
  * ============================================================================
  *
- * Each entry is one school. `coursework` and `honors` are optional lists of
- * short chips; leave them as [] to hide that row.
+ * coursework and honors are optional chip lists — use [] or omit to hide.
  */
 
 export type School = {
-  school: string;
+  school: string; // institution name
   degree: string; // degree + concentration
   date: string; // e.g. "2024 – 2028"
   gpa?: string; // optional, e.g. "3.8 / 4.0"
-  note?: string; // optional one-liner (activities, focus, etc.)
-  coursework?: string[]; // optional course chips
-  honors?: string[]; // optional award chips
+  note?: string; // optional activities / focus one-liner
+  coursework?: string[]; // optional course name chips
+  honors?: string[]; // optional award chips (accent border in UI)
 };
 
 export const education: School[] = [

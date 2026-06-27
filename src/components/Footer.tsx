@@ -1,11 +1,20 @@
 /**
- * Site footer — social links + copyright. Links come from site.config.ts.
+ * ============================================================================
+ *  FOOTER  —  bottom bar on every page.
+ * ============================================================================
+ *
+ * Shows copyright + social icon links. Social URLs come from site.config.ts;
+ * entries with empty `href` are filtered out (same pattern as Contact section).
+ *
+ * Server Component (no "use client") — no interactivity needed beyond links.
  */
+
 import { site } from "@/config/site.config";
 import { Icon } from "@/components/icons";
 
 export default function Footer() {
-  const year = 2026; // hard-coded so server/client render identically.
+  // Hard-coded year avoids server/client hydration mismatch (Date() can differ)
+  const year = 2026;
 
   return (
     <footer className="mt-24 border-t border-border/60 py-10">
@@ -14,6 +23,7 @@ export default function Footer() {
           © {year} {site.name}. Built from scratch.
         </p>
 
+        {/* Only show socials that have a real URL */}
         <div className="flex items-center gap-4">
           {site.socials
             .filter((s) => s.href)
@@ -22,7 +32,7 @@ export default function Footer() {
                 key={s.label}
                 href={s.href}
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer" // security: don't leak referrer to external sites
                 aria-label={s.label}
                 className="text-fg-muted transition-colors hover:text-accent"
               >

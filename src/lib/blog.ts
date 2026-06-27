@@ -1,43 +1,45 @@
 /**
  * ============================================================================
- *  BLOG ENGINE  —  reads your Markdown posts from /content/blog
+ *  BLOG ENGINE  —  reads Markdown/MDX posts from /content/blog
  * ============================================================================
  *
- * You should rarely need to touch this. To WRITE a post, just add a new
- * `.mdx` file in /content/blog (see the example posts there). This file is
- * the plumbing that turns those files into pages.
+ * You rarely edit this file. To WRITE a post, add a .mdx file in /content/blog.
  *
- * Each post is an `.mdx` file with "frontmatter" at the top:
+ * PIPELINE:
+ *   1. getPostSlugs()     — list filenames → slugs
+ *   2. getPost(slug)      — read file, parse frontmatter with gray-matter
+ *   3. getAllPosts()      — all metadata, sorted newest first (blog index)
+ *   4. formatDate()       — pretty-print ISO dates for display
  *
+ * FRONTMATTER EXAMPLE (top of each .mdx file):
  *   ---
- *   title: My First Post
+ *   title: My Post
  *   date: 2026-06-25
- *   summary: A one-line description shown in the post list.
- *   tags: [life, code]
+ *   summary: One-line teaser for the index page.
+ *   tags: [code, math]
  *   ---
- *
- *   Your post content here, in Markdown...
  */
+
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 
-// Folder where your posts live.
+// Absolute path to content/blog relative to project root
 const BLOG_DIR = path.join(process.cwd(), "content", "blog");
 
 export type PostMeta = {
-  slug: string; // derived from the filename (my-post.mdx -> "my-post")
+  slug: string; // filename without extension (my-post.mdx → "my-post")
   title: string;
-  date: string; // ISO string, e.g. "2026-06-25"
+  date: string; // ISO date string from frontmatter
   summary: string;
   tags: string[];
 };
 
 export type Post = PostMeta & {
-  content: string; // raw MDX body (rendered on the post page)
+  content: string; // raw MDX body — rendered by MDXRemote on the post page
 };
 
-/** Returns the slugs of all posts (used to pre-generate pages). */
+/** Returns slugs for all posts — used by generateStaticParams() for static builds */
 export function getPostSlugs(): string[] {
   if (!fs.existsSync(BLOG_DIR)) return [];
   return fs
@@ -46,7 +48,7 @@ export function getPostSlugs(): string[] {
     .map((f) => f.replace(/\.mdx?$/, ""));
 }
 
-/** Reads one post (frontmatter + content) by slug. */
+/** Load one post by slug — returns null if file doesn't exist */
 export function getPost(slug: string): Post | null {
   const mdxPath = path.join(BLOG_DIR, `${slug}.mdx`);
   const mdPath = path.join(BLOG_DIR, `${slug}.md`);
@@ -54,6 +56,7 @@ export function getPost(slug: string): Post | null {
   if (!fs.existsSync(file)) return null;
 
   const raw = fs.readFileSync(file, "utf8");
+  // gray-matter splits YAML frontmatter from Markdown body
   const { data, content } = matter(raw);
 
   return {
@@ -66,24 +69,23 @@ export function getPost(slug: string): Post | null {
   };
 }
 
-/** Returns all posts, newest first — used for the blog index. */
+/** All post metadata (no heavy content field), newest first */
 export function getAllPosts(): PostMeta[] {
   return getPostSlugs()
     .map((slug) => {
       const post = getPost(slug)!;
-      // Drop the heavy `content` field for the list view.
       const { content, ...meta } = post;
-      void content;
+      void content; // discard body for list view
       return meta;
     })
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
+    .sort((a, b) => (a.date < b.date ? 1 : -1)); // descending by date
 }
 
-/** Formats an ISO date like "2026-06-25" into "Jun 25, 2026". */
+/** "2026-06-25" → "Jun 25, 2026" */
 export function formatDate(iso: string): string {
   if (!iso) return "";
   const d = new Date(iso);
-  if (isNaN(d.getTime())) return iso;
+  if (isNaN(d.getTime())) return iso; // return raw string if unparseable
   return d.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",

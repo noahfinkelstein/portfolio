@@ -1,7 +1,12 @@
 /**
- * BLOG INDEX (/blog) — lists all posts, newest first.
- * Posts are .mdx files in /content/blog. Add a file there to add a post.
+ * ============================================================================
+ *  BLOG INDEX  —  /blog lists all posts, newest first.
+ * ============================================================================
+ *
+ * Server Component — reads posts at build/request time via lib/blog.ts.
+ * Posts live as .mdx files in /content/blog/.
  */
+
 import type { Metadata } from "next";
 import Link from "next/link";
 import Nav from "@/components/Nav";
@@ -28,6 +33,7 @@ export default function BlogIndex() {
           Notes on things I&apos;m building, learning, and thinking about.
         </p>
 
+        {/* Divided list — each row is a Link to /blog/[slug] */}
         <div className="mt-12 divide-y divide-border border-t border-border">
           {posts.length === 0 && (
             <p className="py-10 text-fg-muted">

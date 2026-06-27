@@ -1,24 +1,38 @@
 /**
- * Small inline SVG icons (no icon library dependency).
- * To add a new social icon: add a new entry to the `icons` map below, then
- * reference its key from site.config.ts `socials[].icon`.
+ * ============================================================================
+ *  ICONS  —  inline SVG icons (no external icon library).
+ * ============================================================================
+ *
+ * Each icon is a small React component that renders an <svg>. They inherit
+ * `currentColor` from the parent's text color (e.g. text-fg-muted → gray icon).
+ *
+ * TO ADD A NEW ICON:
+ *   1. Add an entry to the `icons` map below (copy an existing SVG pattern)
+ *   2. Reference its key from site.config.ts socials[].icon
+ *
+ * USAGE:
+ *   <Icon name="github" />           — default 50×50
+ *   <Icon name="mail" width={24} />  — override size via SVG props
  */
+
 import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement>;
 
+/** Shared defaults for all stroke-based icons (size, stroke, viewBox). */
 const base = (props: IconProps) => ({
-  width: 20,
-  height: 20,
+  width: 50,
+  height: 50,
   viewBox: "0 0 24 24",
   fill: "none",
   stroke: "currentColor",
   strokeWidth: 1.8,
   strokeLinecap: "round" as const,
   strokeLinejoin: "round" as const,
-  ...props,
+  ...props, // caller can override width, height, className, etc.
 });
 
+/** Map of icon name → SVG render function. Keys match site.config socials[].icon */
 export const icons: Record<string, (p: IconProps) => JSX.Element> = {
   github: (p) => (
     <svg {...base(p)} fill="currentColor" stroke="none">
@@ -53,7 +67,7 @@ export const icons: Record<string, (p: IconProps) => JSX.Element> = {
   ),
 };
 
-/** Convenience component: <Icon name="github" /> */
+/** Convenience wrapper — returns null if icon name isn't in the map. */
 export function Icon({ name, ...props }: { name: string } & IconProps) {
   const Cmp = icons[name];
   if (!Cmp) return null;

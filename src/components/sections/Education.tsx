@@ -1,7 +1,14 @@
 /**
- * EDUCATION section — your schools, coursework, and honors.
- * Edit the data in src/config/education.ts.
+ * ============================================================================
+ *  EDUCATION SECTION  —  school cards with coursework and honors.
+ * ============================================================================
+ *
+ * DATA: src/config/education.ts — one object per school.
+ *
+ * Each school renders as a .card with optional coursework/honors chip rows.
+ * Empty arrays for coursework or honors hide those sections automatically.
  */
+
 import Section from "@/components/Section";
 import { education } from "@/config/education";
 
@@ -24,7 +31,7 @@ export default function Education() {
 
             {s.note && <p className="mt-3 text-sm text-fg-muted">{s.note}</p>}
 
-            {/* Relevant coursework chips */}
+            {/* Coursework chips — hidden if array is empty or undefined */}
             {s.coursework && s.coursework.length > 0 && (
               <div className="mt-4">
                 <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-fg-muted">
@@ -43,7 +50,7 @@ export default function Education() {
               </div>
             )}
 
-            {/* Honors chips */}
+            {/* Honors chips — accent border to distinguish from coursework */}
             {s.honors && s.honors.length > 0 && (
               <div className="mt-4">
                 <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-fg-muted">

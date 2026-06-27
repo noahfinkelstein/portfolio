@@ -1,9 +1,15 @@
 /**
- * SINGLE BLOG POST (/blog/[slug]) — renders one MDX file as a page.
+ * ============================================================================
+ *  SINGLE BLOG POST  —  /blog/[slug] renders one MDX file as a page.
+ * ============================================================================
  *
- * MDX = Markdown + the ability to use React components inside your posts.
- * The `prose` classes (from @tailwindcss/typography) style the article text.
+ * Dynamic route: [slug] matches the filename in /content/blog (without .mdx).
+ * Example: content/blog/on-problem-solving.mdx → /blog/on-problem-solving
+ *
+ * MDX = Markdown + optional React components in post body.
+ * `prose` classes (from @tailwindcss/typography) style the article text.
  */
+
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -12,12 +18,12 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { getPost, getPostSlugs, formatDate } from "@/lib/blog";
 
-// Pre-generate a static page for every post at build time (fast + SEO-friendly).
+/** Pre-build static HTML for every post at build time (fast + SEO-friendly) */
 export function generateStaticParams() {
   return getPostSlugs().map((slug) => ({ slug }));
 }
 
-// Per-post browser tab title + description.
+/** Per-post <title> and meta description from frontmatter */
 export function generateMetadata({
   params,
 }: {
@@ -30,13 +36,13 @@ export function generateMetadata({
 
 export default function PostPage({ params }: { params: { slug: string } }) {
   const post = getPost(params.slug);
-  if (!post) notFound();
+  if (!post) notFound(); // triggers Next.js 404 page
 
   return (
     <>
       <Nav />
+      {/* max-w-3xl narrows article text for comfortable reading width */}
       <main className="container-col max-w-3xl py-16">
-        {/* Back link */}
         <Link
           href="/blog"
           className="font-mono text-sm text-fg-muted hover:text-accent"
@@ -44,7 +50,6 @@ export default function PostPage({ params }: { params: { slug: string } }) {
           ← all posts
         </Link>
 
-        {/* Post header */}
         <header className="mt-6">
           <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
             {post.title}
@@ -57,9 +62,8 @@ export default function PostPage({ params }: { params: { slug: string } }) {
           </div>
         </header>
 
-        {/* Post body — `prose` styles the Markdown; `prose-invert` makes it
-            readable on the dark theme. The `prose-a:text-accent` etc. tie the
-            article styling to your theme color. */}
+        {/* prose-invert = light text on dark bg; prose-headings:font-display ties
+            headings to your display font; accent colors on links and code */}
         <article className="prose prose-invert mt-10 max-w-none prose-headings:font-display prose-a:text-accent prose-code:text-accent prose-code:before:content-none prose-code:after:content-none">
           <MDXRemote source={post.content} />
         </article>

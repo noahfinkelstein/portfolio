@@ -1,28 +1,29 @@
 /**
  * ============================================================================
- *  GALLERY  —  general photos shown on the /gallery page.
+ *  GALLERY DATA  —  photos on /gallery (not tied to a specific job).
  * ============================================================================
  *
- * These are photos NOT tied to a specific job (travel, hobbies, projects in
- * the wild, life at Brown, etc.). Work-specific photos go in experience.ts.
+ * Work-specific photos go in experience.ts instead.
  *
- * To add a photo:
- *   1. Drop the file in /public/images/gallery/
- *   2. Add an entry below with its path and a short caption.
+ * TO ADD A PHOTO:
+ *   1. Drop file in /public/images/gallery/
+ *   2. Add entry below with src, alt, optional caption and span
  *
- * `span` lets a photo take more space in the masonry grid:
- *   "tall"  → 2 rows,  "wide" → 2 columns,  "big" → 2x2,  undefined → 1x1.
+ * span controls masonry grid cell size:
+ *   undefined → 1×1 (default)
+ *   "tall"    → 2 rows tall
+ *   "wide"    → 2 columns wide
+ *   "big"     → 2×2
  */
 
 export type Photo = {
-  src: string; // "/images/gallery/..."
-  caption?: string; // optional text shown on hover / below
-  alt: string; // accessibility description (always fill this in)
+  src: string; // "/images/gallery/..." or "" for placeholder
+  caption?: string; // hover overlay text
+  alt: string; // accessibility — always describe the image
   span?: "tall" | "wide" | "big";
 };
 
 export const gallery: Photo[] = [
-  // Replace these with real photos. Until you do, they render as placeholders.
   { src: "", alt: "Placeholder photo 1", caption: "A caption about this moment", span: "big" },
   { src: "", alt: "Placeholder photo 2", caption: "Somewhere fun" },
   { src: "", alt: "Placeholder photo 3", caption: "A project in the wild", span: "tall" },

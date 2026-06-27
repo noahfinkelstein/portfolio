@@ -1,13 +1,20 @@
 "use client";
 
 /**
- * HERO — the first thing visitors see.
- *  - Big name + tagline (from site.config.ts)
- *  - A word that rotates through site.heroRotatingWords
- *  - The ParticleNetwork animated background
- *  - A scroll-down cue
+ * ============================================================================
+ *  HERO  —  the first viewport visitors see.
+ * ============================================================================
  *
- * To swap the background animation, replace <ParticleNetwork/> below.
+ * LAYERS (stacked with z-index):
+ *   z-0  → HeroBackground (3D object / physics / particles — see HeroBackground.tsx)
+ *   z-10 → text, buttons, scroll cue (this file)
+ *
+ * CONTENT SOURCES:
+ *   site.role, site.name, site.heroTagline, site.heroRotatingWords → site.config.ts
+ *
+ * ANIMATIONS:
+ *   Framer Motion fades each block in on load. The rotating "I do ___" line
+ *   uses AnimatePresence to cross-fade between words every 2.2 seconds.
  */
 
 import { useEffect, useState } from "react";
@@ -18,22 +25,22 @@ import HeroBackground from "@/components/HeroBackground";
 import { Icon } from "@/components/icons";
 
 export default function Hero() {
-  // Cycle the rotating word every 2.2s.
   const words = site.heroRotatingWords;
-  const [i, setI] = useState(0);
+  const [i, setI] = useState(0); // index of the currently displayed rotating word
+
+  // Cycle through heroRotatingWords every 2.2s
   useEffect(() => {
-    if (words.length <= 1) return;
+    if (words.length <= 1) return; // nothing to rotate
     const t = setInterval(() => setI((p) => (p + 1) % words.length), 2200);
-    return () => clearInterval(t);
+    return () => clearInterval(t); // cleanup on unmount
   }, [words.length]);
 
   return (
-    <section className="relative flex min-h-[88vh] items-center overflow-hidden">
-      {/* Animated background — choose between 3D object / physics sim /
-          particles in src/components/HeroBackground.tsx. */}
+    <section className="relative flex min-h-[92vh] items-center overflow-hidden">
+      {/* Full-bleed animated background — switch type in HeroBackground.tsx */}
       <HeroBackground />
 
-      {/* Foreground content (z-10 keeps it above the canvas). */}
+      {/* Foreground — container-col aligns text with nav and sections below */}
       <div className="container-col relative z-10">
         <motion.p
           className="eyebrow mb-5"
@@ -53,17 +60,18 @@ export default function Hero() {
           Hi, I&apos;m {site.name.split(" ")[0]}.
         </motion.h1>
 
-        {/* Rotating role line */}
+        {/* "I do [rotating word]" — min-w-[12ch] prevents layout jump between words */}
         <div className="mt-4 flex items-center gap-3 text-2xl sm:text-3xl">
           <span className="text-fg-muted">I do</span>
           <span className="relative inline-block min-w-[12ch] font-display font-semibold text-accent">
             <AnimatePresence mode="wait">
+              {/* key={words[i]} forces AnimatePresence to run exit + enter animations */}
               <motion.span
                 key={words[i]}
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.35 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.2 }}
                 className="inline-block"
               >
                 {words[i]}
@@ -73,7 +81,7 @@ export default function Hero() {
         </div>
 
         <motion.p
-          className="mt-7 max-w-xl text-lg leading-relaxed text-fg-muted"
+          className="mt-7 max-w-2xl text-lg leading-relaxed text-fg-muted"
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15 }}
@@ -81,7 +89,7 @@ export default function Hero() {
           {site.heroTagline}
         </motion.p>
 
-        {/* Call-to-action buttons */}
+        {/* Primary CTA (accent fill) + secondary CTA (outline) */}
         <motion.div
           className="mt-9 flex flex-wrap items-center gap-4"
           initial={{ opacity: 0, y: 14 }}
@@ -103,7 +111,7 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll cue */}
+      {/* Bouncing down-arrow — links to #about (first section after hero) */}
       <a
         href="/#about"
         aria-label="Scroll to about"

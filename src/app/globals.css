@@ -1,8 +1,14 @@
 /* ===========================================================================
  *  GLOBAL STYLES
- *  - Tailwind is imported first (the three @tailwind lines).
- *  - Below that are a few small site-wide defaults.
- *  - COLORS are NOT defined here — they come from theme.config.ts.
+ * ===========================================================================
+ *
+ * Three layers imported from Tailwind (processed at build time):
+ *   @tailwind base     — CSS reset + element defaults
+ *   @tailwind components — reusable component classes (.container-col, .card)
+ *   @tailwind utilities  — atomic utility classes (flex, text-accent, etc.)
+ *
+ * COLORS are NOT defined here. They come from theme.config.ts → layout.tsx
+ * injection → CSS variables (--color-bg, --color-accent, etc.).
  * ======================================================================== */
 
 @tailwind base;
@@ -11,23 +17,27 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth; /* smooth scrolling for the #about, #projects nav links */
-    scroll-padding-top: 5rem; /* so sections aren't hidden behind the sticky nav */
+    /* Smooth scroll when clicking nav links like /#about (see site.config nav) */
+    scroll-behavior: smooth;
+    /* Offset scroll target so content isn't hidden under the sticky 4rem nav */
+    scroll-padding-top: 5rem;
   }
 
   body {
+    /* bg-bg / text-fg / font-sans are Tailwind tokens mapped to theme vars */
     @apply bg-bg text-fg font-sans antialiased;
-    /* Subtle radial glow in the top-left using your accent color. Tweak or
-       delete this whole background line to change the page's ambient look. */
+    /* Ambient accent glow in the top-left. Delete or tweak the gradient to
+       change the page's atmospheric look without touching components. */
     background-image: radial-gradient(
       60rem 60rem at 15% -10%,
-      rgb(var(--color-accent) / 0.14),
+      rgb(var(--color-accent) / 0.24),
       transparent 60%
     );
+    /* Fixed attachment keeps the glow still while you scroll */
     background-attachment: fixed;
   }
 
-  /* Nice default for selected text */
+  /* Highlight color when the user selects text with the mouse */
   ::selection {
     background: var(--color-accent);
     color: var(--color-bg);
@@ -35,23 +45,36 @@
 }
 
 @layer components {
-  /* A reusable centered content column. Use <div className="container-col"> */
+  /*
+   * .container-col — the centered content column used site-wide.
+   * Width cap: theme.config.ts contentWidth → --content-width → max-w-content.
+   * Used by: Nav, Section, Footer, blog pages, gallery page.
+   */
   .container-col {
-    @apply mx-auto w-full max-w-content px-5 sm:px-8;
+    @apply mx-auto w-full max-w-content px-6 sm:px-10 lg:px-12;
   }
 
-  /* Small uppercase label used above section titles ("01 / Projects"). */
+  /*
+   * .eyebrow — small uppercase label above section titles.
+   * Example: "02 / Projects" in Section.tsx.
+   */
   .eyebrow {
     @apply font-mono text-xs uppercase tracking-[0.2em] text-accent;
   }
 
-  /* Glassy card surface used across the site. */
+  /*
+   * .card — glassy raised surface for project cards, education entries, contact box.
+   * bg-bg-soft/70 + backdrop-blur gives a frosted panel on the dark background.
+   */
   .card {
     @apply rounded-2xl border border-border bg-bg-soft/70 backdrop-blur-sm;
   }
 }
 
-/* Respect users who prefer reduced motion: disable big animations. */
+/*
+ * Accessibility: users who prefer reduced motion get near-instant transitions
+ * and no looping animations (hero backgrounds also check this media query).
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -1,22 +1,23 @@
 /**
  * ============================================================================
- *  EXPERIENCE  —  the timeline in the "Experience" section.
+ *  EXPERIENCE DATA  —  timeline entries in the Experience section.
  * ============================================================================
  *
- * Each entry is one role (job, research, internship, leadership).
- * You can attach one or more PHOTOS per role — they show in a small strip
- * under the description. Drop images in /public/images/experience/ and
- * reference them by path.
+ * Each object = one role (job, research, internship, leadership).
+ *
+ * PHOTOS (optional):
+ *   Drop images in /public/images/experience/
+ *   Add paths to the photos array — renders as thumbnail strip under bullets.
  */
 
 export type Experience = {
-  role: string; // your title
-  org: string; // company / lab / club
-  location?: string;
-  date: string; // e.g. "Jun 2026 – Aug 2026"
-  bullets: string[]; // what you did / impact — keep them tight
-  tags?: string[]; // optional tech/skill chips
-  photos?: string[]; // optional: ["/images/experience/x.jpg", ...]
+  role: string; // your title at the org
+  org: string; // company, lab, or club name
+  location?: string; // city or "Remote" — omit to hide
+  date: string; // e.g. "Jun 2026 – Present"
+  bullets: string[]; // impact bullets — keep tight and specific
+  tags?: string[]; // optional skill/tech chips
+  photos?: string[]; // optional: ["/images/experience/photo.jpg"]
 };
 
 export const experience: Experience[] = [
@@ -31,7 +32,7 @@ export const experience: Experience[] = [
       "Using R to assist across a variety of RECOVER subprojects.",
     ],
     tags: ["R", "Python", "Biostatistics", "Machine Learning"],
-    photos: [], // e.g. ["/images/experience/mgh-1.jpg"]
+    photos: [],
   },
   {
     role: "Co-Founder & CEO",

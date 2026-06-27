@@ -1,22 +1,28 @@
 /**
- * ABOUT — a short bio + a photo of you + a few quick facts.
+ * ============================================================================
+ *  ABOUT SECTION  —  bio text, quick facts, and portrait.
+ * ============================================================================
  *
- * EDIT THE TEXT directly in this file (it's prose, so it lives here rather
- * than in a config file). Replace the photo by dropping an image at
- * /public/images/me.jpg (or change the src below).
+ * Unlike most content (which lives in config/*.ts), the bio prose is edited
+ * directly here because it's long-form writing, not structured data.
+ *
+ * PORTRAIT: set PORTRAIT_SRC to "/images/me.jpg" after dropping a file in
+ * /public/images/. Empty string → SmartImage shows a gradient placeholder.
+ *
+ * LAYOUT: two-column grid on md+ (1.4fr text : 1fr photo). Single column on mobile.
  */
+
 import Section from "@/components/Section";
 import SmartImage from "@/components/SmartImage";
 
-// Your portrait. Drop a file at /public/images/me.jpg and set this to
-// "/images/me.jpg". Leave it "" to show a placeholder for now.
+// Path under /public — "" means placeholder until you add a real photo
 const PORTRAIT_SRC = "";
 
 export default function About() {
   return (
     <Section id="about" index="01" title="About">
       <div className="grid items-start gap-10 md:grid-cols-[1.4fr_1fr]">
-        {/* ---- Bio text — edit freely ---- */}
+        {/* Bio paragraphs — edit the text below freely */}
         <div className="space-y-5 text-lg leading-relaxed text-fg-muted">
           <p>
             Hi there! I&apos;m Noah, a rising junior at{" "}
@@ -41,7 +47,7 @@ export default function About() {
             reach out if you&apos;d like to chat!
           </p>
 
-          {/* Quick facts row */}
+          {/* Quick facts as pill chips — add/remove strings in the array */}
           <ul className="flex flex-wrap gap-2 pt-2">
             {["Greater Boston", "Math-CS + Astrophysics", "Brown ’28", "He/Him"].map(
               (fact) => (
@@ -56,8 +62,8 @@ export default function About() {
           </ul>
         </div>
 
-        {/* ---- Photo of you ---- */}
-        <div className="relative mx-auto aspect-[4/5] w-full max-w-xs overflow-hidden rounded-2xl border border-border">
+        {/* Portrait — aspect-[4/5] portrait ratio, object-cover crops to fill */}
+        <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden rounded-2xl border border-border">
           <SmartImage
             src={PORTRAIT_SRC}
             alt="Portrait of Noah Finkelstein"

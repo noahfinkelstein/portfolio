@@ -1,7 +1,16 @@
 /**
- * A single project card. Data comes from src/config/projects.ts.
- * You normally don't edit this file — edit the project data instead.
+ * ============================================================================
+ *  PROJECT CARD  —  one project entry (image + title + blurb + tags + links).
+ * ============================================================================
+ *
+ * DATA comes from src/config/projects.ts via the `project` prop.
+ * You normally edit projects in the config file, not this component.
+ *
+ * `featured` prop changes layout:
+ *   true  → horizontal card on md+ (image 50% width, text beside it)
+ *   false → vertical card with 16:10 image on top
  */
+
 import type { Project } from "@/config/projects";
 import SmartImage from "@/components/SmartImage";
 import { Icon } from "@/components/icons";
@@ -19,7 +28,7 @@ export default function ProjectCard({
         featured ? "md:flex-row" : ""
       }`}
     >
-      {/* Image / placeholder */}
+      {/* Image area — SmartImage handles empty src with a placeholder */}
       <div
         className={`relative overflow-hidden ${
           featured ? "md:w-1/2" : "aspect-[16/10]"
@@ -35,7 +44,7 @@ export default function ProjectCard({
         />
       </div>
 
-      {/* Text */}
+      {/* Text block — flex-1 on blurb pushes links to the bottom */}
       <div className="flex flex-1 flex-col p-6">
         <div className="mb-2 flex items-center justify-between gap-3">
           <h3 className="font-display text-xl font-semibold">{project.title}</h3>
@@ -46,7 +55,7 @@ export default function ProjectCard({
 
         <p className="mb-4 flex-1 text-fg-muted">{project.blurb}</p>
 
-        {/* Tech tags */}
+        {/* Tech stack / topic chips */}
         <ul className="mb-5 flex flex-wrap gap-2">
           {project.tags.map((t) => (
             <li
@@ -58,7 +67,7 @@ export default function ProjectCard({
           ))}
         </ul>
 
-        {/* Links */}
+        {/* External links (GitHub, live demo, paper, etc.) */}
         <div className="flex flex-wrap gap-4">
           {project.links.map((l) => (
             <a

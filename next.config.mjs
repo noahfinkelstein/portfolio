@@ -1,20 +1,25 @@
 /**
- * Next.js configuration.
- * You almost never need to touch this file. The two things you MIGHT change:
- *  - `images.remotePatterns`: add a domain here if you ever load photos from an
- *    external URL (e.g. an image CDN). Local photos in /public don't need this.
+ * ============================================================================
+ *  NEXT.JS CONFIG  —  framework-level settings.
+ * ============================================================================
+ *
+ * You almost never need to edit this. Two things you MIGHT change someday:
+ *   - images.remotePatterns: if you load photos from an external CDN URL
+ *   - eslint.ignoreDuringBuilds: set false if you add ESLint and want CI lint
+ *
+ * Local images in /public do NOT need remotePatterns.
  */
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: true, // double-invoke effects in dev to catch bugs
   eslint: {
-    // We don't ship an ESLint config in this starter, so don't block builds
-    // on linting. (TypeScript type-checking still runs and WILL fail builds.)
+    // No ESLint config in this starter — don't block production builds on lint
     ignoreDuringBuilds: true,
   },
   images: {
-    // Allow optimizing images served from these external hosts.
-    // Add objects like { protocol: 'https', hostname: 'images.unsplash.com' }
+    // External image hosts allowed for next/image optimization
+    // Example: { protocol: 'https', hostname: 'images.unsplash.com' }
     remotePatterns: [],
   },
 };

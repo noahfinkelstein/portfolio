@@ -1,24 +1,26 @@
 /**
  * ============================================================================
- *  PROJECTS  —  the cards shown in the "Projects" section.
+ *  PROJECTS DATA  —  cards in the Projects section.
  * ============================================================================
  *
- * Add a new project by copying one block and editing it. To add a photo:
- *   1. Drop the image in /public/images/projects/
- *   2. Set `image: "/images/projects/your-file.png"`
- *   3. Leave `image: ""` for an automatic gradient placeholder instead.
+ * TO ADD A PROJECT: copy an object below and edit fields.
  *
- * `featured: true` projects appear larger / first.
+ * IMAGES:
+ *   1. Drop file in /public/images/projects/
+ *   2. Set image: "/images/projects/your-file.png"
+ *   3. image: "" → SmartImage shows gradient placeholder
+ *
+ * featured: true → large horizontal card, shown above the grid.
  */
 
 export type Project = {
   title: string;
-  blurb: string; // one or two sentences
-  image: string; // "/images/projects/..."  or ""  for a placeholder
-  tags: string[]; // tech / topics, shown as small chips
+  blurb: string; // 1–2 sentence description on the card
+  image: string; // "/images/projects/..." or "" for placeholder
+  tags: string[]; // tech chips below the blurb
   date: string; // free text, e.g. "Spring 2026"
-  links: { label: string; href: string }[]; // e.g. GitHub / live demo / paper
-  featured?: boolean;
+  links: { label: string; href: string }[]; // GitHub, live demo, paper, etc.
+  featured?: boolean; // true = large card, rendered first
 };
 
 export const projects: Project[] = [
@@ -26,14 +28,12 @@ export const projects: Project[] = [
     title: "CourseTrees",
     blurb:
       "Co-founded an interactive course-catalog visualization tool that turns list-formatted catalogs into explorable graphs. See prerequisite chains, connections between departments, and the fastest path to any course — across 120+ schools.",
-    image: "", // add a screenshot at /images/projects/coursetrees.png
+    image: "", // add /images/projects/coursetrees.png
     tags: ["Next.js", "TypeScript", "Supabase", "Data Viz", "Python"],
     date: "2026 – Present",
     links: [{ label: "Live site", href: "https://coursetrees.com" }],
     featured: true,
   },
-  // ↓ EXAMPLE — replace with a real project (e.g. a CSCI 1470 deep-learning
-  //   project, a Brown Space Engineering build, or an astrophotography tool).
   {
     title: "Deep Learning Project",
     blurb:
@@ -44,7 +44,6 @@ export const projects: Project[] = [
     links: [{ label: "GitHub", href: "#" }],
     featured: true,
   },
-  // ↓ EXAMPLE — a smaller project / experiment / class project.
   {
     title: "Astrophotography Pipeline",
     blurb: "Replace with another project worth showing off (or delete this entry).",
