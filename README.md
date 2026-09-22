@@ -21,7 +21,7 @@ normal way to update the site — you should rarely need to open a page.
 | Home page paragraphs and portrait | `src/content/home.ts` |
 | Jobs, research, education | `src/content/experience.ts` |
 | Projects | `src/content/projects.ts` |
-| Photos and captions | `src/content/photos.ts` |
+| Photos | `src/content/photos.ts` |
 | A blog post | add a file to `content/blog/` |
 | Fonts | `src/app/layout.tsx` (top of the file) |
 | Spacing, type scale, anything visual | `src/app/globals.css` |
@@ -127,9 +127,10 @@ canonical URLs are right.
 
 ## Notes
 
-- `public/resume.pdf` is the CV link in the footer. Replace the file when the
-  resume changes, or delete the `CV` entry from `links` in
-  `src/content/site.ts` to stop publishing it.
+- No résumé is published at the moment. To add one, put the PDF at
+  `public/resume.pdf` and add `{ label: "CV", href: "/resume.pdf" }` to
+  `links` in `src/content/site.ts`; it then appears in the contact block and
+  the footer.
 - The experience page is styled to print, so `Cmd-P` on `/experience` gives a
   reasonable CV without the nav or footer.
 - `src/app/opengraph-image.png` is the link preview people see when they share

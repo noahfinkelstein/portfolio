@@ -28,7 +28,6 @@ export default function PhotosPage() {
               height={photo.height}
               sizes="(max-width: 40rem) calc(100vw - 3rem), 20rem"
             />
-            <figcaption>{photo.caption}</figcaption>
           </figure>
         ))}
       </div>

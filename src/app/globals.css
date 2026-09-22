@@ -7,7 +7,7 @@
    Layout idea: every list on this site is a "record" — a date in a fixed left
    column, the content to its right. Experience, projects and writing all use
    it, so those pages read as one chronological document. Photos is the
-   exception: captioned images in columns, no dates.
+   exception: images in columns, no dates.
    =========================================================================== */
 
 *,
@@ -486,8 +486,9 @@ h3 {
   column-gap: 1.75rem;
 }
 
+/* Same gap below each photo as between the columns, so the grid reads evenly. */
 .photo {
-  margin: 0 0 2.75rem;
+  margin: 0 0 1.75rem;
   break-inside: avoid;
 }
 
@@ -496,13 +497,6 @@ h3 {
   width: 100%;
   height: auto;
   background: color-mix(in srgb, var(--ink) 4%, transparent);
-}
-
-.photo figcaption {
-  font-size: 0.87rem;
-  line-height: 1.5;
-  color: var(--muted);
-  margin-top: 0.6rem;
 }
 
 /* --- Small screens -------------------------------------------------------- */

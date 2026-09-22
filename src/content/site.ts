@@ -40,7 +40,8 @@ export const site = {
   links: [
     { label: "GitHub", href: "https://github.com/noahfinkelstein" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/noah-finkelstein" },
-    { label: "CV", href: "/resume.pdf" },
+    // To publish a CV again: drop the PDF at public/resume.pdf and add
+    // { label: "CV", href: "/resume.pdf" } here.
   ],
 } as const;
 

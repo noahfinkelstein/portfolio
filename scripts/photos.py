@@ -13,7 +13,7 @@ Reads from photos-source/ and writes to public/images/photos/. Originals are
 never touched, and they live outside public/ so they are never served.
 
 Afterwards it prints a ready-made block to paste into
-src/content/photos.ts — you only need to fill in the alt text and caption.
+src/content/photos.ts — you only need to fill in the alt text.
 
 Needs Pillow once:  python3 -m pip install --user Pillow
 """
@@ -55,8 +55,7 @@ def process(path: Path) -> None:
     print(f'    src: "/images/photos/{out.name}",')
     print(f"    width: {w},")
     print(f"    height: {h},")
-    print('    alt: "",       // describe the photo for screen readers')
-    print('    caption: "",   // the part worth reading')
+    print('    alt: "",   // describe the photo for screen readers')
     print("  },\n")
 
 
