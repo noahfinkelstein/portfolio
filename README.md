@@ -114,12 +114,15 @@ Vercel needs exactly these records, and Squarespace's own defaults must go:
 | Do                                | Host  | Type  | Value                          |
 | --------------------------------- | ----- | ----- | ------------------------------ |
 | delete the four Squarespace ones  | `@`   | A     | `198.185.159.144/145`, `198.49.23.144/145` |
-| add                               | `@`   | A     | `76.76.21.21`                  |
+| add                               | `@`   | A     | `216.150.1.1`                  |
+| add                               | `@`   | A     | `216.150.16.1`                 |
 | delete the Squarespace one        | `www` | CNAME | `ext-sq.squarespace.com`       |
 | add                               | `www` | CNAME | `cname.vercel-dns.com`         |
 | keep                              | `@`   | TXT   | `v=spf1 -all`                  |
 
-If Vercel's Settings → Domains page shows different values, use those.
+Those are the values Vercel recommended on 2026-09-21; the older single
+`A @ 76.76.21.21` also works. If the project's Settings → Domains page shows
+something different, use what it shows.
 `npx vercel@latest domains inspect noahfinkelstein.com` reports when the records
 have propagated; HTTPS is issued automatically once they have. `url` in
 `src/content/site.ts` must match the primary domain so link previews and
