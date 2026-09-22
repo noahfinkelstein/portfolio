@@ -1,46 +1,93 @@
-/**
- * ============================================================================
- *  HOME PAGE  —  the main scrolling portfolio at "/".
- * ============================================================================
- *
- * This is a single-page layout: Nav + stacked sections + Footer. There is no
- * routing between sections — each section has an `id` (e.g. id="projects") and
- * nav links use hash URLs like /#projects to scroll there.
- *
- * TO REORDER SECTIONS: move the component lines below (keep nav in site.config
- * consistent if you add/remove sections).
- *
- * TO ADD A SECTION:
- *   1. Create src/components/sections/YourSection.tsx (wrap content in <Section>)
- *   2. Import it here and add it to <main>
- *   3. Add a nav entry in src/config/site.config.ts
- */
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import Hero from "@/components/sections/Hero";
-import About from "@/components/sections/About";
-import Projects from "@/components/sections/Projects";
-import Experience from "@/components/sections/Experience";
-import Education from "@/components/sections/Education";
-import Contact from "@/components/sections/Contact";
+/* ---------------------------------------------------------------------------
+   HOME  —  "/"
+   Words live in src/content/home.ts. The Currently list is pulled from
+   experience.ts so it can never drift out of sync with the full record.
+   --------------------------------------------------------------------------- */
+
+import Image from "next/image";
+import Link from "next/link";
+import Page from "@/components/Page";
+import Record, { Section } from "@/components/Record";
+import { site } from "@/content/site";
+import { home } from "@/content/home";
+import { experience } from "@/content/experience";
 
 export default function HomePage() {
+  const current = home.currently
+    .map((role) => experience.find((e) => e.role === role))
+    .filter((e): e is (typeof experience)[number] => Boolean(e));
+
   return (
-    <>
-      {/* Sticky top bar — links from site.config.ts `nav` */}
-      <Nav />
+    <Page current="/">
+      <h1 className="page-title page-title--tight">{site.name}</h1>
+      <p className="page-lede">{home.lede}</p>
 
-      {/* All scrollable content lives in <main> for accessibility semantics */}
-      <main>
-        <Hero />       {/* full-bleed hero with animated background */}
-        <About />      {/* bio + portrait */}
-        <Projects />   {/* project cards from config/projects.ts */}
-        <Experience /> {/* timeline from config/experience.ts */}
-        <Education />  {/* schools from config/education.ts */}
-        <Contact />    {/* email + social CTA */}
-      </main>
+      <div className="intro">
+        <figure className="intro__portrait-wrap">
+          <div className="intro__frame">
+            <Image
+              src={home.portrait.src}
+              alt={home.portrait.alt}
+              width={460}
+              height={575}
+              priority
+              sizes="(max-width: 40rem) 9rem, 7.5rem"
+              style={{ objectPosition: home.portrait.position }}
+            />
+          </div>
+          <figcaption className="intro__caption">
+            {home.portrait.caption}
+          </figcaption>
+        </figure>
 
-      <Footer />
-    </>
+        <div className="prose">
+          {home.intro.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      </div>
+
+      <Section title="Currently">
+        {current.map((role) => (
+          <Record key={role.role + role.date} date={role.date}>
+            <h3 className="record__title">{role.role}</h3>
+            <p className="record__meta">
+              {role.orgHref ? (
+                <a href={role.orgHref}>{role.org}</a>
+              ) : (
+                role.org
+              )}
+            </p>
+            <p>{role.bullets[0]}</p>
+          </Record>
+        ))}
+        <p className="section__more">
+          <Link href="/experience">Full record and education →</Link>
+        </p>
+      </Section>
+
+      <Section title="Contact">
+        <dl className="facts">
+          <dt>Email</dt>
+          <dd>
+            <a href={`mailto:${site.email}`}>{site.email}</a>
+          </dd>
+
+          <dt>Elsewhere</dt>
+          <dd>
+            {site.links
+              .filter((l) => l.href)
+              .map((l) => (
+                <a key={l.href} href={l.href}>
+                  {l.label}
+                </a>
+              ))}
+          </dd>
+
+          <dt>Based in</dt>
+          <dd>{site.location}</dd>
+        </dl>
+      </Section>
+    </Page>
   );
 }

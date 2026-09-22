@@ -27,6 +27,17 @@ import matter from "gray-matter";
 // Absolute path to content/blog relative to project root
 const BLOG_DIR = path.join(process.cwd(), "content", "blog");
 
+/**
+ * YAML turns an unquoted `date: 2026-08-28` into a JS Date at UTC midnight.
+ * Stringifying that in a US timezone gives the previous day, so pull the day
+ * out of the UTC parts instead. Always returns "YYYY-MM-DD".
+ */
+function toISODate(value: unknown): string {
+  if (!value) return "";
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return String(value);
+}
+
 export type PostMeta = {
   slug: string; // filename without extension (my-post.mdx → "my-post")
   title: string;
@@ -44,12 +55,19 @@ export function getPostSlugs(): string[] {
   if (!fs.existsSync(BLOG_DIR)) return [];
   return fs
     .readdirSync(BLOG_DIR)
+    // A leading underscore means "draft" — _template.mdx never publishes.
+    .filter((f) => !f.startsWith("_"))
     .filter((f) => f.endsWith(".mdx") || f.endsWith(".md"))
     .map((f) => f.replace(/\.mdx?$/, ""));
 }
 
 /** Load one post by slug — returns null if file doesn't exist */
 export function getPost(slug: string): Post | null {
+  // Drafts (leading underscore) and anything that is not a plain slug are
+  // not posts, whatever file might happen to exist.
+  if (!slug || slug.startsWith("_") || slug.includes("/") || slug.includes("..")) {
+    return null;
+  }
   const mdxPath = path.join(BLOG_DIR, `${slug}.mdx`);
   const mdPath = path.join(BLOG_DIR, `${slug}.md`);
   const file = fs.existsSync(mdxPath) ? mdxPath : mdPath;
@@ -62,7 +80,7 @@ export function getPost(slug: string): Post | null {
   return {
     slug,
     title: data.title ?? slug,
-    date: data.date ? String(data.date) : "",
+    date: toISODate(data.date),
     summary: data.summary ?? "",
     tags: Array.isArray(data.tags) ? data.tags : [],
     content,
@@ -78,7 +96,8 @@ export function getAllPosts(): PostMeta[] {
       void content; // discard body for list view
       return meta;
     })
-    .sort((a, b) => (a.date < b.date ? 1 : -1)); // descending by date
+    // newest first; ties broken by slug so the order is stable
+    .sort((a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug));
 }
 
 /** "2026-06-25" → "Jun 25, 2026" */
@@ -86,9 +105,11 @@ export function formatDate(iso: string): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso; // return raw string if unparseable
+  // timeZone: UTC so "2026-08-28" never displays as the 27th west of Greenwich
   return d.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
+    timeZone: "UTC",
   });
 }

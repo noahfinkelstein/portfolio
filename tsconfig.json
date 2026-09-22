@@ -15,7 +15,7 @@
     "jsx": "preserve",
     "incremental": true,
     "plugins": [{ "name": "next" }],
-    // @/* → src/* (e.g. import Nav from "@/components/Nav")
+    // @/* → src/* (e.g. import Page from "@/components/Page")
     "paths": {
       "@/*": ["./src/*"]
     }

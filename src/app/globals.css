@@ -1,87 +1,582 @@
 /* ===========================================================================
- *  GLOBAL STYLES
- * ===========================================================================
- *
- * Three layers imported from Tailwind (processed at build time):
- *   @tailwind base     — CSS reset + element defaults
- *   @tailwind components — reusable component classes (.container-col, .card)
- *   @tailwind utilities  — atomic utility classes (flex, text-accent, etc.)
- *
- * COLORS are NOT defined here. They come from theme.config.ts → layout.tsx
- * injection → CSS variables (--color-bg, --color-accent, etc.).
- * ======================================================================== */
+   The whole design system. One file, no framework.
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+   Colors and widths come from src/content/site.ts, injected as CSS variables
+   by layout.tsx. Change them there, not here.
 
-@layer base {
-  html {
-    /* Smooth scroll when clicking nav links like /#about (see site.config nav) */
-    scroll-behavior: smooth;
-    /* Offset scroll target so content isn't hidden under the sticky 4rem nav */
-    scroll-padding-top: 5rem;
+   Layout idea: every list on this site is a "record" — a date in a fixed left
+   column, the content to its right. Experience, projects and writing all use
+   it, so those pages read as one chronological document. Photos is the
+   exception: captioned images in columns, no dates.
+   =========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  line-height: 1.58;
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+/* --- Links ----------------------------------------------------------------
+   Underlined and colored, the way a document links. Scannable, not shouty. */
+
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 0.055em;
+  text-underline-offset: 0.16em;
+}
+
+a:hover {
+  color: var(--accent-dark);
+  text-decoration-thickness: 0.11em;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2.5rem 0;
+}
+
+/* --- Page frame ----------------------------------------------------------- */
+
+.wrap {
+  width: 100%;
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 3.25rem;
+}
+
+.site-header__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 2rem;
+  padding: 1.6rem 0 1.4rem;
+}
+
+.site-header__name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.site-header__name:hover {
+  color: var(--accent);
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.35rem;
+}
+
+.site-nav a {
+  color: var(--ink);
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.site-nav a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* The page you are on, marked rather than hidden. */
+.site-nav a[aria-current="page"] {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 0.2em;
+}
+
+.site-footer {
+  border-top: 1px solid var(--rule);
+  margin-top: 5rem;
+  padding: 1.5rem 0 3rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.site-footer a {
+  color: var(--muted);
+}
+
+.site-footer a:hover {
+  color: var(--accent);
+}
+
+/* --- Headings ------------------------------------------------------------- */
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.page-title {
+  font-size: 1.85rem;
+  margin-bottom: 2.25rem;
+}
+
+/* On the home page the name is the title, with the role line tucked under it. */
+.page-title--tight {
+  margin-bottom: 0.15rem;
+}
+
+.page-lede {
+  font-size: 1.02rem;
+  color: var(--muted);
+  margin: 0 0 2.4rem;
+}
+
+/* Section heading inside a page: "Research", "Selected work", "Education". */
+.section {
+  margin-top: 3.5rem;
+}
+
+/* A section directly under the page title needs no gap of its own. */
+.page-title + .section {
+  margin-top: 0;
+}
+
+.section__title {
+  font-size: 1.15rem;
+  margin-bottom: 1.6rem;
+}
+
+/* "Full record and education →" under a shortened list. */
+.section__more {
+  margin: 1.6rem 0 0;
+  padding-left: calc(var(--gutter) + 1.5rem);
+  font-size: 0.95rem;
+}
+
+/* Same link, but on a page with no date column to line up with. */
+.section__more--flush {
+  padding-left: 0;
+  margin-top: 3rem;
+}
+
+/* --- Records --------------------------------------------------------------
+   The one repeated structure on the site: date on the left, content right. */
+
+.record {
+  display: grid;
+  grid-template-columns: var(--gutter) 1fr;
+  gap: 0 1.5rem;
+  margin-bottom: 2.4rem;
+}
+
+.record:last-child {
+  margin-bottom: 0;
+}
+
+.record__date {
+  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.775rem;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  /* nudged so the date sits on the same line as the title beside it */
+  padding-top: 0.2rem;
+}
+
+.record__title {
+  font-size: 1.06rem;
+  margin-bottom: 0.1rem;
+}
+
+.record__title a {
+  color: var(--ink);
+  text-decoration-color: color-mix(in srgb, var(--ink) 28%, transparent);
+}
+
+.record__title a:hover {
+  color: var(--accent);
+  text-decoration-color: currentColor;
+}
+
+/* Org, course number, publication — the line under a record title. */
+.record__meta {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin: 0 0 0.55rem;
+}
+
+.record__meta em {
+  font-style: italic;
+}
+
+/* :not([class]) so this loses to .stack, .record__meta, .listing and
+   .record__links, which each set their own size and spacing. */
+.record__body > p:not([class]) {
+  margin: 0 0 0.7rem;
+  font-size: 0.98rem;
+}
+
+.record__body > p:last-child {
+  margin-bottom: 0;
+}
+
+/* Bullets, set with a hanging dash instead of a disc. */
+.record__body ul {
+  list-style: none;
+  margin: 0 0 0.7rem;
+  padding: 0;
+}
+
+.record__body li {
+  font-size: 0.98rem;
+  padding-left: 1.05rem;
+  margin-bottom: 0.42rem;
+  position: relative;
+}
+
+.record__body li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+}
+
+.record__body li:last-child {
+  margin-bottom: 0;
+}
+
+/* Repo and demo links under a project. */
+.record__links {
+  font-size: 0.95rem;
+  margin: 0.55rem 0 0;
+}
+
+.record__links a + a::before {
+  content: " · ";
+  color: var(--muted);
+}
+
+/* --- Listing --------------------------------------------------------------
+   A labelled run-on list: "Coursework  Abstract Algebra, Graph Theory, ..."
+   Denser than bullets, which is right when the items are just names. */
+
+.listing {
+  font-size: 0.95rem;
+  margin: 0 0 0.55rem;
+  color: var(--muted);
+}
+
+.listing__label {
+  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-right: 0.6rem;
+}
+
+/* --- Stack line -----------------------------------------------------------
+   Technologies, set as one quiet monospace line. Not pills. */
+
+.stack {
+  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+  margin-top: 0.6rem;
+}
+
+/* --- Prose ----------------------------------------------------------------
+   The home page intro and blog post bodies. */
+
+.prose p {
+  margin: 0 0 1.15rem;
+}
+
+.prose > p:last-child {
+  margin-bottom: 0;
+}
+
+.prose h2 {
+  font-size: 1.25rem;
+  margin: 2.6rem 0 0.9rem;
+}
+
+.prose h3 {
+  font-size: 1.08rem;
+  margin: 2rem 0 0.7rem;
+}
+
+.prose ul,
+.prose ol {
+  margin: 0 0 1.15rem;
+  padding-left: 1.35rem;
+}
+
+.prose li {
+  margin-bottom: 0.35rem;
+}
+
+.prose blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1.15rem;
+  border-left: 2px solid var(--rule);
+  color: var(--muted);
+  font-style: italic;
+}
+
+.prose img {
+  display: block;
+  margin: 1.8rem 0;
+}
+
+.prose code {
+  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.82em;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+  padding: 0.12em 0.35em;
+  border-radius: 2px;
+}
+
+.prose pre {
+  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  border: 1px solid var(--rule);
+  padding: 0.95rem 1.1rem;
+  overflow-x: auto;
+  margin: 0 0 1.35rem;
+}
+
+.prose pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  margin: 0 0 1.35rem;
+}
+
+.prose th,
+.prose td {
+  text-align: left;
+  padding: 0.45rem 0.8rem 0.45rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* --- Home page ------------------------------------------------------------ */
+
+/* The portrait sits in the same left column the dates use further down, so
+   the home page is on the same grid as every other page. */
+.intro {
+  display: grid;
+  grid-template-columns: var(--gutter) 1fr;
+  gap: 0 1.5rem;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+/* Fixed 4:5 frame, so any photo can be the portrait without being re-cropped.
+   Which part of the photo shows is set by `position` in src/content/home.ts. */
+.intro__frame {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+
+.intro__portrait-wrap {
+  margin: 0;
+}
+
+.intro__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.intro__caption {
+  font-size: 0.74rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+  line-height: 1.45;
+}
+
+/* Email, location, links — a plain definition list. */
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: var(--gutter) 1fr;
+  gap: 0.45rem 1.5rem;
+  font-size: 0.98rem;
+}
+
+.facts dt {
+  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.775rem;
+  letter-spacing: 0.005em;
+  color: var(--muted);
+  padding-top: 0.28rem;
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.facts dd a + a::before {
+  content: " · ";
+  color: var(--muted);
+}
+
+/* --- Photos --------------------------------------------------------------- */
+
+/* Columns rather than a grid: photos keep their own shape instead of being
+   cropped to a common one, and tall and wide ones pack without leaving holes.
+   Reading order runs down each column. */
+.photos {
+  columns: 2;
+  column-gap: 1.75rem;
+}
+
+.photo {
+  margin: 0 0 2.75rem;
+  break-inside: avoid;
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+
+.photo figcaption {
+  font-size: 0.87rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin-top: 0.6rem;
+}
+
+/* --- Small screens -------------------------------------------------------- */
+
+@media (max-width: 40rem) {
+  body {
+    font-size: 17px;
+  }
+
+  .photos {
+    columns: 1;
+  }
+
+  /* Date moves above the title instead of beside it. */
+  .record,
+  .facts {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .record__date {
+    padding-top: 0;
+    margin-bottom: 0.3rem;
+  }
+
+  .facts dt {
+    padding-top: 0.7rem;
+  }
+
+  .intro {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .intro__portrait-wrap {
+    max-width: 9rem;
+  }
+
+  .section__more {
+    padding-left: 0;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+  }
+}
+
+/* --- Print ----------------------------------------------------------------
+   The experience page doubles as a CV, so make it print cleanly. */
+
+@media print {
+  .site-nav,
+  .site-footer {
+    display: none;
   }
 
   body {
-    /* bg-bg / text-fg / font-sans are Tailwind tokens mapped to theme vars */
-    @apply bg-bg text-fg font-sans antialiased;
-    /* Ambient accent glow in the top-left. Delete or tweak the gradient to
-       change the page's atmospheric look without touching components. */
-    background-image: radial-gradient(
-      60rem 60rem at 15% -10%,
-      rgb(var(--color-accent) / 0.24),
-      transparent 60%
-    );
-    /* Fixed attachment keeps the glow still while you scroll */
-    background-attachment: fixed;
+    font-size: 11pt;
   }
 
-  /* Highlight color when the user selects text with the mouse */
-  ::selection {
-    background: var(--color-accent);
-    color: var(--color-bg);
+  a {
+    color: var(--ink);
+  }
+
+  .record {
+    break-inside: avoid;
   }
 }
 
-@layer components {
-  /*
-   * .container-col — the centered content column used site-wide.
-   * Width cap: theme.config.ts contentWidth → --content-width → max-w-content.
-   * Used by: Nav, Section, Footer, blog pages, gallery page.
-   */
-  .container-col {
-    @apply mx-auto w-full max-w-content px-6 sm:px-10 lg:px-12;
-  }
-
-  /*
-   * .eyebrow — small uppercase label above section titles.
-   * Example: "02 / Projects" in Section.tsx.
-   */
-  .eyebrow {
-    @apply font-mono text-xs uppercase tracking-[0.2em] text-accent;
-  }
-
-  /*
-   * .card — glassy raised surface for project cards, education entries, contact box.
-   * bg-bg-soft/70 + backdrop-blur gives a frosted panel on the dark background.
-   */
-  .card {
-    @apply rounded-2xl border border-border bg-bg-soft/70 backdrop-blur-sm;
-  }
-}
-
-/*
- * Accessibility: users who prefer reduced motion get near-instant transitions
- * and no looping animations (hero backgrounds also check this media query).
- */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }
