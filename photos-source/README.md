@@ -10,6 +10,7 @@ npm run photos
 ```
 
 That rotates it right way up, shrinks it, writes the web copy to
-`public/images/photos/`, and prints a block to paste into
-`src/content/photos.ts`. The originals stay here untouched, so you can always
-regenerate at a different size.
+`public/images/photos/`, and prints the path and size to put in `portrait` in
+`src/content/home.ts` (the About box is the only place a photo is shown since
+v3 retired the photos page). The originals stay here untouched, so you can
+always regenerate at a different size.

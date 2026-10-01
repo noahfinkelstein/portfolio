@@ -227,7 +227,7 @@ src/
 content/blog/           posts (MDX)
 public/projects/<slug>/ project videos and posters
 public/linkedin/        LinkedIn preview images (created by npm run linkedin)
-scripts/                linkedin.mjs, photos.py, favicon.py, og-card.html
+scripts/                linkedin.mjs, photos.py, favicon.py, og-card.html + og-image.sh
 ```
 
 Motion follows `prefers-reduced-motion`: no loader, no text scramble, a static
@@ -274,13 +274,20 @@ canonical URLs are right.
 - `/experience` is styled to print, so `Cmd-P` (or its "Print / save as PDF"
   button) gives a black-on-white CV without the nav or footer.
 - `src/app/opengraph-image.png` is the link preview people see when they share
-  the site. Its source is `scripts/og-card.html`: edit that, screenshot the
-  card at 1200x630, and overwrite the PNG. (It still shows the v2 design and
-  should be redone for v3.)
+  the site. Its source is `scripts/og-card.html` (the v3 hero in the Night
+  theme): edit that, then `sh scripts/og-image.sh` renders it with headless
+  Chrome and overwrites the PNG (or screenshot the card at 1200x630 by hand).
+  Keep `src/app/opengraph-image.alt.txt` in step with the words on it.
 - `src/app/favicon.ico` is a rasterised copy of `src/app/icon.svg` for browsers
   and crawlers that still ask for `/favicon.ico`. Regenerate it with
   `python3 scripts/favicon.py` after changing the SVG.
-- `/photos` from v2 redirects to the home page (`next.config.mjs`).
+- `/photos` from v2 redirects to the home page (`next.config.mjs`). The same
+  file sets the security headers and a one-day browser cache for the videos
+  and photos under `public/`.
+- `src/app/layout.tsx` emits schema.org Person structured data (name, domain,
+  profiles, affiliation) built from `site.ts` and `home.ts`.
+- `content/blog/_a-less-plain-website.mdx` is an unpublished draft about this
+  redesign; rename it without the underscore to publish it.
 - `NEXT_DIST_DIR=.next-foo npx next dev -p 3001` builds into a separate
   folder, so two dev servers or builds can run side by side.
 

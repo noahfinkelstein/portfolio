@@ -19,7 +19,8 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Fenix, JetBrains_Mono, Montserrat } from "next/font/google";
-import { defaultTheme, site } from "@/content/site";
+import { defaultTheme, getSocialLinks, site } from "@/content/site";
+import { home } from "@/content/home";
 import { themeInitScript } from "@/lib/theme-script";
 import { ThemeProvider } from "@/lib/theme";
 import Navbar from "@/components/layout/Navbar";
@@ -90,6 +91,25 @@ export const viewport: Viewport = {
 /* Without JavaScript the intro loader could never fade, so never show it. */
 const noScriptStyles = "<style>[data-loader-overlay]{display:none!important}</style>";
 
+/*
+  Structured data (schema.org Person) so search engines can tie the name,
+  the domain and the profiles together. Built from site.ts and home.ts, so
+  it never goes stale on its own. Serialised with "<" escaped: it is placed
+  inside a <script>, where a literal "</script>" in the data would end it.
+*/
+const personJsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.name,
+  url: site.url,
+  email: `mailto:${site.email}`,
+  image: `${site.url}/opengraph-image.png`,
+  jobTitle: home.hero.roles.map((r) => r.title).join(", "),
+  affiliation: { "@type": "CollegeOrUniversity", name: "Brown University", url: "https://www.brown.edu" },
+  homeLocation: { "@type": "Place", name: site.location },
+  sameAs: getSocialLinks().map((l) => l.href),
+}).replace(/</g, "\\u003c");
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -104,6 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <noscript dangerouslySetInnerHTML={{ __html: noScriptStyles }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: personJsonLd }} />
       </head>
       <body>
         <ThemeProvider>

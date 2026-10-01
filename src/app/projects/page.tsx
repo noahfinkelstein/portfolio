@@ -1,8 +1,10 @@
 /* ---------------------------------------------------------------------------
    PROJECTS — "/projects"
 
-   The big "Featured Projects" title
-   with its offset shadow, then every visible project from
+   The big page title with its offset
+   shadow (just "Projects": it matches the nav and the home page's "All
+   projects" link, and this page shows every visible project), then every
+   visible project from
    src/content/projects.ts as a zig-zag card, the first with its media on
    the right, alternating from there. Hidden ones (hidden: true) never
    render. "← Home" at the bottom.
@@ -25,7 +27,7 @@ export default function ProjectsPage() {
   const projects = getProjects();
   return (
     <div className={styles.page}>
-      <PageTitle title="Featured Projects" />
+      <PageTitle title="Projects" />
       <div className={styles.list}>
         {projects.map((project, i) => (
           <ProjectCard

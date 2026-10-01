@@ -63,7 +63,7 @@
     color: #a08bff; letter-spacing: 0.01em;
   }
   /* The torus knot (see the script). */
-  #knot { position: absolute; z-index: 1; right: -40px; top: -20px; width: 560px; height: 560px; opacity: 0.6; }
+  #knot { position: absolute; z-index: 1; right: -60px; top: -10px; width: 580px; height: 580px; opacity: 0.65; }
 </style>
 </head>
 <body>
@@ -104,7 +104,7 @@
       el.setAttribute("points", pts.join(" "));
       el.setAttribute("fill", "none");
       el.setAttribute("stroke", si % 2 ? "#a996ff" : "#7c5cff");
-      el.setAttribute("stroke-width", si === 1 ? "0.012" : "0.007");
+      el.setAttribute("stroke-width", si === 1 ? "0.016" : "0.009");
       el.setAttribute("stroke-linejoin", "round");
       el.setAttribute("opacity", si === 1 ? "0.95" : "0.6");
       svg.appendChild(el);
