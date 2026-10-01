@@ -1,0 +1,323 @@
+/* Writing page list: year groups of wide cards. */
+
+.root {
+  display: grid;
+  gap: clamp(2.5rem, 6vw, 4rem);
+}
+
+.empty {
+  color: var(--fg-muted);
+  text-align: center;
+}
+
+/* --- Filter ------------------------------------------------------------------ */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.45rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--fg);
+  font-family: var(--font-caps), "Arial Black", Arial, sans-serif;
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition:
+    border-color var(--dur-fast) ease,
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease;
+}
+
+.filter:hover {
+  border-color: var(--accent);
+}
+
+.filter[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.count {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-weight: 600;
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+/* --- Year groups ------------------------------------------------------------- */
+
+.year {
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* Outline year with the offset shadow and a hairline, like the big titles. */
+.yearHeading {
+  display: flex;
+  align-items: center;
+  gap: max(2%, 0.75rem);
+  font-family: var(--font-caps), "Arial Black", Arial, sans-serif;
+  font-weight: var(--caps-weight);
+  letter-spacing: var(--caps-tracking);
+  font-size: clamp(2.25rem, 6vmin, 4rem);
+  line-height: 1.1;
+}
+
+.yearText {
+  font-family: var(--font-caps-outline), var(--font-caps), "Arial Black", Arial, sans-serif;
+  color: var(--fg);
+  -webkit-text-stroke: 1px var(--fg);
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0.05em 0.1em 0 var(--accent-2);
+}
+
+.yearRule {
+  flex: 1;
+  border-top: 1px solid var(--fg);
+  opacity: 0.9;
+}
+
+.list {
+  display: grid;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- Entry card -------------------------------------------------------------- */
+
+.card {
+  display: grid;
+  grid-template-columns: minmax(12rem, 17rem) 1fr;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition:
+    transform var(--dur) ease,
+    box-shadow var(--dur) ease,
+    border-color var(--dur) ease;
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.thumb {
+  position: relative;
+  align-self: start;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: calc(var(--radius) - 4px);
+  background: var(--bg-3);
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.card:hover .img,
+.card:hover .thumb > [aria-hidden] {
+  transform: scale(1.05);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+.title {
+  font-family: var(--font-caps), "Arial Black", Arial, sans-serif;
+  font-weight: 800;
+  letter-spacing: var(--caps-tracking);
+  text-transform: uppercase;
+  font-size: clamp(1.2rem, 1.4vw + 0.8rem, 1.6rem);
+  line-height: 1.2;
+}
+
+.title a {
+  color: var(--fg);
+  text-decoration: none;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 2px;
+  transition: background-size var(--dur) ease;
+}
+
+.title a:hover,
+.title a:focus-visible {
+  background-size: 100% 2px;
+}
+
+.excerpt {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--fg) 85%, transparent);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+/* The outline button from the project card, smaller. */
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--fg);
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  font-family: var(--font-caps), "Arial Black", Arial, sans-serif;
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition:
+    background-color var(--dur-fast) ease,
+    color var(--dur-fast) ease,
+    border-color var(--dur-fast) ease;
+}
+
+.action:hover,
+.action:focus-visible {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.ghost {
+  border-color: var(--border);
+}
+
+.ghost:hover,
+.ghost:focus-visible {
+  border-color: var(--fg);
+}
+
+.arrow {
+  display: inline-block;
+  transition: transform var(--dur-fast) ease;
+}
+
+.action:hover .arrow,
+.action:focus-visible .arrow {
+  transform: translateX(3px);
+}
+
+.chev {
+  display: inline-block;
+  transition: transform var(--dur) ease;
+}
+
+.chevOpen {
+  transform: rotate(180deg);
+}
+
+/* --- LinkedIn embed ---------------------------------------------------------- */
+
+.embed {
+  margin-top: 0.5rem;
+}
+
+.embed[hidden] {
+  display: none;
+}
+
+.frame {
+  display: block;
+  width: 100%;
+  max-width: 504px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 4px);
+  /* Shown until LinkedIn's page paints over it. */
+  background: var(--bg-3)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='40'%3E%3Ctext x='110' y='24' text-anchor='middle' font-family='monospace' font-size='12' fill='%23888'%3ELoading LinkedIn post%E2%80%A6%3C/text%3E%3C/svg%3E")
+    center 3rem no-repeat;
+}
+
+/* --- Small screens: picture on top ------------------------------------------ */
+
+@media (max-width: 720px) {
+  .card {
+    grid-template-columns: 1fr;
+  }
+
+  .thumb {
+    width: 100%;
+  }
+}
+
+@media print {
+  .filters,
+  .actions,
+  .embed,
+  .thumb {
+    display: none;
+  }
+
+  .card {
+    display: block;
+    border: 0;
+    padding: 0;
+    background: none;
+  }
+
+  .yearText {
+    -webkit-text-fill-color: currentColor;
+    text-shadow: none;
+  }
+}

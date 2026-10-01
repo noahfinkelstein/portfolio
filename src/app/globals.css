@@ -1,14 +1,232 @@
 /* ===========================================================================
-   The whole design system. One file, no framework.
+   GLOBAL STYLES — tokens, reset, and the handful of site-wide rules.
 
-   Colors and widths come from src/content/site.ts, injected as CSS variables
-   by layout.tsx. Change them there, not here.
+   Everything component-specific lives in that component's *.module.css.
+   Use the tokens below instead of literal colors so all four themes work.
 
-   Layout idea: every list on this site is a "record" — a date in a fixed left
-   column, the content to its right. Experience, projects and writing all use
-   it, so those pages read as one chronological document. Photos is the
-   exception: images in columns, no dates.
+   THEMES
+     html[data-theme="night" | "cyan" | "terminal" | "paper"] sets every color
+     token. The attribute is written by the inline <head> script before first
+     paint (src/lib/theme-script.ts) and switched by src/lib/theme.tsx.
+     Canvas code reads the same tokens through readThemeTokens(), so tokens it
+     reads (--bg … --tag-6, --scene-*) must stay plain hex or numbers.
+
+   COLOR TOKENS
+     --bg, --bg-2, --bg-3   page, cards/boxes, chips/hover
+     --fg, --fg-muted       text, secondary text
+     --link                 quiet grey for icons, rotated email, scrollbar
+     --accent               fills, borders, lines, glows, underlines
+     --accent-text          accent as TEXT (4.5:1 on --bg/--bg-2/--bg-3)
+     --accent-2             offset text-shadow behind big titles
+     --on-accent            text on an --accent fill
+     --highlight            the warm "@ Brown University" color
+     --border               hairlines and box borders
+     --tag-1 … --tag-6      tag pill hues (border; background = 15% of it)
+     --tag-1-text …         tag pill text
+     --scene-point/-line/-ring/-wire, --scene-opacity   hero 3D colors
+     --glow                 the soft radial glow behind the page
    =========================================================================== */
+
+/* --- Themes ----------------------------------------------------------------- */
+
+:root,
+html[data-theme="night"] {
+  color-scheme: dark;
+  --bg: #0a0a0f;
+  --bg-2: #13131c;
+  --bg-3: #1c1c2a;
+  --fg: #f5f5fa;
+  --fg-muted: #9a9ab0;
+  --link: #9a9ab0;
+  --accent: #7c5cff;
+  --accent-text: #a08bff;
+  --accent-2: #4a36b8;
+  --on-accent: #0a0a0f;
+  --highlight: #facc15;
+  --border: #26263a;
+
+  --tag-1: #3c6abe;
+  --tag-2: #8a2be2;
+  --tag-3: #00bbff;
+  --tag-4: #ff8c00;
+  --tag-5: #00cec9;
+  --tag-6: #ff1493;
+  --tag-1-text: #789ce6;
+  --tag-2-text: #b267ff;
+  --tag-3-text: #64d9ff;
+  --tag-4-text: #ffb450;
+  --tag-5-text: #50ece7;
+  --tag-6-text: #ff64bb;
+
+  --scene-point: #8b6dff;
+  --scene-line: #a996ff;
+  --scene-ring: #f5f5fa;
+  --scene-wire: #7c5cff;
+  --scene-opacity: 0.6;
+
+  --glow: radial-gradient(60rem 60rem at 15% -10%, rgb(124 92 255 / 0.24), transparent 60%);
+}
+
+html[data-theme="cyan"] {
+  color-scheme: dark;
+  --bg: #070b12;
+  --bg-2: #0d1420;
+  --bg-3: #16202e;
+  --fg: #eaf4ff;
+  --fg-muted: #8aa0b8;
+  --link: #8aa0b8;
+  --accent: #22d3ee;
+  --accent-text: #22d3ee;
+  --accent-2: #3c6abe;
+  --on-accent: #070b12;
+  --highlight: #facc15;
+  --border: #1b2738;
+
+  --tag-1: #3c6abe;
+  --tag-2: #8a2be2;
+  --tag-3: #00bbff;
+  --tag-4: #ff8c00;
+  --tag-5: #00cec9;
+  --tag-6: #ff1493;
+  --tag-1-text: #789ce6;
+  --tag-2-text: #b267ff;
+  --tag-3-text: #64d9ff;
+  --tag-4-text: #ffb450;
+  --tag-5-text: #50ece7;
+  --tag-6-text: #ff64bb;
+
+  --scene-point: #1dcdfe;
+  --scene-line: #5bd9fc;
+  --scene-ring: #eaf4ff;
+  --scene-wire: #22d3ee;
+  --scene-opacity: 0.6;
+
+  --glow: radial-gradient(60rem 60rem at 15% -10%, rgb(34 211 238 / 0.14), transparent 60%);
+}
+
+html[data-theme="terminal"] {
+  color-scheme: dark;
+  --bg: #0b0f0b;
+  --bg-2: #0f140f;
+  --bg-3: #16201a;
+  --fg: #d6ffd9;
+  --fg-muted: #6f9a72;
+  --link: #6f9a72;
+  --accent: #22c55e;
+  --accent-text: #22c55e;
+  --accent-2: #166534;
+  --on-accent: #0b0f0b;
+  --highlight: #facc15;
+  --border: #1c2a1f;
+
+  --tag-1: #3c6abe;
+  --tag-2: #8a2be2;
+  --tag-3: #00bbff;
+  --tag-4: #ff8c00;
+  --tag-5: #00cec9;
+  --tag-6: #ff1493;
+  --tag-1-text: #789ce6;
+  --tag-2-text: #b267ff;
+  --tag-3-text: #64d9ff;
+  --tag-4-text: #ffb450;
+  --tag-5-text: #50ece7;
+  --tag-6-text: #ff64bb;
+
+  --scene-point: #22c55e;
+  --scene-line: #4ade80;
+  --scene-ring: #d6ffd9;
+  --scene-wire: #22c55e;
+  --scene-opacity: 0.6;
+
+  --glow: radial-gradient(60rem 60rem at 15% -10%, rgb(34 197 94 / 0.1), transparent 60%);
+}
+
+html[data-theme="paper"] {
+  color-scheme: light;
+  --bg: #fbfbf9;
+  --bg-2: #ffffff;
+  --bg-3: #f0f0ec;
+  --fg: #16161a;
+  --fg-muted: #5b5b66;
+  --link: #5b5b66;
+  --accent: #2563eb;
+  --accent-text: #1d4ed8;
+  --accent-2: #9dbaf7;
+  --on-accent: #ffffff;
+  --highlight: #92400e;
+  --border: #e5e5df;
+
+  --tag-1: #3c6abe;
+  --tag-2: #8a2be2;
+  --tag-3: #00bbff;
+  --tag-4: #ff8c00;
+  --tag-5: #00cec9;
+  --tag-6: #ff1493;
+  --tag-1-text: #1e40af;
+  --tag-2-text: #6b21a8;
+  --tag-3-text: #0e7490;
+  --tag-4-text: #9a3412;
+  --tag-5-text: #0f766e;
+  --tag-6-text: #9d174d;
+
+  --scene-point: #2563eb;
+  --scene-line: #1d4ed8;
+  --scene-ring: #3b3b46;
+  --scene-wire: #2563eb;
+  --scene-opacity: 0.55;
+
+  --glow: radial-gradient(60rem 60rem at 15% -10%, rgb(37 99 235 / 0.07), transparent 60%);
+}
+
+/* --- Shared tokens (same in every theme) ----------------------------------- */
+
+:root {
+  /* Fonts. The --font-* variables on <html> come from next/font in layout.tsx;
+     the heavy caps face is Montserrat at 900, uppercase. */
+  --font-caps: var(--font-sans);
+  --caps-weight: 900;
+  --caps-tracking: 0.01em;
+
+  /* Derived colors (not read by canvas code, so color-mix is fine here). */
+  --hairline: color-mix(in srgb, var(--fg) 10%, transparent);
+  --nav-bg: color-mix(in srgb, var(--bg) 95%, transparent);
+  --shadow-glow: 0 0 1.5rem color-mix(in srgb, var(--accent) 35%, transparent);
+
+  /* Layout */
+  --content-max: 72rem;
+  --gutter: clamp(1rem, 4vw, 2rem);
+  /* Side padding for content columns. Same as --gutter, except from 901px,
+     where the fixed left bar (its right edge is 48px from the edge) is shown:
+     there it is 4rem, so text never runs under the bar. Use it in both the
+     max-width and the padding of a centred column,
+       max-width: calc(<column> + 2 * var(--gutter-x));
+       padding-inline: var(--gutter-x);
+     and wide screens (≥1280px) look exactly as with --gutter. */
+  --leftbar-clear: 4rem;
+  --gutter-x: var(--gutter);
+  --nav-h: 76px;
+  --radius-sm: 6px;
+  --radius: 12px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 0.2s;
+  --dur: 0.3s;
+
+  /* Stacking */
+  --z-leftbar: 40;
+  --z-menu: 45;
+  --z-nav: 50;
+  --z-loader: 100;
+}
+
+@media (min-width: 901px) {
+  :root {
+    --gutter-x: max(var(--gutter), var(--leftbar-clear));
+  }
+}
+
+/* --- Reset ------------------------------------------------------------------ */
 
 *,
 *::before,
@@ -16,561 +234,277 @@
   box-sizing: border-box;
 }
 
+* {
+  margin: 0;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background-color: var(--bg);
+  scroll-behavior: smooth;
+  /* Anchor targets (/#about) clear the fixed navbar. */
+  scroll-padding-top: calc(var(--nav-h) + 1rem);
 }
 
 body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* Column so <main> can grow and the footer sits at the bottom of short pages. */
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+  color: var(--fg);
+  background-color: var(--bg);
   font-family: var(--font-serif), Georgia, "Times New Roman", serif;
-  font-size: 18px;
-  line-height: 1.58;
-  font-synthesis-weight: none;
+  font-size: 1rem;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-::selection {
-  background: color-mix(in srgb, var(--accent) 16%, transparent);
+/* The soft accent glow, fixed behind everything (a pseudo-element instead of
+   background-attachment: fixed, which repaints on every scroll on phones). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--glow);
 }
 
-/* --- Links ----------------------------------------------------------------
-   Underlined and colored, the way a document links. Scannable, not shouty. */
-
-a {
-  color: var(--accent);
-  text-decoration: underline;
-  text-decoration-thickness: 0.055em;
-  text-underline-offset: 0.16em;
-}
-
-a:hover {
-  color: var(--accent-dark);
-  text-decoration-thickness: 0.11em;
-}
-
-a:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  border-radius: 1px;
-}
-
-img {
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
   max-width: 100%;
+}
+
+img,
+video {
   height: auto;
 }
 
-hr {
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
   border: 0;
-  border-top: 1px solid var(--rule);
-  margin: 2.5rem 0;
+  padding: 0;
+  cursor: pointer;
 }
 
-/* --- Page frame ----------------------------------------------------------- */
-
-.wrap {
-  width: 100%;
-  max-width: var(--measure);
-  margin: 0 auto;
-  padding: 0 1.5rem;
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
 }
-
-.site-header {
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: 3.25rem;
-}
-
-.site-header__inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem 2rem;
-  padding: 1.6rem 0 1.4rem;
-}
-
-.site-header__name {
-  font-size: 1.2rem;
-  font-weight: 600;
-  letter-spacing: -0.012em;
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.site-header__name:hover {
-  color: var(--accent);
-}
-
-.site-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.35rem;
-}
-
-.site-nav a {
-  color: var(--ink);
-  font-size: 1rem;
-  text-decoration: none;
-}
-
-.site-nav a:hover {
-  color: var(--accent);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
-/* The page you are on, marked rather than hidden. */
-.site-nav a[aria-current="page"] {
-  color: var(--accent);
-  text-decoration: underline;
-  text-decoration-thickness: 0.07em;
-  text-underline-offset: 0.2em;
-}
-
-.site-footer {
-  border-top: 1px solid var(--rule);
-  margin-top: 5rem;
-  padding: 1.5rem 0 3rem;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-.site-footer a {
-  color: var(--muted);
-}
-
-.site-footer a:hover {
-  color: var(--accent);
-}
-
-/* --- Headings ------------------------------------------------------------- */
 
 h1,
 h2,
-h3 {
-  font-weight: 600;
-  letter-spacing: -0.012em;
-  line-height: 1.25;
-  margin: 0;
+h3,
+h4,
+h5,
+h6 {
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: 1.15;
 }
 
-.page-title {
-  font-size: 1.85rem;
-  margin-bottom: 2.25rem;
-}
-
-/* On the home page the name is the title, with the role line tucked under it. */
-.page-title--tight {
-  margin-bottom: 0.15rem;
-}
-
-.page-lede {
-  font-size: 1.02rem;
-  color: var(--muted);
-  margin: 0 0 2.4rem;
-}
-
-/* Section heading inside a page: "Research", "Selected work", "Education". */
-.section {
-  margin-top: 3.5rem;
-}
-
-/* A section directly under the page title needs no gap of its own. */
-.page-title + .section {
-  margin-top: 0;
-}
-
-.section__title {
-  font-size: 1.15rem;
-  margin-bottom: 1.6rem;
-}
-
-/* "Full record and education →" under a shortened list. */
-.section__more {
-  margin: 1.6rem 0 0;
-  padding-left: calc(var(--gutter) + 1.5rem);
-  font-size: 0.95rem;
-}
-
-/* Same link, but on a page with no date column to line up with. */
-.section__more--flush {
-  padding-left: 0;
-  margin-top: 3rem;
-}
-
-/* --- Records --------------------------------------------------------------
-   The one repeated structure on the site: date on the left, content right. */
-
-.record {
-  display: grid;
-  grid-template-columns: var(--gutter) 1fr;
-  gap: 0 1.5rem;
-  margin-bottom: 2.4rem;
-}
-
-.record:last-child {
-  margin-bottom: 0;
-}
-
-.record__date {
-  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.775rem;
-  line-height: 1.5;
-  letter-spacing: 0.005em;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-  /* nudged so the date sits on the same line as the title beside it */
-  padding-top: 0.2rem;
-}
-
-.record__title {
-  font-size: 1.06rem;
-  margin-bottom: 0.1rem;
-}
-
-.record__title a {
-  color: var(--ink);
-  text-decoration-color: color-mix(in srgb, var(--ink) 28%, transparent);
-}
-
-.record__title a:hover {
-  color: var(--accent);
-  text-decoration-color: currentColor;
-}
-
-/* Org, course number, publication — the line under a record title. */
-.record__meta {
-  font-size: 0.95rem;
-  color: var(--muted);
-  margin: 0 0 0.55rem;
-}
-
-.record__meta em {
-  font-style: italic;
-}
-
-/* :not([class]) so this loses to .stack, .record__meta, .listing and
-   .record__links, which each set their own size and spacing. */
-.record__body > p:not([class]) {
-  margin: 0 0 0.7rem;
-  font-size: 0.98rem;
-}
-
-.record__body > p:last-child {
-  margin-bottom: 0;
-}
-
-/* Bullets, set with a hanging dash instead of a disc. */
-.record__body ul {
+ul[role="list"],
+ol[role="list"] {
   list-style: none;
-  margin: 0 0 0.7rem;
   padding: 0;
 }
 
-.record__body li {
-  font-size: 0.98rem;
-  padding-left: 1.05rem;
-  margin-bottom: 0.42rem;
-  position: relative;
+a {
+  color: var(--accent-text);
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.18em;
 }
 
-.record__body li::before {
-  content: "–";
-  position: absolute;
-  left: 0;
-  color: var(--muted);
+a:hover {
+  text-decoration-thickness: 0.1em;
 }
 
-.record__body li:last-child {
-  margin-bottom: 0;
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
-/* Repo and demo links under a project. */
-.record__links {
-  font-size: 0.95rem;
-  margin: 0.55rem 0 0;
-}
+/* --- Focus ------------------------------------------------------------------- */
 
-.record__links a + a::before {
-  content: " · ";
-  color: var(--muted);
-}
-
-/* --- Listing --------------------------------------------------------------
-   A labelled run-on list: "Coursework  Abstract Algebra, Graph Theory, ..."
-   Denser than bullets, which is right when the items are just names. */
-
-.listing {
-  font-size: 0.95rem;
-  margin: 0 0 0.55rem;
-  color: var(--muted);
-}
-
-.listing__label {
-  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin-right: 0.6rem;
-}
-
-/* --- Stack line -----------------------------------------------------------
-   Technologies, set as one quiet monospace line. Not pills. */
-
-.stack {
-  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.01em;
-  color: var(--muted);
-  margin-top: 0.6rem;
-}
-
-/* --- Prose ----------------------------------------------------------------
-   The home page intro and blog post bodies. */
-
-.prose p {
-  margin: 0 0 1.15rem;
-}
-
-.prose > p:last-child {
-  margin-bottom: 0;
-}
-
-.prose h2 {
-  font-size: 1.25rem;
-  margin: 2.6rem 0 0.9rem;
-}
-
-.prose h3 {
-  font-size: 1.08rem;
-  margin: 2rem 0 0.7rem;
-}
-
-.prose ul,
-.prose ol {
-  margin: 0 0 1.15rem;
-  padding-left: 1.35rem;
-}
-
-.prose li {
-  margin-bottom: 0.35rem;
-}
-
-.prose blockquote {
-  margin: 1.5rem 0;
-  padding-left: 1.15rem;
-  border-left: 2px solid var(--rule);
-  color: var(--muted);
-  font-style: italic;
-}
-
-.prose img {
-  display: block;
-  margin: 1.8rem 0;
-}
-
-.prose code {
-  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.82em;
-  background: color-mix(in srgb, var(--ink) 5%, transparent);
-  padding: 0.12em 0.35em;
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
   border-radius: 2px;
 }
 
-.prose pre {
-  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.8rem;
-  line-height: 1.6;
-  background: color-mix(in srgb, var(--ink) 4%, transparent);
-  border: 1px solid var(--rule);
-  padding: 0.95rem 1.1rem;
-  overflow-x: auto;
-  margin: 0 0 1.35rem;
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
-.prose pre code {
-  background: none;
+/* --- Scrollbar: 5px, themed ------------------------------------------------ */
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--link);
+  border-radius: 15px;
+}
+
+/* Firefox only (in Chrome the standard properties would override the 5px
+   ::-webkit-scrollbar rules above). */
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--link) var(--bg);
+  }
+}
+
+/* --- Utilities --------------------------------------------------------------- */
+
+/* Visually hidden, still read by screen readers and crawlers. */
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
   padding: 0;
-  font-size: inherit;
-}
-
-.prose table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-  margin: 0 0 1.35rem;
-}
-
-.prose th,
-.prose td {
-  text-align: left;
-  padding: 0.45rem 0.8rem 0.45rem 0;
-  border-bottom: 1px solid var(--rule);
-}
-
-/* --- Home page ------------------------------------------------------------ */
-
-/* The portrait sits in the same left column the dates use further down, so
-   the home page is on the same grid as every other page. */
-.intro {
-  display: grid;
-  grid-template-columns: var(--gutter) 1fr;
-  gap: 0 1.5rem;
-  align-items: start;
-  margin-bottom: 1rem;
-}
-
-/* Fixed 4:5 frame, so any photo can be the portrait without being re-cropped.
-   Which part of the photo shows is set by `position` in src/content/home.ts. */
-.intro__frame {
-  position: relative;
-  aspect-ratio: 4 / 5;
+  margin: -1px;
   overflow: hidden;
-  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.intro__portrait-wrap {
-  margin: 0;
+/* First Tab on any page. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: calc(var(--z-loader) + 1);
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-caps);
+  font-weight: var(--caps-weight);
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transform: translateY(-200%);
 }
 
-.intro__frame img {
+.skip-link:focus-visible {
+  transform: none;
+}
+
+/* Centered content column with the side gutter (16px on phones). */
+.container {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  max-width: calc(var(--content-max) + 2 * var(--gutter-x));
+  margin-inline: auto;
+  padding-inline: var(--gutter-x);
 }
 
-.intro__caption {
-  font-size: 0.74rem;
-  color: var(--muted);
-  margin-top: 0.5rem;
-  line-height: 1.45;
+/* The heavy uppercase face used for nav, section headers and big titles. */
+.caps {
+  font-family: var(--font-caps), "Arial Black", Arial, sans-serif;
+  font-weight: var(--caps-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--caps-tracking);
 }
 
-/* Email, location, links — a plain definition list. */
-.facts {
-  margin: 0;
-  display: grid;
-  grid-template-columns: var(--gutter) 1fr;
-  gap: 0.45rem 1.5rem;
-  font-size: 0.98rem;
+/* --- Loader overlay: hidden before first paint when it will be skipped ------ */
+
+html[data-loader="skip"] [data-loader-overlay] {
+  display: none !important;
 }
 
-.facts dt {
-  font-family: var(--font-mono), ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.775rem;
-  letter-spacing: 0.005em;
-  color: var(--muted);
-  padding-top: 0.28rem;
+/* --- Theme switch crossfade (set for ~450ms by setTheme) ------------------- */
+
+html[data-theme-switching],
+html[data-theme-switching] body,
+html[data-theme-switching] body * {
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    border-color 0.35s ease,
+    fill 0.35s ease,
+    stroke 0.35s ease,
+    text-shadow 0.35s ease !important;
 }
 
-.facts dd {
-  margin: 0;
-}
-
-.facts dd a + a::before {
-  content: " · ";
-  color: var(--muted);
-}
-
-/* --- Photos --------------------------------------------------------------- */
-
-/* Columns rather than a grid: photos keep their own shape instead of being
-   cropped to a common one, and tall and wide ones pack without leaving holes.
-   Reading order runs down each column. */
-.photos {
-  columns: 2;
-  column-gap: 1.75rem;
-}
-
-/* Same gap below each photo as between the columns, so the grid reads evenly. */
-.photo {
-  margin: 0 0 1.75rem;
-  break-inside: avoid;
-}
-
-.photo img {
-  display: block;
-  width: 100%;
-  height: auto;
-  background: color-mix(in srgb, var(--ink) 4%, transparent);
-}
-
-/* --- Small screens -------------------------------------------------------- */
-
-@media (max-width: 40rem) {
-  body {
-    font-size: 17px;
-  }
-
-  .photos {
-    columns: 1;
-  }
-
-  /* Date moves above the title instead of beside it. */
-  .record,
-  .facts {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-
-  .record__date {
-    padding-top: 0;
-    margin-bottom: 0.3rem;
-  }
-
-  .facts dt {
-    padding-top: 0.7rem;
-  }
-
-  .intro {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
-
-  .intro__portrait-wrap {
-    max-width: 9rem;
-  }
-
-  .section__more {
-    padding-left: 0;
-  }
-
-  .page-title {
-    font-size: 1.6rem;
-  }
-}
-
-/* --- Print ----------------------------------------------------------------
-   The experience page doubles as a CV, so make it print cleanly. */
-
-@media print {
-  .site-nav,
-  .site-footer {
-    display: none;
-  }
-
-  body {
-    font-size: 11pt;
-  }
-
-  a {
-    color: var(--ink);
-  }
-
-  .record {
-    break-inside: avoid;
-  }
-}
+/* --- Reduced motion: the kill switch --------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
   }
+}
+
+/* --- Print: black on white, no chrome ------------------------------------- */
+
+@media print {
+  :root,
+  html[data-theme] {
+    color-scheme: light;
+    --bg: #ffffff;
+    --bg-2: #ffffff;
+    --bg-3: #ffffff;
+    --fg: #000000;
+    --fg-muted: #444444;
+    --accent-text: #000000;
+    --border: #cccccc;
+    --glow: none;
+  }
+
+  [data-print-hide],
+  .skip-link {
+    display: none !important;
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
+#main {
+  flex: 1 0 auto;
+}
+
+/* The skip link focuses <main>; no ring around the whole page. */
+#main:focus {
+  outline: none;
 }

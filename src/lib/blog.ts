@@ -9,7 +9,7 @@
  *   1. getPostSlugs()     — list filenames → slugs
  *   2. getPost(slug)      — read file, parse frontmatter with gray-matter
  *   3. getAllPosts()      — all metadata, sorted newest first (blog index)
- *   4. formatDate()       — pretty-print ISO dates for display
+ *   4. formatDate()       — re-exported from src/lib/format.ts (client-safe)
  *
  * FRONTMATTER EXAMPLE (top of each .mdx file):
  *   ---
@@ -23,6 +23,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import "server-only";
 
 // Absolute path to content/blog relative to project root
 const BLOG_DIR = path.join(process.cwd(), "content", "blog");
@@ -100,16 +101,5 @@ export function getAllPosts(): PostMeta[] {
     .sort((a, b) => b.date.localeCompare(a.date) || a.slug.localeCompare(b.slug));
 }
 
-/** "2026-06-25" → "Jun 25, 2026" */
-export function formatDate(iso: string): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return iso; // return raw string if unparseable
-  // timeZone: UTC so "2026-08-28" never displays as the 27th west of Greenwich
-  return d.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
-}
+/** Re-exported so existing imports keep working; lives in format.ts. */
+export { formatDate } from "@/lib/format";

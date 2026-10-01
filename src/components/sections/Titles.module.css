@@ -1,0 +1,69 @@
+/* Titles: three giant lines (10vmin heavy caps), outline / solid / outline,
+   offset --accent-2 shadow, scrubbed sideways on scroll. */
+
+.root {
+  position: relative;
+  padding-block: clamp(5rem, 22vh, 12rem);
+  /* The lines slide half a page sideways; clip them at the page edge
+     without making this a scroll container. */
+  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+@supports not (overflow: clip) {
+  .root {
+    overflow: hidden;
+  }
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  padding-inline: var(--gutter);
+  will-change: transform;
+}
+
+.text {
+  font-family: var(--font-caps), "Arial Black", Arial, sans-serif;
+  font-weight: var(--caps-weight);
+  letter-spacing: var(--caps-tracking);
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.45;
+  /* 10vmin, but never wider than the column: on a phone
+     the longest unbreakable word (--fit-chars, set by the component) must
+     fit. A Montserrat Black capital averages ~0.71em; 0.75 leaves a margin. */
+  font-size: max(
+    1.75rem,
+    min(10vmin, calc((100vw - 2 * var(--gutter)) / (var(--fit-chars, 14) * 0.75)))
+  );
+  color: var(--fg);
+  text-shadow: 0.05em 0.1em 0 var(--accent-2);
+}
+
+.word {
+  white-space: nowrap;
+}
+
+/* Outline letters. The offset shadow still paints solid behind them. */
+.stroke {
+  font-family: var(--font-caps-outline), var(--font-caps), "Arial Black", Arial, sans-serif;
+  -webkit-text-stroke: var(--title-stroke, 1px) var(--fg);
+  -webkit-text-fill-color: transparent;
+}
+
+:global(html[data-theme="paper"]) .stroke {
+  --title-stroke: 1.25px;
+}
+
+@media print {
+  .root {
+    display: none;
+  }
+}

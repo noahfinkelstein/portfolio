@@ -1,28 +1,66 @@
 /* ---------------------------------------------------------------------------
-   Wraps every page: fonts, theme colors, and the metadata search engines read.
+   Wraps every page: fonts, the no-flash theme script, the site chrome
+   (navbar, left bar, footer) and the metadata search engines read.
+
+   FONTS (all SIL Open Font License)
+     --font-display  BBH Sans Hegarty — hero name, loader, logo. Self-hosted
+                     from ./fonts because next/font/google does not list it.
+     --font-sans     Montserrat (variable 100–900) — UI text, and the heavy
+                     caps face: globals.css sets --font-caps to it at 900.
+     --font-serif    Fenix — body copy and subtitles.
+     --font-mono     JetBrains Mono — dates and tags where figures align.
+     --font-caps-outline  Montserrat Black with its overlapping contours
+                     merged (scripts/outline-font.py), for the outline
+                     (-webkit-text-stroke) titles only: stroking the stock
+                     font draws the seams inside A, E, H, R… Not preloaded;
+                     only pages that show outline text download it.
    --------------------------------------------------------------------------- */
 
-import type { Metadata } from "next";
-import { Newsreader, IBM_Plex_Mono } from "next/font/google";
-import { site, theme, themeVars } from "@/content/site";
+import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
+import { Fenix, JetBrains_Mono, Montserrat } from "next/font/google";
+import { defaultTheme, site } from "@/content/site";
+import { themeInitScript } from "@/lib/theme-script";
+import { ThemeProvider } from "@/lib/theme";
+import Navbar from "@/components/layout/Navbar";
+import LeftBar from "@/components/layout/LeftBar";
+import Footer from "@/components/layout/Footer";
 import "./globals.css";
 
-/* Everything you read is set in Newsreader. To try another face, swap the
-   import name above and here — pick any family from fonts.google.com. */
-const serif = Newsreader({
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--font-serif",
+const display = localFont({
+  src: "./fonts/BBHSansHegarty-Regular.woff2",
+  weight: "400",
+  style: "normal",
+  variable: "--font-display",
   display: "swap",
-  // next/font has no fallback metrics for Newsreader, so skip the generated
-  // fallback face; globals.css already names Georgia as the stand-in.
-  adjustFontFallback: false,
+  fallback: ["Arial Black", "Arial", "sans-serif"],
 });
 
-/* Used only for dates and technology lines, where figures need to line up. */
-const mono = IBM_Plex_Mono({
+const capsOutline = localFont({
+  src: "./fonts/MontserratBlack-Outline.woff2",
+  weight: "900",
+  style: "normal",
+  variable: "--font-caps-outline",
+  display: "swap",
+  preload: false,
+  fallback: ["Arial Black", "Arial", "sans-serif"],
+});
+
+const sans = Montserrat({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const serif = Fenix({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-serif",
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
 });
@@ -37,26 +75,49 @@ export const metadata: Metadata = {
   // "./" resolves against metadataBase per page, so every page gets a
   // canonical URL on the bare domain (www redirects there on Vercel).
   alternates: { canonical: "./" },
-  // Only the shared parts. Leaving title/description/url out lets each page's
-  // own metadata reach its OG tags instead of inheriting the home page's.
-  // og:image comes from src/app/opengraph-image.png automatically.
+  // Only the shared parts, so each page's own title/description reach its OG
+  // tags. og:image comes from src/app/opengraph-image.png automatically.
   openGraph: {
     siteName: site.name,
     type: "website",
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const viewport: Viewport = {
+  colorScheme: "dark light",
+};
+
+/* Without JavaScript the intro loader could never fade, so never show it. */
+const noScriptStyles = "<style>[data-loader-overlay]{display:none!important}</style>";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${serif.variable} ${mono.variable}`}>
+    <html
+      lang="en"
+      data-theme={defaultTheme}
+      // Tells Next to turn smooth scrolling off during route changes.
+      data-scroll-behavior="smooth"
+      className={`${display.variable} ${capsOutline.variable} ${sans.variable} ${serif.variable} ${mono.variable}`}
+      // The head script rewrites data-theme before React hydrates.
+      suppressHydrationWarning
+    >
       <head>
-        <style dangerouslySetInnerHTML={{ __html: themeVars(theme) }} />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <noscript dangerouslySetInnerHTML={{ __html: noScriptStyles }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <ThemeProvider>
+          <a className="skip-link" href="#main">
+            Skip to content
+          </a>
+          <Navbar />
+          <LeftBar />
+          <main id="main" tabIndex={-1}>
+            {children}
+          </main>
+          <Footer />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

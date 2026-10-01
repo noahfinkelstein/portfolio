@@ -1,0 +1,56 @@
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Six hues, cycling (blue, purple, cyan, orange, teal, pink). */
+.tag:nth-child(6n + 1) { --t: var(--tag-1); --tt: var(--tag-1-text); }
+.tag:nth-child(6n + 2) { --t: var(--tag-2); --tt: var(--tag-2-text); }
+.tag:nth-child(6n + 3) { --t: var(--tag-3); --tt: var(--tag-3-text); }
+.tag:nth-child(6n + 4) { --t: var(--tag-4); --tt: var(--tag-4-text); }
+.tag:nth-child(6n + 5) { --t: var(--tag-5); --tt: var(--tag-5-text); }
+.tag:nth-child(6n + 6) { --t: var(--tag-6); --tt: var(--tag-6-text); }
+
+.tag {
+  padding: 0.25rem 0.6rem;
+  border: 1.5px solid var(--t);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--t) 15%, transparent);
+  color: var(--tt);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  cursor: default;
+  transition:
+    transform var(--dur-fast) ease,
+    background-color var(--dur-fast) ease;
+}
+
+.tag:hover {
+  background: color-mix(in srgb, var(--t) 25%, transparent);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .tags {
+    gap: 0.4rem;
+  }
+
+  .tag {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media print {
+  .tag {
+    border-color: #999;
+    background: none;
+    color: #000;
+  }
+}

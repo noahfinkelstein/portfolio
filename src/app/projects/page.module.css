@@ -1,0 +1,18 @@
+/* Projects page: title, then cards 3rem apart.
+   PageTitle already clears the navbar. */
+.page {
+  padding-bottom: 3rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 1024px) {
+  .list {
+    gap: 2rem;
+  }
+}

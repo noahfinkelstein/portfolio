@@ -3,6 +3,8 @@
 
 # next.js build output
 /.next
+# per-agent build dirs (NEXT_DIST_DIR=.next-<name>)
+/.next-*/
 /out
 
 # production

@@ -1,0 +1,26 @@
+/* ScrambledText — see ScrambledText.tsx. */
+
+.root {
+  display: inline;
+}
+
+/* Characters mid-scramble: the same weight of grey in every theme (fg mixed
+   into bg). */
+.dud {
+  color: color-mix(in srgb, var(--fg) 45%, var(--bg));
+}
+
+/* Plain text for reduced motion and no-JS (Hero adds the <noscript> rule). */
+.static {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim {
+    display: none;
+  }
+
+  .static {
+    display: inline;
+  }
+}

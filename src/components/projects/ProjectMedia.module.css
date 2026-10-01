@@ -1,0 +1,130 @@
+/* The 16:10 frame. aspect-ratio reserves the space before anything loads. */
+.frame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--bg-3);
+  /* Hairline so the frame reads on Paper, where media can be white-on-white. */
+  box-shadow: inset 0 0 0 1px var(--hairline);
+  container-type: inline-size;
+  isolation: isolate;
+}
+
+/* Everything inside scales together on hover (1.05 over .4s). */
+.zoom {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.4s ease;
+  will-change: transform;
+}
+
+.frame:hover .zoom,
+:global([data-project-card]:focus-within) .zoom,
+:global([data-project-card]:has(a:hover)) .zoom {
+  transform: scale(1.05);
+}
+
+.media,
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* The loop fades in over the poster only once it is really playing. */
+.video {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.video[data-playing] {
+  opacity: 1;
+}
+
+/* --- Fallback tile: title over a themed gradient, grid and noise ---------- */
+
+.fallbackFrame {
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.fallback {
+  /* Where the two glows sit; the variants move them. */
+  --g1: 10% 0%;
+  --g2: 100% 100%;
+  --angle: 160deg;
+  display: grid;
+  place-items: center;
+  padding: 8%;
+  background:
+    radial-gradient(90% 120% at var(--g1), color-mix(in srgb, var(--accent) 34%, transparent), transparent 62%),
+    radial-gradient(75% 95% at var(--g2), color-mix(in srgb, var(--accent-2) 42%, transparent), transparent 68%),
+    linear-gradient(var(--angle), var(--bg-3), var(--bg-2));
+}
+
+.fallback[data-variant="1"] {
+  --g1: 90% 0%;
+  --g2: 0% 100%;
+  --angle: 200deg;
+}
+
+.fallback[data-variant="2"] {
+  --g1: 50% 110%;
+  --g2: 100% 0%;
+  --angle: 20deg;
+}
+
+.fallback[data-variant="3"] {
+  --g1: 0% 60%;
+  --g2: 85% 5%;
+  --angle: 120deg;
+}
+
+/* A faint blueprint grid that fades out toward the edges. */
+.fallback::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--hairline) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: center;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 78%);
+  mask-image: radial-gradient(ellipse at center, #000 20%, transparent 78%);
+  pointer-events: none;
+}
+
+/* Film grain. Grey noise blended so it works on dark and light themes. */
+.fallback::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.fallbackTitle {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  font-family: var(--font-caps), "Arial Black", Arial, sans-serif;
+  font-weight: var(--caps-weight);
+  text-transform: uppercase;
+  letter-spacing: var(--caps-tracking);
+  font-size: clamp(1.5rem, 5vw, 3.5rem);
+  font-size: clamp(1.4rem, 9cqi, 4.25rem);
+  line-height: 0.98;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  hyphens: manual;
+  color: var(--fg);
+  text-shadow: 0.05em 0.08em 0 var(--accent-2);
+}

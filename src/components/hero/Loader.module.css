@@ -1,0 +1,56 @@
+/* Loader — see Loader.tsx. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem var(--gutter);
+  background: var(--bg);
+  /* Failsafe: fade out on its own if the script never takes over (it sets
+     animation: none when it does). See Loader.tsx. */
+  animation: loader-failsafe 0.4s ease 2.2s forwards;
+}
+
+@keyframes loader-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.name {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35em 0.9em;
+  font-family: var(--font-display), "Arial Black", Arial, sans-serif;
+  /* Smaller on phones so the name stays on one line down to 320px. */
+  font-size: clamp(1.1rem, 5.4vw, 1.875rem);
+  line-height: 1;
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+.word {
+  display: inline-flex;
+  gap: 0.34em;
+}
+
+/* One cell per letter: the letter and its underscore share the cell, so
+   revealing a letter never shifts the others. */
+.slot {
+  display: inline-grid;
+  justify-items: center;
+}
+
+.slot > * {
+  grid-area: 1 / 1;
+}
+
+.slot:not([data-on]) .ch,
+.slot[data-on] .us {
+  visibility: hidden;
+}

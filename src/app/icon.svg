@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Favicon: an N. Background is the accent color from src/content/site.ts —
-       if you change the accent there, change the fill below to match. -->
-  <rect width="32" height="32" rx="6" fill="#7a2233"/>
+  <!-- Favicon: an N on the Night theme's violet accent (--accent in
+       src/app/globals.css). After changing it, run python3 scripts/favicon.py
+       to regenerate src/app/favicon.ico. -->
+  <rect width="32" height="32" rx="6" fill="#7c5cff"/>
   <path d="M9 23V9h3.1l7.8 10.2V9H23v14h-3.1L12.1 12.8V23H9z" fill="#ffffff"/>
 </svg>

@@ -1,0 +1,209 @@
+/* Hero — see Hero.tsx. Sizes are vmin-based
+   so the block scales with the smaller side of the screen.
+
+   NOTE: .hero must not create a stacking context (no z-index, transform,
+   filter or opacity < 1): the fixed torus canvas (z 1) has to sit between
+   the hero's text (z 2) and the page below. */
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Room for the fixed nav above and the arrow below; the text block ends up
+     a little below the middle. */
+  padding: calc(var(--nav-h) + 8vh) var(--gutter) calc(max(44px, 10vmin) + 2vh);
+  text-align: center;
+  overflow-x: clip;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  /* A halo in the page colour lifts the text off the field behind it. */
+  text-shadow:
+    0 0 0.1em var(--bg),
+    0 0 0.3em var(--bg),
+    0 0 0.6em var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 64rem;
+}
+
+/* "Hello, I am Noah". */
+.greeting {
+  font-family: var(--font-display), "Arial Black", Arial, sans-serif;
+  font-size: 2.25rem;
+  line-height: 1.1;
+  letter-spacing: 0.005em;
+  color: var(--fg);
+}
+
+@media (min-width: 768px) {
+  .greeting {
+    font-size: 3.75rem;
+  }
+}
+
+/* "Math–CS & Physics @ Brown University": 5vmin → sm:3.5vmin. */
+.degree {
+  margin-top: 1rem;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: max(1.05rem, 5vmin);
+  line-height: 1.35;
+  color: var(--fg);
+}
+
+.highlight {
+  color: var(--highlight);
+}
+
+/* The role line (slides in from the left). */
+.rolesMask {
+  margin-top: 1rem;
+  max-width: 100%;
+}
+
+.roles {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: max(1rem, 4vmin);
+  line-height: 1.4;
+  color: var(--fg);
+  text-wrap: balance;
+}
+
+/* Each role stays on one line; the line breaks between roles. */
+.lead,
+.secondary {
+  white-space: nowrap;
+}
+
+.at,
+.org {
+  color: var(--accent-text);
+}
+
+.org,
+.secondaryOrg {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 0.2em;
+  transition: color var(--dur-fast) ease;
+}
+
+.org {
+  color: var(--accent-text);
+}
+
+.org:hover,
+.secondaryOrg:hover {
+  color: var(--fg);
+  text-decoration-style: solid;
+}
+
+/* The rest of the roles, quieter (grey, one step smaller). */
+.secondary {
+  font-size: 0.875em;
+  color: var(--fg-muted);
+}
+
+/* The three words. */
+.words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 1.75rem;
+  margin-top: clamp(1.75rem, 6vmin, 3.5rem);
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: max(1rem, 4vmin);
+  line-height: 1.3;
+  color: var(--fg);
+}
+
+.word {
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .degree {
+    font-size: max(1.2rem, 3.5vmin);
+  }
+
+  .roles,
+  .words {
+    font-size: max(1.1rem, 3.5vmin);
+  }
+}
+
+/* The bouncing arrow (10vmin, bottom 10%). */
+.arrow {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 10%;
+  translate: -50% 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.arrowButton {
+  display: block;
+  width: max(44px, 10vmin);
+  height: max(44px, 10vmin);
+  border-radius: 50%;
+  color: var(--accent);
+  animation: bounce 1s infinite;
+  transition: color var(--dur) ease;
+}
+
+.arrowButton:hover {
+  color: var(--accent-text);
+}
+
+.arrowButton svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Tailwind's animate-bounce. */
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arrow {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .arrowButton {
+    animation: none;
+  }
+}
+
+/* Short landscape screens: let the section grow instead of overlapping. */
+@media (max-height: 540px) {
+  .hero {
+    padding-top: calc(var(--nav-h) + 1.5rem);
+    padding-bottom: calc(max(44px, 10vmin) + 3rem);
+  }
+
+  .arrow {
+    bottom: 1.25rem;
+  }
+}

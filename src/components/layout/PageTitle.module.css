@@ -1,0 +1,47 @@
+.root {
+  padding: calc(var(--nav-h) + 4rem) var(--gutter-x) 3rem;
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-caps), "Arial Black", sans-serif;
+  font-weight: var(--caps-weight);
+  letter-spacing: var(--caps-tracking);
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--fg);
+  text-shadow: 0.05em 0.1em 0 var(--accent-2);
+}
+
+.xl {
+  font-size: clamp(2.5rem, 10vmin, 7rem);
+}
+
+.lg {
+  font-size: clamp(2.25rem, 7vmin, 4.5rem);
+}
+
+.lede {
+  max-width: 40rem;
+  margin: 1.75rem auto 0;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.15rem;
+  color: var(--fg-muted);
+}
+
+@media print {
+  .root {
+    padding: 0 0 1.5rem;
+    text-align: left;
+  }
+
+  .title {
+    text-shadow: none;
+    font-size: 2rem;
+  }
+
+  .lede {
+    margin-left: 0;
+    max-width: none;
+  }
+}

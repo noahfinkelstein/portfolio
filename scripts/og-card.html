@@ -1,31 +1,125 @@
 <!--
-  Source for the link-preview image at src/app/opengraph-image.png (1200x630).
-  This is what shows up when someone pastes the site into Slack, iMessage, or
-  a tweet. Edit the text below, open this file in a browser, screenshot the
-  card at exactly 1200x630, and overwrite src/app/opengraph-image.png.
+  Source for the link-preview image at src/app/opengraph-image.png (1200x630):
+  what shows up when someone pastes the site into Slack, iMessage or a tweet.
+
+  It mirrors the v3 hero in the Night theme (tokens from src/app/globals.css,
+  words from src/content/home.ts). Edit the text below, then run
+
+      sh scripts/og-image.sh
+
+  which renders this file with headless Chrome and overwrites the PNG. Or open
+  it in a browser and screenshot the card at exactly 1200x630. The torus knot
+  on the right is drawn by the small script at the bottom.
 -->
-<!doctype html><html><head><meta charset="utf-8">
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Fenix&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
 <style>
-  html,body{margin:0;padding:0;background:#fff}
-  #card{width:1200px;height:630px;background:#fff;color:#16161a;
-        font-family:Newsreader,Georgia,serif;
-        display:flex;flex-direction:column;justify-content:center;
-        padding:0 96px;box-sizing:border-box;position:relative}
-  h1{font-size:82px;font-weight:600;letter-spacing:-.015em;margin:0 0 14px}
-  p.role{font-size:34px;color:#6e6e76;margin:0 0 44px}
-  .rule{height:2px;background:#7a2233;width:132px;margin-bottom:44px}
-  ul{list-style:none;margin:0;padding:0;display:flex;gap:42px;
-     font-family:"IBM Plex Mono",monospace;font-size:21px;color:#6e6e76;letter-spacing:.01em}
-  .dom{position:absolute;bottom:64px;right:96px;font-family:"IBM Plex Mono",monospace;
-       font-size:21px;color:#7a2233}
-</style></head><body>
+  @font-face {
+    font-family: "BBH Sans Hegarty";
+    src: url("../src/app/fonts/BBHSansHegarty-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-display: block;
+  }
+  html, body { margin: 0; padding: 0; background: #0a0a0f; }
+  #card {
+    position: relative;
+    width: 1200px; height: 630px; overflow: hidden;
+    box-sizing: border-box;
+    background: #0a0a0f;
+    color: #f5f5fa;
+    padding: 0 96px;
+    display: flex; flex-direction: column; justify-content: center;
+    font-family: Fenix, Georgia, serif;
+  }
+  /* The theme's soft glow, top-left, as on the site. */
+  #card::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(700px 700px at 12% -10%, rgba(124, 92, 255, 0.28), transparent 62%);
+  }
+  .text { position: relative; z-index: 2; max-width: 760px; }
+  .kicker {
+    font-family: Montserrat, "Arial Black", sans-serif; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    font-size: 19px; color: #a08bff; margin: 0 0 26px;
+  }
+  h1 {
+    font-family: "BBH Sans Hegarty", "Arial Black", Arial, sans-serif;
+    font-weight: 400; font-size: 112px; line-height: 0.95;
+    letter-spacing: 0.005em; margin: 0 0 30px;
+  }
+  .degree { font-size: 40px; line-height: 1.2; margin: 0 0 14px; }
+  .degree .brown { color: #facc15; }
+  .roles { font-size: 27px; line-height: 1.35; color: #9a9ab0; margin: 0; }
+  .roles b { font-weight: 400; color: #f5f5fa; }
+  .roles .org { color: #a08bff; }
+  .dom {
+    position: absolute; z-index: 2; bottom: 52px; right: 96px;
+    font-family: "JetBrains Mono", Menlo, monospace; font-size: 22px;
+    color: #a08bff; letter-spacing: 0.01em;
+  }
+  /* The torus knot (see the script). */
+  #knot { position: absolute; z-index: 1; right: -40px; top: -20px; width: 560px; height: 560px; opacity: 0.6; }
+</style>
+</head>
+<body>
 <div id="card">
-  <h1>Noah Finkelstein</h1>
-  <p class="role">Mathematics–Computer Science and Physics at Brown University</p>
-  <div class="rule"></div>
-  <ul><li>Experience</li><li>Projects</li><li>Photos</li><li>Blog</li></ul>
+  <div class="text">
+    <p class="kicker">Hello, I am Noah</p>
+    <h1>Noah Finkelstein</h1>
+    <p class="degree">Math–CS &amp; Physics <span class="brown">@ Brown University</span></p>
+    <p class="roles"><b>Co-Founder</b> <span class="org">@ CourseTrees</span>&nbsp;&nbsp;·&nbsp;&nbsp;ML Research <span class="org">@ Brown</span></p>
+  </div>
+  <svg id="knot" viewBox="-1.5 -1.5 3 3" aria-hidden="true"></svg>
   <div class="dom">noahfinkelstein.com</div>
-</div></body></html>
+</div>
+<script>
+  // A (2,3) torus knot like the hero's wireframe: four parallel strands,
+  // rotated a little and projected orthographically.
+  (function () {
+    var svg = document.getElementById("knot");
+    var ns = "http://www.w3.org/2000/svg";
+    var p = 2, q = 3, R = 0.78, N = 720;
+    var ax = 0.9, ay = 0.55; // tilt
+    function rot(v) {
+      var x = v[0], y = v[1], z = v[2];
+      var y1 = y * Math.cos(ax) - z * Math.sin(ax), z1 = y * Math.sin(ax) + z * Math.cos(ax);
+      var x2 = x * Math.cos(ay) + z1 * Math.sin(ay), z2 = -x * Math.sin(ay) + z1 * Math.cos(ay);
+      return [x2, y1, z2];
+    }
+    var strands = [0.26, 0.30, 0.34, 0.38];
+    strands.forEach(function (r, si) {
+      var pts = [];
+      for (var i = 0; i <= N; i++) {
+        var t = (i / N) * Math.PI * 2;
+        var w = R + r * Math.cos(q * t);
+        var v = rot([w * Math.cos(p * t), w * Math.sin(p * t), r * Math.sin(q * t)]);
+        pts.push(v[0].toFixed(4) + "," + (-v[1]).toFixed(4));
+      }
+      var el = document.createElementNS(ns, "polyline");
+      el.setAttribute("points", pts.join(" "));
+      el.setAttribute("fill", "none");
+      el.setAttribute("stroke", si % 2 ? "#a996ff" : "#7c5cff");
+      el.setAttribute("stroke-width", si === 1 ? "0.012" : "0.007");
+      el.setAttribute("stroke-linejoin", "round");
+      el.setAttribute("opacity", si === 1 ? "0.95" : "0.6");
+      svg.appendChild(el);
+    });
+    // A few "points" along the main strand, like the particle field.
+    for (var i = 0; i < 90; i++) {
+      var t = (i / 90) * Math.PI * 2, r = 0.30;
+      var w = R + r * Math.cos(q * t);
+      var v = rot([w * Math.cos(p * t), w * Math.sin(p * t), r * Math.sin(q * t)]);
+      var c = document.createElementNS(ns, "circle");
+      c.setAttribute("cx", v[0].toFixed(4)); c.setAttribute("cy", (-v[1]).toFixed(4));
+      c.setAttribute("r", "0.014"); c.setAttribute("fill", "#f5f5fa"); c.setAttribute("opacity", "0.9");
+      svg.appendChild(c);
+    }
+  })();
+</script>
+</body>
+</html>

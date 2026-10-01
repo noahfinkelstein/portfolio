@@ -1,0 +1,91 @@
+.root {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem var(--gutter) 2.5rem;
+  text-align: center;
+  font-family: var(--font-serif), Georgia, serif;
+}
+
+.social {
+  display: none;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+}
+
+.icon {
+  display: block;
+  padding: 0.25rem;
+  color: var(--link);
+  transition:
+    color var(--dur) ease,
+    transform var(--dur) ease;
+}
+
+.icon:hover,
+.icon:focus-visible {
+  color: var(--accent);
+  transform: translateY(-0.3em);
+}
+
+.email {
+  display: none;
+  color: var(--fg-muted);
+  text-decoration: none;
+}
+
+.email:hover,
+.email:focus-visible {
+  color: var(--accent-text);
+}
+
+.signature {
+  color: var(--fg-muted);
+  font-size: 1rem;
+}
+
+/* Chromatic-aberration split on hover. */
+.split {
+  transition: text-shadow var(--dur-fast) ease;
+}
+
+.split:hover {
+  text-shadow:
+    0.05em 0 0 rgb(255 0 0 / 0.75),
+    -0.025em -0.05em 0 rgb(0 255 0 / 0.75),
+    0.025em 0.05em 0 rgb(0 0 255 / 0.75);
+}
+
+.credit {
+  font-size: 0.875rem;
+}
+
+.credit a {
+  color: var(--fg-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 0.2em;
+  transition:
+    color var(--dur) ease,
+    text-decoration-color var(--dur) ease;
+}
+
+.credit a:hover,
+.credit a:focus-visible {
+  color: var(--accent-text);
+  text-decoration-color: currentColor;
+}
+
+@media (max-width: 900px) {
+  .social {
+    display: flex;
+  }
+
+  .email {
+    display: inline;
+  }
+}

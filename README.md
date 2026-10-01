@@ -1,7 +1,12 @@
 # noahfinkelstein.com
 
-A personal site. Next.js, plain CSS, Markdown posts. No UI framework, no CSS
-framework, no animation.
+A personal site: a 3D torus-knot hero, projects with real screen recordings,
+blog and LinkedIn posts, and a printable CV, in four color themes.
+
+Next.js 15 (App Router), React 19, TypeScript, plain CSS Modules. GSAP for
+scroll animation, three.js for the hero and matter-js for the skills box. Both
+of those load lazily, only on the home page, and pause when off screen. No CSS
+framework and no UI library.
 
 ```bash
 npm install
@@ -13,37 +18,120 @@ npm run dev      # http://localhost:3000
 ## Where to change things
 
 Almost everything is a data file under `src/content/`. Editing one is the
-normal way to update the site — you should rarely need to open a page.
+normal way to update the site; you should rarely need to open a component.
 
 | To change | Edit |
 | --- | --- |
-| Name, nav, email, links, **all colors**, column widths | `src/content/site.ts` |
-| Home page paragraphs and portrait | `src/content/home.ts` |
-| Jobs, research, education | `src/content/experience.ts` |
-| Projects | `src/content/projects.ts` |
-| Photos | `src/content/photos.ts` |
+| Name, email, nav, social links, résumé switch, theme list | `src/content/site.ts` |
+| Hero lines, section labels, About text, portrait, "Now" roles | `src/content/home.ts` |
+| The three giant scrolling lines under the hero | `src/content/titles.ts` |
+| Projects (cards, media, which three are on the home page) | `src/content/projects.ts` |
+| Jobs, research, education (home timeline and `/experience`) | `src/content/experience.ts` |
+| Logos in the Experience physics box and the CV's Tools list | `src/content/skills.ts` |
+| Press and features in "Latest" | `src/content/featured.ts` |
+| LinkedIn posts in "Latest" and on `/blog` | `npm run linkedin` (writes `src/content/linkedin-posts.json`) |
 | A blog post | add a file to `content/blog/` |
+| Theme colors and shared tokens (spacing, widths, motion) | `src/app/globals.css` |
 | Fonts | `src/app/layout.tsx` (top of the file) |
-| Spacing, type scale, anything visual | `src/app/globals.css` |
 
-### Colors
+Every content file starts with a comment that explains its fields.
 
-All six of them are in the `theme` block at the bottom of
-`src/content/site.ts`. They become CSS variables, so changing one changes it
-everywhere. `accent` is the only color with any saturation — it is the link
-color and the current-page marker. Swapping it re-skins the site:
+### Adding a project
+
+Add one block to `projects` in `src/content/projects.ts` (newest first):
 
 ```ts
-accent: "#7a2233",   // oxblood (current)
-accent: "#2a4b8d",   // ink blue
-accent: "#1f5c4c",   // deep green
+{
+  slug: "my-project",              // media lives in public/projects/my-project/
+  title: "My Project",
+  date: "Oct 2026",
+  status: "Web app · Live",        // the accent line above the title
+  kind: "Web app",                 // the subtitle
+  blurb: "What it does, then the one interesting thing about how.",
+  stack: ["TypeScript", "Python"], // tag pills
+  links: [{ label: "GitHub", href: "https://github.com/..." }], // first = the button
+  media: {
+    type: "video",
+    src: "/projects/my-project/loop.mp4",
+    poster: "/projects/my-project/loop-poster.webp",
+    alt: "What the recording shows.",
+    width: 1600,
+    height: 1000,
+  },
+  featured: true,                  // one of the three on the home page
+},
 ```
 
-Three things do not follow along. `accentDark` is the hover shade, so pick a
-step darker than the new accent by hand. `src/app/icon.svg` (the favicon) and
-`scripts/og-card.html` (the link-preview card) both have the accent baked in as
-a literal — change those to match, and regenerate the favicon and OG image as
-described in Notes below.
+- Leave out `links` when there is nothing public; the card then has no button.
+- Leave out `media` and the card shows a themed title tile. Never use a
+  mock-up. A still works too: `{ type: "image", src, alt, width, height }`.
+- The frame is 16:10 and crops to fill, so 1600×1000 recordings fit exactly.
+  Videos are muted loops that play only while on screen (never with reduced
+  motion; the poster shows instead). Encode them as H.264 MP4, `yuv420p`,
+  limited range, with `+faststart`, and keep each under about 3 MB:
+
+  ```bash
+  ffmpeg -i in.mov -vf "scale=1600:-2,format=yuv420p" -c:v libx264 -crf 25 \
+    -preset slow -movflags +faststart -an public/projects/my-project/loop.mp4
+  ```
+
+  A WebM (`srcWebm`) is optional and only worth it when it is smaller. Avoid
+  full-range (`yuvj420p` / `pc`) files: in testing, Chrome intermittently
+  failed to decode a full-range VP9 loop, and the card fell back to the poster.
+- `featured: true` puts a project in "Selected Projects" on the home page (the
+  first three featured, in file order). `hidden: true` keeps it in the file
+  but off the site.
+
+### Adding a skill
+
+One line in `src/content/skills.ts`:
+
+```ts
+{ name: "Rust", icon: "rust" },
+```
+
+`icon` is a [Simple Icons](https://simpleicons.org) slug (lowercase, "." is
+"dot", "+" is "plus": `nextdotjs`, `cplusplus`). A slug that does not exist
+fails the build, so a typo cannot ship. Logos use their brand color unless it
+is too faint on the theme; `color: "#hex"` overrides it. Only list tools that
+appear in `experience.ts` or `projects.ts`.
+
+### Adding a LinkedIn post
+
+```bash
+npm run linkedin -- add https://www.linkedin.com/posts/...-activity-7234...
+npm run linkedin -- import ~/Downloads/Shares.csv   # a LinkedIn data export
+npm run linkedin -- list
+npm run linkedin -- remove 7234...
+```
+
+`add` fetches the post's public embed page once and stores the text, the date
+(decoded from the post id) and the preview image. The image is downloaded to
+`public/linkedin/<id>.jpg`, because LinkedIn's image links expire; commit it
+with the JSON. The site itself never calls LinkedIn. Posts show in "Latest" on
+the home page and on `/blog`, where "Show embed" loads LinkedIn's own embed
+only when clicked. Run `node scripts/linkedin.mjs help` for every option.
+
+With four or more items that overflow the screen, "Latest" becomes an
+auto-scrolling marquee (it pauses on hover, focus and drag); with fewer, or
+with reduced motion, it is a static row.
+
+### Adding a press item
+
+One block in `src/content/featured.ts`:
+
+```ts
+{
+  title: "What the piece was called",
+  date: "2026-05-01",
+  description: "One or two sentences on what it covered.",
+  href: "https://the-outlet.com/the-piece",
+  image: "/images/featured/the-piece.jpg",   // optional, 16:9
+  source: "WPRI 12",                         // optional
+},
+```
+
+It joins blog and LinkedIn posts in "Latest", sorted by date.
 
 ### Writing a post
 
@@ -53,18 +141,38 @@ Add `content/blog/my-post.mdx`:
 ---
 title: The title, in sentence case
 date: 2026-09-14
-summary: One line, shown on the blog index.
+summary: One line, shown on the Writing page.
 tags: [math, code]
 ---
 
 Markdown from here down.
 ```
 
-It appears at `/blog` automatically, newest first. Files whose names start with
-`_` are ignored, so `content/blog/_template.mdx` is a scratch copy you can
-work from.
+It appears on `/blog` (and in "Latest") automatically, newest first. Files
+whose names start with `_` are ignored, so `content/blog/_template.mdx` is a
+scratch copy you can work from.
 
-### Adding a photo
+### Themes
+
+There are four: Night (the default), Cyan, Terminal and Paper. The switcher is
+in the nav (and in the mobile menu); the choice is saved in `localStorage`
+and applied by a small inline script before the first paint, so there is no
+flash. The 3D scene, the physics chips, the scrollbar and every color re-tint
+live when it changes.
+
+To add a theme:
+
+1. In `src/app/globals.css`, copy a whole `html[data-theme="…"]` block, give
+   it the new id and set every token. Tokens that canvas code reads (`--bg`
+   to `--tag-6`, `--scene-*`) must stay plain hex. Text colors (`--fg`,
+   `--fg-muted`, `--accent-text`, `--tag-N-text`) need 4.5:1 contrast on
+   `--bg`, `--bg-2` and `--bg-3`; use `--accent` for fills and lines only.
+2. In `src/content/site.ts`, add the id to `ThemeId` and a `themes` entry with
+   its label and two swatch colors (keep them in sync with the CSS).
+
+To change the default, set `defaultTheme` in `site.ts`.
+
+### The About portrait
 
 ```bash
 python3 -m pip install --user Pillow   # once
@@ -72,31 +180,61 @@ cp ~/Downloads/whatever.jpeg photos-source/
 npm run photos
 ```
 
-That rotates the photo the right way up (phones record rotation in EXIF, which
-is why photos sometimes show up sideways on the web), shrinks it to 1800px,
-writes it to `public/images/photos/`, and prints a block to paste into
-`src/content/photos.ts`.
+That rotates the photo the right way up, shrinks it to 1800px, writes it to
+`public/images/photos/` and prints its path and size for `portrait` in
+`src/content/home.ts` (`position` there picks which part stays in frame).
+Originals stay in `photos-source/`, outside `public/`, so they are never
+served.
 
-Originals stay in `photos-source/`, which is outside `public/` — so the 4 MB
-version off your phone is never served to anyone, only the ~400 KB copy.
+## Fonts
+
+All SIL Open Font License, loaded in `src/app/layout.tsx`:
+
+| Face | Used for |
+| --- | --- |
+| BBH Sans Hegarty (self-hosted, `src/app/fonts/`) | hero name, loader, logo |
+| Montserrat 900, uppercase | nav, section headers, project titles, big titles |
+| Fenix | body text and subtitles |
+| JetBrains Mono | dates and tags |
+
+Montserrat, Fenix and JetBrains Mono come through `next/font/google`, which
+self-hosts them at build time. BBH Sans Hegarty is not in `next/font`'s list
+yet, so its woff2 and licence live in `src/app/fonts/`.
 
 ## How it is laid out
 
-Every list on the site — experience, projects, posts — is a "record": a date in
-a fixed left column, content to its right. That is the whole layout idea, and
-it is one component, `src/components/Record.tsx`. On a narrow screen the date
-moves above the title.
-
 ```
 src/
-  app/            one folder per page + globals.css
-  components/     Page (header/footer frame) and Record
-  content/        ← everything you edit
-  lib/blog.ts     reads content/blog/
-content/blog/     posts
-photos-source/    full-size originals, never served
-public/images/photos/  web-sized copies, generated
+  app/
+    layout.tsx          fonts, no-flash theme script, navbar, left bar, footer
+    globals.css         theme tokens (4 themes), reset, focus, print, reduced motion
+    page.tsx            home: loader, hero, titles, selected projects, latest,
+                        about, experience
+    projects/           all projects
+    blog/               Writing (blog + LinkedIn) and blog/[slug] posts
+    experience/         the printable CV
+    not-found.tsx       404
+  components/
+    hero/               loader, hero text, scrambled text, the three.js torus field
+    sections/           section headers, titles, "Latest" row, Writing list
+    projects/           project card, media frame and video loop, tag pills
+    about/              About box
+    experience/         journey timeline, matter-js skills box, print button
+    layout/             navbar, left bar, footer, page title, page select
+    ThemeSwitcher.tsx
+  content/              ← everything you edit
+  lib/                  theme, gsap, loader, feed/blog/icons (server-only), hooks
+content/blog/           posts (MDX)
+public/projects/<slug>/ project videos and posters
+public/linkedin/        LinkedIn preview images (created by npm run linkedin)
+scripts/                linkedin.mjs, photos.py, favicon.py, og-card.html
 ```
+
+Motion follows `prefers-reduced-motion`: no loader, no text scramble, a static
+knot, no marquee, a plain grid of skills, no video autoplay. The intro loader
+shows once per browser session. All content is in the server-rendered HTML,
+behind the loader and animations, so it works without JavaScript and for
+crawlers.
 
 ## Deploying
 
@@ -131,14 +269,24 @@ canonical URLs are right.
 ## Notes
 
 - No résumé is published at the moment. To add one, put the PDF at
-  `public/resume.pdf` and add `{ label: "CV", href: "/resume.pdf" }` to
-  `links` in `src/content/site.ts`; it then appears in the contact block and
-  the footer.
-- The experience page is styled to print, so `Cmd-P` on `/experience` gives a
-  reasonable CV without the nav or footer.
+  `public/resume.pdf` and set `resume.enabled: true` in `src/content/site.ts`;
+  a "Resume" link then appears in the nav before Contact.
+- `/experience` is styled to print, so `Cmd-P` (or its "Print / save as PDF"
+  button) gives a black-on-white CV without the nav or footer.
 - `src/app/opengraph-image.png` is the link preview people see when they share
-  the site. Its source is `scripts/og-card.html` — edit that, screenshot the
-  card at 1200x630, and overwrite the PNG.
+  the site. Its source is `scripts/og-card.html`: edit that, screenshot the
+  card at 1200x630, and overwrite the PNG. (It still shows the v2 design and
+  should be redone for v3.)
 - `src/app/favicon.ico` is a rasterised copy of `src/app/icon.svg` for browsers
   and crawlers that still ask for `/favicon.ico`. Regenerate it with
   `python3 scripts/favicon.py` after changing the SVG.
+- `/photos` from v2 redirects to the home page (`next.config.mjs`).
+- `NEXT_DIST_DIR=.next-foo npx next dev -p 3001` builds into a separate
+  folder, so two dev servers or builds can run side by side.
+
+## Credits
+
+Fonts are all SIL Open Font License:
+BBH Sans Hegarty (self-hosted in `src/app/fonts/`), Montserrat, Fenix and
+JetBrains Mono. Brand logos come from Simple Icons (CC0). The wireframe torus
+knot comes from the previous version of this site.

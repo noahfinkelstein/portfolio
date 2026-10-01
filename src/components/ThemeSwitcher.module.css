@@ -1,0 +1,82 @@
+.group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+
+.full {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, auto));
+  gap: 0.5rem 2rem;
+  justify-content: center;
+}
+
+.option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  /* 32px hit area around an 18px swatch */
+  padding: 7px;
+  border-radius: 999px;
+}
+
+.input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.swatch {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--swatch-bg) 0 50%, var(--swatch-accent) 50% 100%);
+  box-shadow:
+    0 0 0 1px var(--border),
+    inset 0 0 0 1px color-mix(in srgb, var(--swatch-accent) 40%, transparent);
+  transition:
+    transform var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease;
+}
+
+.full .swatch {
+  width: 26px;
+  height: 26px;
+}
+
+.option:hover .swatch {
+  transform: scale(1.12);
+}
+
+.group[data-ready] .input:checked + .swatch {
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 3.5px var(--fg);
+}
+
+.input:focus-visible + .swatch {
+  outline: 2px solid var(--accent);
+  outline-offset: 5px;
+}
+
+.label {
+  font-family: var(--font-caps), sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.group[data-ready] .input:checked ~ .label {
+  color: var(--fg);
+}

@@ -1,0 +1,6 @@
+.wrap {
+  width: 100%;
+  max-width: calc(60rem + 2 * var(--gutter-x));
+  margin: 0 auto;
+  padding: 0 var(--gutter-x) clamp(3rem, 8vw, 5rem);
+}

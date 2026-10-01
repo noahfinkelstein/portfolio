@@ -12,8 +12,9 @@ long edge at 1800 pixels, and writes the result to public/images/photos/.
 Reads from photos-source/ and writes to public/images/photos/. Originals are
 never touched, and they live outside public/ so they are never served.
 
-Afterwards it prints a ready-made block to paste into
-src/content/photos.ts — you only need to fill in the alt text.
+Afterwards it prints the path, width and height to paste into a data file
+(for the About portrait: `portrait` in src/content/home.ts) — you only need
+to fill in the alt text.
 
 Needs Pillow once:  python3 -m pip install --user Pillow
 """
@@ -50,7 +51,7 @@ def process(path: Path) -> None:
     w, h = image.size
     kb = out.stat().st_size // 1024
     print(f"{path.name} -> {out.relative_to(ROOT)}  {w}x{h}  {kb} KB\n")
-    print("Paste into src/content/photos.ts:\n")
+    print("Paste into a data file (e.g. portrait in src/content/home.ts):\n")
     print("  {")
     print(f'    src: "/images/photos/{out.name}",')
     print(f"    width: {w},")

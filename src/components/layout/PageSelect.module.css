@@ -1,0 +1,53 @@
+.root {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  padding: 4rem var(--gutter) 1rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--fg);
+  text-decoration: none;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.button:hover,
+.button:focus-visible {
+  animation-play-state: paused;
+}
+
+.label {
+  font-family: var(--font-caps), "Arial Black", sans-serif;
+  font-weight: var(--caps-weight);
+  font-size: 1.5rem;
+  letter-spacing: var(--caps-tracking);
+  text-transform: uppercase;
+}
+
+.arrow {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--accent);
+  transition: transform var(--dur) ease;
+}
+
+.button:hover .label {
+  color: var(--accent-text);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1.15);
+  }
+  50% {
+    transform: scale(1);
+  }
+}
