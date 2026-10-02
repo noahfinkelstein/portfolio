@@ -37,8 +37,6 @@ export default function About() {
             />
           </Reveal>
           <Reveal from="right" triggerSelector="[data-about-box]" className={styles.text}>
-            <h3 className={styles.name}>{about.name}</h3>
-            <p className={styles.oneLiner}>{about.oneLiner}</p>
             {about.intro.map((paragraph) => (
               <p key={paragraph.slice(0, 32)} className={styles.para}>
                 {paragraph}

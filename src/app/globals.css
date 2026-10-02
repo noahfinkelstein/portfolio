@@ -2,29 +2,32 @@
    GLOBAL STYLES — tokens, reset, and the handful of site-wide rules.
 
    Everything component-specific lives in that component's *.module.css.
-   Use the tokens below instead of literal colors so all four themes work.
+   Use the tokens below instead of literal colours so all four themes work.
 
    THEMES
-     html[data-theme="night" | "cyan" | "terminal" | "paper"] sets every color
+     html[data-theme="night" | "cyan" | "terminal" | "paper"] sets every colour
      token. The attribute is written by the inline <head> script before first
      paint (src/lib/theme-script.ts) and switched by src/lib/theme.tsx.
      Canvas code reads the same tokens through readThemeTokens(), so tokens it
-     reads (--bg … --tag-6, --scene-*) must stay plain hex or numbers.
+     reads (--bg … --border, --scene-*) must stay plain hex or numbers.
 
-   COLOR TOKENS
-     --bg, --bg-2, --bg-3   page, cards/boxes, chips/hover
-     --fg, --fg-muted       text, secondary text
-     --link                 quiet grey for icons, rotated email, scrollbar
-     --accent               fills, borders, lines, glows, underlines
-     --accent-text          accent as TEXT (4.5:1 on --bg/--bg-2/--bg-3)
-     --accent-2             offset text-shadow behind big titles
+   COLOUR TOKENS
+     --bg, --bg-2, --bg-3   page, raised surfaces (media frames, panels), chips
+     --fg, --fg-muted       text, secondary text (both 4.5:1 on every --bg-*)
+     --link                 quiet grey for icons and the scrollbar
+     --accent               fills, lines, the knot
+     --accent-text          accent as TEXT (links; 4.5:1 on --bg/--bg-2/--bg-3)
+     --accent-soft          accent at ~18 % for underlines and tints
      --on-accent            text on an --accent fill
-     --highlight            the warm "@ Brown University" color
-     --border               hairlines and box borders
-     --tag-1 … --tag-6      tag pill hues (border; background = 15% of it)
-     --tag-1-text …         tag pill text
-     --scene-point/-line/-ring/-wire, --scene-opacity   hero 3D colors
+     --border               hairlines and frames
+     --highlight            = --accent-text (kept for older components)
+     --tag-1 … --tag-6      legacy chip hues (kept for older components)
+     --scene-point/-wire/-ring, --scene-opacity   hero knot colours
      --glow                 the soft radial glow behind the page
+
+   TYPE
+     --font-serif  STIX Two Text (the face of mathematics journals): display,
+                   body and UI. --font-mono  JetBrains Mono: dates, tags, data.
    =========================================================================== */
 
 /* --- Themes ----------------------------------------------------------------- */
@@ -32,18 +35,19 @@
 :root,
 html[data-theme="night"] {
   color-scheme: dark;
-  --bg: #0a0a0f;
-  --bg-2: #13131c;
-  --bg-3: #1c1c2a;
-  --fg: #f5f5fa;
-  --fg-muted: #9a9ab0;
-  --link: #9a9ab0;
-  --accent: #7c5cff;
-  --accent-text: #a08bff;
-  --accent-2: #4a36b8;
-  --on-accent: #0a0a0f;
-  --highlight: #facc15;
-  --border: #26263a;
+  --bg: #0a0f1e;
+  --bg-2: #111a2e;
+  --bg-3: #19243a;
+  --fg: #ebe5d6;
+  --fg-muted: #a3aabb;
+  --link: #8d94a6;
+  --accent: #e2b23f;
+  --accent-text: #e8c05a;
+  --accent-soft: color-mix(in srgb, #e2b23f 22%, transparent);
+  --accent-2: #8a6a1c;
+  --on-accent: #0a0f1e;
+  --highlight: #e8c05a;
+  --border: #243150;
 
   --tag-1: #3c6abe;
   --tag-2: #8a2be2;
@@ -51,36 +55,37 @@ html[data-theme="night"] {
   --tag-4: #ff8c00;
   --tag-5: #00cec9;
   --tag-6: #ff1493;
-  --tag-1-text: #789ce6;
-  --tag-2-text: #b267ff;
-  --tag-3-text: #64d9ff;
-  --tag-4-text: #ffb450;
-  --tag-5-text: #50ece7;
-  --tag-6-text: #ff64bb;
+  --tag-1-text: #8fb0ee;
+  --tag-2-text: #c08cff;
+  --tag-3-text: #7fdfff;
+  --tag-4-text: #ffbe6b;
+  --tag-5-text: #6ff0ea;
+  --tag-6-text: #ff8acb;
 
-  --scene-point: #8b6dff;
-  --scene-line: #a996ff;
-  --scene-ring: #f5f5fa;
-  --scene-wire: #7c5cff;
-  --scene-opacity: 0.6;
+  --scene-point: #f3dc96;
+  --scene-line: #e2b23f;
+  --scene-ring: #ebe5d6;
+  --scene-wire: #e2b23f;
+  --scene-opacity: 0.85;
 
-  --glow: radial-gradient(60rem 60rem at 15% -10%, rgb(124 92 255 / 0.24), transparent 60%);
+  --glow: radial-gradient(70rem 50rem at 80% -20%, rgb(226 178 63 / 0.13), transparent 60%);
 }
 
 html[data-theme="cyan"] {
   color-scheme: dark;
-  --bg: #070b12;
-  --bg-2: #0d1420;
-  --bg-3: #16202e;
-  --fg: #eaf4ff;
-  --fg-muted: #8aa0b8;
-  --link: #8aa0b8;
-  --accent: #22d3ee;
-  --accent-text: #22d3ee;
-  --accent-2: #3c6abe;
-  --on-accent: #070b12;
-  --highlight: #facc15;
-  --border: #1b2738;
+  --bg: #06141a;
+  --bg-2: #0c1f27;
+  --bg-3: #142b35;
+  --fg: #e4f1f3;
+  --fg-muted: #93adb5;
+  --link: #7d97a0;
+  --accent: #3fc8c1;
+  --accent-text: #5ed6cf;
+  --accent-soft: color-mix(in srgb, #3fc8c1 22%, transparent);
+  --accent-2: #1d6b67;
+  --on-accent: #06141a;
+  --highlight: #5ed6cf;
+  --border: #1d3540;
 
   --tag-1: #3c6abe;
   --tag-2: #8a2be2;
@@ -88,36 +93,37 @@ html[data-theme="cyan"] {
   --tag-4: #ff8c00;
   --tag-5: #00cec9;
   --tag-6: #ff1493;
-  --tag-1-text: #789ce6;
-  --tag-2-text: #b267ff;
-  --tag-3-text: #64d9ff;
-  --tag-4-text: #ffb450;
-  --tag-5-text: #50ece7;
-  --tag-6-text: #ff64bb;
+  --tag-1-text: #8fb0ee;
+  --tag-2-text: #c08cff;
+  --tag-3-text: #7fdfff;
+  --tag-4-text: #ffbe6b;
+  --tag-5-text: #6ff0ea;
+  --tag-6-text: #ff8acb;
 
-  --scene-point: #1dcdfe;
-  --scene-line: #5bd9fc;
-  --scene-ring: #eaf4ff;
-  --scene-wire: #22d3ee;
-  --scene-opacity: 0.6;
+  --scene-point: #bdf3ef;
+  --scene-line: #3fc8c1;
+  --scene-ring: #e4f1f3;
+  --scene-wire: #3fc8c1;
+  --scene-opacity: 0.85;
 
-  --glow: radial-gradient(60rem 60rem at 15% -10%, rgb(34 211 238 / 0.14), transparent 60%);
+  --glow: radial-gradient(70rem 50rem at 80% -20%, rgb(63 200 193 / 0.1), transparent 60%);
 }
 
 html[data-theme="terminal"] {
   color-scheme: dark;
-  --bg: #0b0f0b;
-  --bg-2: #0f140f;
-  --bg-3: #16201a;
-  --fg: #d6ffd9;
-  --fg-muted: #6f9a72;
-  --link: #6f9a72;
-  --accent: #22c55e;
-  --accent-text: #22c55e;
-  --accent-2: #166534;
-  --on-accent: #0b0f0b;
-  --highlight: #facc15;
-  --border: #1c2a1f;
+  --bg: #0a0f0a;
+  --bg-2: #111911;
+  --bg-3: #182318;
+  --fg: #d9efd9;
+  --fg-muted: #8fb08f;
+  --link: #789a78;
+  --accent: #35c466;
+  --accent-text: #5ad584;
+  --accent-soft: color-mix(in srgb, #35c466 22%, transparent);
+  --accent-2: #1b6b3a;
+  --on-accent: #0a0f0a;
+  --highlight: #5ad584;
+  --border: #1f311f;
 
   --tag-1: #3c6abe;
   --tag-2: #8a2be2;
@@ -125,36 +131,37 @@ html[data-theme="terminal"] {
   --tag-4: #ff8c00;
   --tag-5: #00cec9;
   --tag-6: #ff1493;
-  --tag-1-text: #789ce6;
-  --tag-2-text: #b267ff;
-  --tag-3-text: #64d9ff;
-  --tag-4-text: #ffb450;
-  --tag-5-text: #50ece7;
-  --tag-6-text: #ff64bb;
+  --tag-1-text: #8fb0ee;
+  --tag-2-text: #c08cff;
+  --tag-3-text: #7fdfff;
+  --tag-4-text: #ffbe6b;
+  --tag-5-text: #6ff0ea;
+  --tag-6-text: #ff8acb;
 
-  --scene-point: #22c55e;
-  --scene-line: #4ade80;
-  --scene-ring: #d6ffd9;
-  --scene-wire: #22c55e;
-  --scene-opacity: 0.6;
+  --scene-point: #bdf5cc;
+  --scene-line: #35c466;
+  --scene-ring: #d9efd9;
+  --scene-wire: #35c466;
+  --scene-opacity: 0.85;
 
-  --glow: radial-gradient(60rem 60rem at 15% -10%, rgb(34 197 94 / 0.1), transparent 60%);
+  --glow: radial-gradient(70rem 50rem at 80% -20%, rgb(53 196 102 / 0.09), transparent 60%);
 }
 
 html[data-theme="paper"] {
   color-scheme: light;
-  --bg: #fbfbf9;
+  --bg: #fbfaf7;
   --bg-2: #ffffff;
-  --bg-3: #f0f0ec;
-  --fg: #16161a;
-  --fg-muted: #5b5b66;
-  --link: #5b5b66;
-  --accent: #2563eb;
-  --accent-text: #1d4ed8;
-  --accent-2: #9dbaf7;
+  --bg-3: #f1efe9;
+  --fg: #1b1a17;
+  --fg-muted: #5c5a54;
+  --link: #6b6962;
+  --accent: #7a2233;
+  --accent-text: #7a2233;
+  --accent-soft: color-mix(in srgb, #7a2233 22%, transparent);
+  --accent-2: #e3cfd3;
   --on-accent: #ffffff;
-  --highlight: #92400e;
-  --border: #e5e5df;
+  --highlight: #7a2233;
+  --border: #e4e0d6;
 
   --tag-1: #3c6abe;
   --tag-2: #8a2be2;
@@ -164,66 +171,55 @@ html[data-theme="paper"] {
   --tag-6: #ff1493;
   --tag-1-text: #1e40af;
   --tag-2-text: #6b21a8;
-  --tag-3-text: #0e7490;
+  --tag-3-text: #0e6a86;
   --tag-4-text: #9a3412;
   --tag-5-text: #0f766e;
   --tag-6-text: #9d174d;
 
-  --scene-point: #2563eb;
-  --scene-line: #1d4ed8;
+  --scene-point: #7a2233;
+  --scene-line: #7a2233;
   --scene-ring: #3b3b46;
-  --scene-wire: #2563eb;
-  --scene-opacity: 0.55;
+  --scene-wire: #7a2233;
+  --scene-opacity: 0.7;
 
-  --glow: radial-gradient(60rem 60rem at 15% -10%, rgb(37 99 235 / 0.07), transparent 60%);
+  --glow: radial-gradient(70rem 50rem at 80% -20%, rgb(122 34 51 / 0.06), transparent 60%);
 }
 
 /* --- Shared tokens (same in every theme) ----------------------------------- */
 
 :root {
-  /* Fonts. The --font-* variables on <html> come from next/font in layout.tsx;
-     the heavy caps face is Montserrat at 900, uppercase. */
-  --font-caps: var(--font-sans);
-  --caps-weight: 900;
-  --caps-tracking: 0.01em;
+  /* Type scale (Elements of Typographic Style, base 17px). */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.5rem;
+  --text-xl: 2rem;
+  --text-2xl: clamp(2.5rem, 5.5vw, 4rem);
 
-  /* Derived colors (not read by canvas code, so color-mix is fine here). */
+  /* Derived colours (not read by canvas code, so color-mix is fine here). */
   --hairline: color-mix(in srgb, var(--fg) 10%, transparent);
-  --nav-bg: color-mix(in srgb, var(--bg) 95%, transparent);
-  --shadow-glow: 0 0 1.5rem color-mix(in srgb, var(--accent) 35%, transparent);
+  --nav-bg: color-mix(in srgb, var(--bg) 92%, transparent);
 
   /* Layout */
-  --content-max: 72rem;
-  --gutter: clamp(1rem, 4vw, 2rem);
-  /* Side padding for content columns. Same as --gutter, except from 901px,
-     where the fixed left bar (its right edge is 48px from the edge) is shown:
-     there it is 4rem, so text never runs under the bar. Use it in both the
-     max-width and the padding of a centred column,
-       max-width: calc(<column> + 2 * var(--gutter-x));
-       padding-inline: var(--gutter-x);
-     and wide screens (≥1280px) look exactly as with --gutter. */
-  --leftbar-clear: 4rem;
+  --content-max: 68rem;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
   --gutter-x: var(--gutter);
-  --nav-h: 76px;
-  --radius-sm: 6px;
-  --radius: 12px;
+  --margin-col: 9rem;
+  --nav-h: 64px;
+  --radius: 6px;
+  --radius-sm: 4px;
 
   /* Motion */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --dur-fast: 0.2s;
-  --dur: 0.3s;
+  --dur-fast: 0.15s;
+  --dur: 0.2s;
+  --dur-slow: 0.35s;
 
   /* Stacking */
-  --z-leftbar: 40;
   --z-menu: 45;
   --z-nav: 50;
-  --z-loader: 100;
-}
-
-@media (min-width: 901px) {
-  :root {
-    --gutter-x: max(var(--gutter), var(--leftbar-clear));
-  }
 }
 
 /* --- Reset ------------------------------------------------------------------ */
@@ -244,7 +240,7 @@ html {
   background-color: var(--bg);
   scroll-behavior: smooth;
   /* Anchor targets (/#about) clear the fixed navbar. */
-  scroll-padding-top: calc(var(--nav-h) + 1rem);
+  scroll-padding-top: calc(var(--nav-h) + 1.5rem);
 }
 
 body {
@@ -254,11 +250,15 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: clip;
+  /* Its own stacking context, so the glow (z -1) paints above the page
+     colour and below the content. */
+  isolation: isolate;
   color: var(--fg);
   background-color: var(--bg);
-  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
-  font-size: 1rem;
-  line-height: 1.6;
+  font-family: var(--font-serif), "STIX Two Text", Georgia, "Times New Roman", serif;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  font-kerning: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -320,9 +320,10 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: inherit;
+  font-weight: 400;
   font-size: inherit;
   line-height: 1.15;
+  text-wrap: balance;
 }
 
 ul[role="list"],
@@ -333,12 +334,23 @@ ol[role="list"] {
 
 a {
   color: var(--accent-text);
-  text-decoration-thickness: 0.06em;
-  text-underline-offset: 0.18em;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--accent-soft);
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color var(--dur) ease;
 }
 
 a:hover {
-  text-decoration-thickness: 0.1em;
+  text-decoration-color: currentColor;
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-mono), ui-monospace, Menlo, monospace;
+  font-size: 0.9em;
 }
 
 ::selection {
@@ -358,11 +370,11 @@ a:hover {
   outline: none;
 }
 
-/* --- Scrollbar: 5px, themed ------------------------------------------------ */
+/* --- Scrollbar: thin, themed ------------------------------------------------- */
 
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -371,11 +383,10 @@ a:hover {
 
 ::-webkit-scrollbar-thumb {
   background: var(--link);
-  border-radius: 15px;
+  border-radius: 6px;
 }
 
-/* Firefox only (in Chrome the standard properties would override the 5px
-   ::-webkit-scrollbar rules above). */
+/* Firefox only (in Chrome the standard properties would override the rules above). */
 @supports not selector(::-webkit-scrollbar) {
   html {
     scrollbar-width: thin;
@@ -403,15 +414,12 @@ a:hover {
   position: fixed;
   top: 0.75rem;
   left: 0.75rem;
-  z-index: calc(var(--z-loader) + 1);
-  padding: 0.6rem 1rem;
+  z-index: calc(var(--z-nav) + 1);
+  padding: 0.5rem 0.9rem;
   background: var(--accent);
   color: var(--on-accent);
-  font-family: var(--font-caps);
-  font-weight: var(--caps-weight);
-  text-transform: uppercase;
   text-decoration: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   transform: translateY(-200%);
 }
 
@@ -419,7 +427,7 @@ a:hover {
   transform: none;
 }
 
-/* Centered content column with the side gutter (16px on phones). */
+/* Centred content column with the side gutter. */
 .container {
   width: 100%;
   max-width: calc(var(--content-max) + 2 * var(--gutter-x));
@@ -427,18 +435,11 @@ a:hover {
   padding-inline: var(--gutter-x);
 }
 
-/* The heavy uppercase face used for nav, section headers and big titles. */
-.caps {
-  font-family: var(--font-caps), "Arial Black", Arial, sans-serif;
-  font-weight: var(--caps-weight);
-  text-transform: uppercase;
-  letter-spacing: var(--caps-tracking);
-}
-
-/* --- Loader overlay: hidden before first paint when it will be skipped ------ */
-
-html[data-loader="skip"] [data-loader-overlay] {
-  display: none !important;
+/* Small data set in the mono: dates, years, tag lists. */
+.mono {
+  font-family: var(--font-mono), ui-monospace, Menlo, monospace;
+  font-size: var(--text-xs);
+  letter-spacing: 0;
 }
 
 /* --- Theme switch crossfade (set for ~450ms by setTheme) ------------------- */
@@ -451,8 +452,7 @@ html[data-theme-switching] body * {
     color 0.35s ease,
     border-color 0.35s ease,
     fill 0.35s ease,
-    stroke 0.35s ease,
-    text-shadow 0.35s ease !important;
+    stroke 0.35s ease !important;
 }
 
 /* --- Reduced motion: the kill switch --------------------------------------- */
@@ -486,6 +486,7 @@ html[data-theme-switching] body * {
     --fg: #000000;
     --fg-muted: #444444;
     --accent-text: #000000;
+    --accent-soft: #bbbbbb;
     --border: #cccccc;
     --glow: none;
   }

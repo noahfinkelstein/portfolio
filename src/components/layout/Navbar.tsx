@@ -1,12 +1,15 @@
 "use client";
 
 /* ---------------------------------------------------------------------------
-   Navbar — fixed top bar: "NF" logo, links in heavy caps with an underline
-   that grows on hover, and the theme switcher. Slides away when you scroll
-   down and comes back when you scroll up. Under 800px the links move into a
-   full-screen menu behind a hamburger button.
+   Navbar — fixed top bar: the name as a wordmark on the left, the page links
+   and the theme switcher on the right. Slides away when you scroll down and
+   comes back when you scroll up (and always near the top). Under 800px the
+   links move into a panel that drops down under the bar; it scrolls if it
+   has to, so nothing is ever out of reach on a short screen.
 
-   Links come from getNav() in src/content/site.ts. No props.
+   Props:
+     hasWriting  false hides "Writing" (no posts yet). The layout passes it.
+   Links come from getNav() in src/content/site.ts.
    --------------------------------------------------------------------------- */
 
 import Link from "next/link";
@@ -17,6 +20,10 @@ import ThemeSwitcher from "@/components/ThemeSwitcher";
 import styles from "./Navbar.module.css";
 
 const MOBILE_QUERY = "(max-width: 800px)";
+
+export type NavbarProps = {
+  hasWriting?: boolean;
+};
 
 function NavLink({
   item,
@@ -48,16 +55,15 @@ function NavLink({
   );
 }
 
-export default function Navbar() {
-  const nav = getNav();
+export default function Navbar({ hasWriting = true }: NavbarProps) {
+  const nav = getNav({ hasWriting });
   const pathname = usePathname();
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
-  const isCurrent = (href: string) =>
-    href === "/" ? pathname === "/" : !href.includes("#") && pathname.startsWith(href);
+  const isCurrent = (href: string) => !href.includes("#") && !href.startsWith("mailto:") && pathname.startsWith(href);
 
   /* Hide on scroll down, show on scroll up (and always near the top). */
   useEffect(() => {
@@ -84,7 +90,7 @@ export default function Navbar() {
 
   const close = useCallback(() => setOpen(false), []);
 
-  /* Close the menu on navigation and when the window grows past 800px. */
+  /* Close the panel on navigation and when the window grows past 800px. */
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
@@ -98,101 +104,73 @@ export default function Navbar() {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  /* While open: lock page scroll, Escape closes, Tab stays inside. */
+  /* While open: Escape closes, a click outside closes. */
   useEffect(() => {
     if (!open) return;
-    const { body } = document;
-    const previous = body.style.overflow;
-    body.style.overflow = "hidden";
-    const firstLink = menuRef.current?.querySelector<HTMLElement>("a, input");
-    firstLink?.focus();
-
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpen(false);
         buttonRef.current?.focus();
-        return;
-      }
-      if (event.key !== "Tab" || !menuRef.current || !buttonRef.current) return;
-      const focusables = [
-        buttonRef.current,
-        ...menuRef.current.querySelectorAll<HTMLElement>("a[href], input:checked"),
-      ];
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
       }
     };
+    const onPointer = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (panelRef.current?.contains(target) || buttonRef.current?.contains(target)) return;
+      setOpen(false);
+    };
     document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
     return () => {
-      body.style.overflow = previous;
       document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
     };
   }, [open]);
 
   return (
-    <>
-      <header
-        className={[styles.bar, hidden && !open ? styles.hidden : ""].join(" ")}
-        data-print-hide
-      >
-        <nav className={styles.inner} aria-label="Primary">
-          <Link href="/" className={styles.logo} aria-label={`${site.name}, home`}>
-            {site.initials}
-          </Link>
+    <header className={[styles.bar, hidden && !open ? styles.hidden : ""].join(" ")} data-print-hide>
+      <nav className={`container ${styles.inner}`} aria-label="Primary">
+        <Link href="/" className={styles.wordmark}>
+          {site.name}
+        </Link>
 
-          <div className={styles.right}>
-            <ul className={styles.links} role="list">
-              {nav.map((item) => (
-                <li key={item.href}>
-                  <NavLink item={item} className={styles.link} current={isCurrent(item.href)} />
-                </li>
-              ))}
-            </ul>
-            <ThemeSwitcher className={styles.switcher} />
-            <button
-              ref={buttonRef}
-              type="button"
-              className={[styles.burger, open ? styles.burgerOpen : ""].join(" ")}
-              aria-expanded={open}
-              aria-controls="mobile-menu"
-              aria-label={open ? "Close menu" : "Open menu"}
-              onClick={() => setOpen((v) => !v)}
-            >
-              <span />
-              <span />
-              <span />
-            </button>
-          </div>
-        </nav>
-      </header>
-
-      <div
-        id="mobile-menu"
-        ref={menuRef}
-        className={[styles.menu, open ? styles.menuOpen : ""].join(" ")}
-        aria-hidden={!open}
-        data-print-hide
-      >
-        <ul className={styles.menuLinks} role="list">
+        <ul className={styles.links} role="list">
           {nav.map((item) => (
             <li key={item.href}>
-              <NavLink
-                item={item}
-                className={styles.menuLink}
-                current={isCurrent(item.href)}
-                onNavigate={close}
-              />
+              <NavLink item={item} className={styles.link} current={isCurrent(item.href)} />
             </li>
           ))}
         </ul>
-        <ThemeSwitcher variant="full" />
+        <ThemeSwitcher className={styles.switcher} />
+
+        <button
+          ref={buttonRef}
+          type="button"
+          className={styles.menuButton}
+          aria-expanded={open}
+          aria-controls="site-menu"
+          onClick={() => setOpen((v) => !v)}
+        >
+          {open ? "Close" : "Menu"}
+        </button>
+      </nav>
+
+      <div
+        id="site-menu"
+        ref={panelRef}
+        className={[styles.panel, open ? styles.panelOpen : ""].join(" ")}
+        hidden={!open}
+      >
+        <ul className={`container ${styles.panelLinks}`} role="list">
+          {nav.map((item) => (
+            <li key={item.href}>
+              <NavLink item={item} className={styles.panelLink} current={isCurrent(item.href)} onNavigate={close} />
+            </li>
+          ))}
+        </ul>
+        <div className={`container ${styles.panelThemes}`}>
+          <ThemeSwitcher variant="full" />
+        </div>
       </div>
-    </>
+    </header>
   );
 }

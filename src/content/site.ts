@@ -2,7 +2,7 @@
    SITE — who you are, where you link, what's in the nav, and the themes.
 
    This is the first file to open. Everything here shows up on every page.
-   Colors themselves live in src/app/globals.css (one block per theme); the
+   Colours themselves live in src/app/globals.css (one block per theme); the
    list below only names the themes and gives the switcher its swatches.
    --------------------------------------------------------------------------- */
 
@@ -13,7 +13,7 @@ export type ThemeId = "night" | "cyan" | "terminal" | "paper";
 export type ThemeMeta = {
   id: ThemeId;
   label: string;
-  /** Two colors for the switcher's swatch. Keep in sync with globals.css. */
+  /** Two colours for the switcher's swatch. Keep in sync with globals.css. */
   swatch: { bg: string; accent: string };
   dark: boolean;
 };
@@ -24,10 +24,10 @@ export type ThemeMeta = {
  * and add the id to the ThemeId type above.
  */
 export const themes: readonly ThemeMeta[] = [
-  { id: "night", label: "Night", swatch: { bg: "#0a0a0f", accent: "#7c5cff" }, dark: true },
-  { id: "cyan", label: "Cyan", swatch: { bg: "#070b12", accent: "#22d3ee" }, dark: true },
-  { id: "terminal", label: "Terminal", swatch: { bg: "#0b0f0b", accent: "#22c55e" }, dark: true },
-  { id: "paper", label: "Paper", swatch: { bg: "#fbfbf9", accent: "#2563eb" }, dark: false },
+  { id: "night", label: "Night", swatch: { bg: "#0a0f1e", accent: "#e2b23f" }, dark: true },
+  { id: "cyan", label: "Cyan", swatch: { bg: "#06141a", accent: "#3fc8c1" }, dark: true },
+  { id: "terminal", label: "Terminal", swatch: { bg: "#0a0f0a", accent: "#35c466" }, dark: true },
+  { id: "paper", label: "Paper", swatch: { bg: "#fbfaf7", accent: "#7a2233" }, dark: false },
 ];
 
 export const defaultTheme: ThemeId = "night";
@@ -44,9 +44,6 @@ export type SocialLink = { label: string; href: string; /** simple-icons slug or
 export const site = {
   name: "Noah Finkelstein",
 
-  /** The logo in the nav (set in the display face). */
-  initials: "NF",
-
   /** Browser tab + Google result + link previews. Keep it factual. */
   description:
     "Noah Finkelstein — Brown University undergraduate in mathematics–computer " +
@@ -62,24 +59,25 @@ export const site = {
 
   /**
    * Résumé link. Off: no résumé is published right now. To turn it on, put
-   * the PDF at public/resume.pdf and set `enabled: true`; a "Resume" link then
+   * the PDF at public/resume.pdf and set `enabled: true`; a "Résumé" link then
    * appears in the nav before Contact.
    */
-  resume: { enabled: false, label: "Resume", href: "/resume.pdf" },
+  resume: { enabled: false, label: "Résumé", href: "/resume.pdf" },
 
   /**
    * Top navigation, in order. `href` is a route, a route plus #anchor, or a
-   * mailto: link. Contact is added from `email` automatically (see getNav).
+   * mailto: link. The wordmark links home; "Writing" is dropped automatically
+   * while there are no posts; Contact is added from `email` (see getNav).
    */
   nav: [
-    { label: "Home", href: "/" },
     { label: "About", href: "/#about" },
     { label: "Projects", href: "/projects" },
     { label: "Writing", href: "/blog" },
+    { label: "Experience", href: "/experience" },
   ] as readonly NavItem[],
 
   /**
-   * Social links: the left bar, the footer on phones, and the contact block.
+   * Profiles: the hero, the footer and the contact block.
    * Set href to "" to hide one without deleting it.
    */
   links: [
@@ -87,20 +85,22 @@ export const site = {
     { label: "LinkedIn", href: "https://www.linkedin.com/in/noah-finkelstein", icon: "linkedin" },
   ] as readonly SocialLink[],
 
-
   themes,
   defaultTheme,
 } as const;
 
-/** The nav as rendered: the items above, then Resume (if on), then Contact. */
-export function getNav(): NavItem[] {
-  const items: NavItem[] = [...site.nav];
+/**
+ * The nav as rendered: the items above (minus Writing when there is nothing
+ * to read), then Résumé (if on), then Contact.
+ */
+export function getNav(options: { hasWriting?: boolean } = {}): NavItem[] {
+  const items: NavItem[] = site.nav.filter((item) => item.href !== "/blog" || options.hasWriting !== false);
   if (site.resume.enabled) items.push({ label: site.resume.label, href: site.resume.href });
   items.push({ label: "Contact", href: `mailto:${site.email}` });
   return items;
 }
 
-/** Social links that are switched on. */
+/** Profiles that are switched on. */
 export function getSocialLinks(): SocialLink[] {
   return site.links.filter((l) => l.href);
 }

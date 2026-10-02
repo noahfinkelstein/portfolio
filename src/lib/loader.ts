@@ -23,9 +23,7 @@
    --------------------------------------------------------------------------- */
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { LOADER_SESSION_KEY } from "@/lib/theme-script";
-
-export { LOADER_SESSION_KEY };
+export const LOADER_SESSION_KEY = "nf-loader-shown";
 
 /** Hard cap on how long the loader may stay up, in ms (fade included). */
 export const LOADER_MAX_MS = 1400;

@@ -1,69 +1,40 @@
 /* ---------------------------------------------------------------------------
    Wraps every page: fonts, the no-flash theme script, the site chrome
-   (navbar, left bar, footer) and the metadata search engines read.
+   (navbar, footer) and the metadata search engines read.
 
-   FONTS (all SIL Open Font License)
-     --font-display  BBH Sans Hegarty — hero name, loader, logo. Self-hosted
-                     from ./fonts because next/font/google does not list it.
-     --font-sans     Montserrat (variable 100–900) — UI text, and the heavy
-                     caps face: globals.css sets --font-caps to it at 900.
-     --font-serif    Fenix — body copy and subtitles.
-     --font-mono     JetBrains Mono — dates and tags where figures align.
-     --font-caps-outline  Montserrat Black with its overlapping contours
-                     merged (scripts/outline-font.py), for the outline
-                     (-webkit-text-stroke) titles only: stroking the stock
-                     font draws the seams inside A, E, H, R… Not preloaded;
-                     only pages that show outline text download it.
+   FONTS (SIL Open Font License, self-hosted at build time by next/font)
+     --font-serif  STIX Two Text — the typeface of mathematics journals.
+                   Display, body and UI, in one family (regular, medium,
+                   italic).
+     --font-mono   JetBrains Mono — dates, years, tag lists and code, where
+                   figures should align.
    --------------------------------------------------------------------------- */
 
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
-import { Fenix, JetBrains_Mono, Montserrat } from "next/font/google";
+import { JetBrains_Mono, STIX_Two_Text } from "next/font/google";
 import { defaultTheme, getSocialLinks, site } from "@/content/site";
 import { home } from "@/content/home";
+import { getPostSlugs } from "@/lib/blog";
 import { themeInitScript } from "@/lib/theme-script";
 import { ThemeProvider } from "@/lib/theme";
 import Navbar from "@/components/layout/Navbar";
-import LeftBar from "@/components/layout/LeftBar";
 import Footer from "@/components/layout/Footer";
 import "./globals.css";
 
-const display = localFont({
-  src: "./fonts/BBHSansHegarty-Regular.woff2",
-  weight: "400",
-  style: "normal",
-  variable: "--font-display",
-  display: "swap",
-  fallback: ["Arial Black", "Arial", "sans-serif"],
-});
-
-const capsOutline = localFont({
-  src: "./fonts/MontserratBlack-Outline.woff2",
-  weight: "900",
-  style: "normal",
-  variable: "--font-caps-outline",
-  display: "swap",
-  preload: false,
-  fallback: ["Arial Black", "Arial", "sans-serif"],
-});
-
-const sans = Montserrat({
+const serif = STIX_Two_Text({
   subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const serif = Fenix({
-  subsets: ["latin"],
-  weight: "400",
+  style: ["normal", "italic"],
   variable: "--font-serif",
   display: "swap",
+  fallback: ["Georgia", "Times New Roman", "serif"],
 });
 
 const mono = JetBrains_Mono({
   subsets: ["latin"],
+  weight: ["400", "500"],
   variable: "--font-mono",
   display: "swap",
+  fallback: ["Menlo", "monospace"],
 });
 
 export const metadata: Metadata = {
@@ -88,9 +59,6 @@ export const viewport: Viewport = {
   colorScheme: "dark light",
 };
 
-/* Without JavaScript the intro loader could never fade, so never show it. */
-const noScriptStyles = "<style>[data-loader-overlay]{display:none!important}</style>";
-
 /*
   Structured data (schema.org Person) so search engines can tie the name,
   the domain and the profiles together. Built from site.ts and home.ts, so
@@ -104,26 +72,28 @@ const personJsonLd = JSON.stringify({
   url: site.url,
   email: `mailto:${site.email}`,
   image: `${site.url}/opengraph-image.png`,
-  jobTitle: home.hero.roles.map((r) => r.title).join(", "),
+  jobTitle: home.currently.join(", "),
   affiliation: { "@type": "CollegeOrUniversity", name: "Brown University", url: "https://www.brown.edu" },
   homeLocation: { "@type": "Place", name: site.location },
   sameAs: getSocialLinks().map((l) => l.href),
 }).replace(/</g, "\\u003c");
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // "Writing" only shows in the nav once there is something to read.
+  const hasWriting = getPostSlugs().length > 0;
+
   return (
     <html
       lang="en"
       data-theme={defaultTheme}
       // Tells Next to turn smooth scrolling off during route changes.
       data-scroll-behavior="smooth"
-      className={`${display.variable} ${capsOutline.variable} ${sans.variable} ${serif.variable} ${mono.variable}`}
+      className={`${serif.variable} ${mono.variable}`}
       // The head script rewrites data-theme before React hydrates.
       suppressHydrationWarning
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <noscript dangerouslySetInnerHTML={{ __html: noScriptStyles }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: personJsonLd }} />
       </head>
       <body>
@@ -131,8 +101,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <a className="skip-link" href="#main">
             Skip to content
           </a>
-          <Navbar />
-          <LeftBar />
+          <Navbar hasWriting={hasWriting} />
           <main id="main" tabIndex={-1}>
             {children}
           </main>

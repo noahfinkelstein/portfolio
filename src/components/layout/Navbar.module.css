@@ -1,4 +1,5 @@
-/* Fixed bar */
+/* Navbar — see Navbar.tsx. */
+
 .bar {
   position: fixed;
   inset: 0 0 auto;
@@ -7,80 +8,55 @@
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--hairline);
-  transition: transform var(--dur) ease;
+  transition: transform var(--dur-slow) var(--ease);
 }
 
 .hidden {
   transform: translateY(calc(-100% - 2px));
 }
 
-/* Keyboard focus inside the bar (Tab wrapping round from the footer, or the
-   skip link) always brings it back, so focus never lands off-screen. */
+/* Keyboard focus inside the bar always brings it back. */
 .bar:focus-within {
   transform: none;
 }
 
 .inner {
-  max-width: 1400px;
   height: var(--nav-h);
-  margin: 0 auto;
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-}
-
-.logo {
-  font-family: var(--font-display), "Arial Black", sans-serif;
-  font-size: 2.5rem;
-  line-height: 1;
-  letter-spacing: 0.05em;
-  color: var(--fg);
-  text-decoration: none;
-  transition: color var(--dur) ease;
-}
-
-.logo:hover {
-  color: var(--accent-text);
-}
-
-.right {
   display: flex;
   align-items: center;
   gap: 2rem;
 }
 
+.wordmark {
+  font-weight: 500;
+  font-size: var(--text-md);
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.wordmark:hover {
+  color: var(--accent-text);
+}
+
 .links {
   display: flex;
   align-items: center;
-  gap: 2.5rem;
-  margin: 0;
+  gap: 1.75rem;
+  margin: 0 0 0 auto;
   padding: 0;
 }
 
-/* Heavy caps link with an accent underline that grows from 0 to 100%. */
 .link {
-  position: relative;
-  font-family: var(--font-caps), "Arial Black", sans-serif;
-  font-weight: var(--caps-weight);
-  font-size: 1rem;
-  letter-spacing: var(--caps-tracking);
-  text-transform: uppercase;
+  font-size: var(--text-base);
   color: var(--fg);
   text-decoration: none;
-  transition: color var(--dur) ease;
-}
-
-.link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -4px;
-  width: 0;
-  height: 2px;
-  background: var(--accent);
-  transition: width var(--dur) ease;
+  padding-block: 0.25rem;
+  border-bottom: 1px solid transparent;
+  transition:
+    color var(--dur) ease,
+    border-color var(--dur) ease;
 }
 
 .link:hover,
@@ -88,146 +64,81 @@
   color: var(--accent-text);
 }
 
-.link:hover::after,
-.link:focus-visible::after,
-.link[aria-current="page"]::after {
-  width: 100%;
+.link[aria-current="page"] {
+  border-bottom-color: var(--accent);
 }
 
-.right .switcher {
-  margin-left: -0.5rem;
-  padding-left: 1.25rem;
+.switcher {
+  padding-left: 1.5rem;
   border-left: 1px solid var(--hairline);
 }
 
-/* Hamburger: three bars that turn into an X */
-.burger {
+.menuButton {
   display: none;
-  position: relative;
-  z-index: 1;
-  width: 44px;
-  height: 44px;
-  margin-right: -8px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-}
-
-.burger span {
-  display: block;
-  width: 28px;
-  height: 3px;
-  border-radius: 3px;
-  background: var(--fg);
-  transition:
-    transform var(--dur) ease,
-    opacity var(--dur) ease;
-}
-
-.burgerOpen span:nth-child(1) {
-  transform: translateY(8px) rotate(45deg);
-}
-
-.burgerOpen span:nth-child(2) {
-  opacity: 0;
-}
-
-.burgerOpen span:nth-child(3) {
-  transform: translateY(-8px) rotate(-45deg);
-}
-
-/* Full-screen menu that slides in from the left */
-.menu {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-menu);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3rem;
-  padding: calc(var(--nav-h) + 1rem) var(--gutter) 2rem;
-  background: var(--bg);
-  transform: translateX(-100%);
-  visibility: hidden;
-  transition:
-    transform 0.4s ease,
-    visibility 0s linear 0.4s;
-}
-
-.menuOpen {
-  transform: none;
-  visibility: visible;
-  transition:
-    transform 0.4s ease,
-    visibility 0s;
-}
-
-.menuLinks {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2.25rem;
-  margin: 0;
-  padding: 0;
-}
-
-.menuLink {
-  display: inline-block;
-  font-family: var(--font-caps), "Arial Black", sans-serif;
-  font-weight: var(--caps-weight);
-  font-size: 1.75rem;
-  letter-spacing: var(--caps-tracking);
-  text-transform: uppercase;
+  margin-left: auto;
+  min-height: 44px;
+  padding: 0 0.25rem;
+  font-size: var(--text-base);
   color: var(--fg);
-  text-decoration: none;
-  transition:
-    color var(--dur) ease,
-    transform var(--dur) ease;
 }
 
-.menuLink:hover,
-.menuLink:focus-visible,
-.menuLink[aria-current="page"] {
+.menuButton:hover {
   color: var(--accent-text);
 }
 
-.menuLink:hover {
-  transform: translateX(10px);
+/* The drop-down panel (≤ 800px). */
+.panel {
+  display: none;
+  max-height: calc(100dvh - var(--nav-h));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.5rem 0 1.5rem;
+  border-top: 1px solid var(--hairline);
+  background: var(--bg);
 }
 
-@media (max-width: 1000px) {
-  .links {
-    gap: 1.75rem;
-  }
+.panelOpen {
+  display: block;
+}
 
-  .right {
-    gap: 1.25rem;
-  }
+.panelLinks {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding-block: 0.25rem;
+}
+
+.panelLink {
+  display: block;
+  padding: 0.7rem 0;
+  font-size: var(--text-md);
+  color: var(--fg);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.panelLink[aria-current="page"] {
+  color: var(--accent-text);
+}
+
+.panelThemes {
+  padding-top: 1.25rem;
 }
 
 @media (max-width: 800px) {
   .links,
-  .right .switcher {
+  .switcher {
     display: none;
   }
 
-  .burger {
-    display: flex;
-  }
-
-  .inner {
-    padding: 0 var(--gutter);
+  .menuButton {
+    display: inline-flex;
+    align-items: center;
   }
 }
 
-@media (max-width: 480px) {
-  .logo {
-    font-size: 2rem;
-  }
-
-  .menuLink {
-    font-size: 1.5rem;
+@media (max-width: 1000px) {
+  .links {
+    gap: 1.25rem;
   }
 }

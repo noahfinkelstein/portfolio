@@ -1,60 +1,15 @@
-/* SectionHeader: 7vmin heavy caps, offset accent shadow, hairline to the
-   right edge, sliding out of a mask (the heading clips it). */
+/* SectionHeader — see SectionHeader.tsx. */
 
 .root {
-  width: 100%;
-  max-width: calc(var(--content-max) + 2 * var(--gutter-x));
-  margin: 0 auto clamp(2rem, 4vw, 3.5rem);
-  padding-inline: var(--gutter-x);
-  /* The header shadow is the bright accent (titles use the darker
-     --accent-2). Paper swaps to --accent-2 so dark text stays crisp. */
-  --sh-shadow: color-mix(in srgb, var(--accent) 80%, transparent);
-}
-
-:global(html[data-theme="paper"]) .root {
-  --sh-shadow: var(--accent-2);
+  margin-bottom: 2rem;
 }
 
 .heading {
-  /* The mask: the sliding span starts outside this box. Padding leaves room
-     for the shadow (0.1em down) so the clip never cuts it off. */
-  overflow: hidden;
-  padding-block: 0.08em 0.16em;
-  font-family: var(--font-caps), "Arial Black", Arial, sans-serif;
-  font-weight: var(--caps-weight);
-  letter-spacing: var(--caps-tracking);
-  text-transform: uppercase;
-  font-size: clamp(1.75rem, 7vmin, 5rem);
-  line-height: 1.05;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: var(--text-xl);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
   color: var(--fg);
-}
-
-.slide {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  will-change: transform;
-}
-
-.text {
-  flex: 0 1 auto;
-  min-width: 0;
-  text-shadow: 0.05em 0.1em 0 var(--sh-shadow);
-}
-
-/* The hairline: from 2% after the word to the right edge of the column. */
-.rule {
-  flex: 1 1 auto;
-  min-width: 1.5rem;
-  margin-left: max(2%, 0.5rem);
-  /* Sit a touch above the middle of the cap height. */
-  margin-top: -0.08em;
-  border-top: 1px solid var(--fg);
-  opacity: 0.9;
-}
-
-@media print {
-  .text {
-    text-shadow: none;
-  }
 }

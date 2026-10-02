@@ -1,13 +1,11 @@
 /* ---------------------------------------------------------------------------
-   PageTitle — the big heavy-caps <h1> with the offset accent shadow at the
-   top of an inner page (Projects, Writing, Experience, 404). Adds the space
-   the fixed navbar needs above it.
+   PageTitle — the <h1> at the top of an inner page (Projects, Writing,
+   Experience, 404), left aligned, with room above it for the fixed navbar.
 
    Props:
-     title     the heading text (set in caps by CSS; write it normally)
-     lede      optional line under it, in the serif
-     size      "xl" (10vmin) or
-               "lg" (smaller, for text-heavy pages). Default "xl".
+     title     the heading text
+     lede      optional line under it
+     size      "xl" (default) or "lg" (a step smaller, for text-heavy pages)
      children  optional extra content under the lede
    --------------------------------------------------------------------------- */
 
@@ -22,7 +20,7 @@ export type PageTitleProps = {
 
 export default function PageTitle({ title, lede, size = "xl", children }: PageTitleProps) {
   return (
-    <header className={styles.root}>
+    <header className={`container ${styles.root}`}>
       <h1 className={[styles.title, styles[size]].join(" ")}>{title}</h1>
       {lede ? <p className={styles.lede}>{lede}</p> : null}
       {children}

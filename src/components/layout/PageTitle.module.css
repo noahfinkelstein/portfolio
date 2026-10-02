@@ -1,47 +1,42 @@
+/* PageTitle — see PageTitle.tsx. */
+
 .root {
-  padding: calc(var(--nav-h) + 4rem) var(--gutter-x) 3rem;
-  text-align: center;
+  padding-top: calc(var(--nav-h) + 3.5rem);
+  padding-bottom: 2.5rem;
 }
 
 .title {
-  font-family: var(--font-caps), "Arial Black", sans-serif;
-  font-weight: var(--caps-weight);
-  letter-spacing: var(--caps-tracking);
-  text-transform: uppercase;
-  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
   color: var(--fg);
-  text-shadow: 0.05em 0.1em 0 var(--accent-2);
 }
 
 .xl {
-  font-size: clamp(2.5rem, 10vmin, 7rem);
+  font-size: var(--text-2xl);
 }
 
 .lg {
-  font-size: clamp(2.25rem, 7vmin, 4.5rem);
+  font-size: clamp(2rem, 4vw, 3rem);
 }
 
 .lede {
-  max-width: 40rem;
-  margin: 1.75rem auto 0;
-  font-family: var(--font-serif), Georgia, serif;
-  font-size: 1.15rem;
+  max-width: 38rem;
+  margin-top: 1rem;
+  font-size: var(--text-md);
   color: var(--fg-muted);
 }
 
 @media print {
   .root {
     padding: 0 0 1.5rem;
-    text-align: left;
   }
 
   .title {
-    text-shadow: none;
     font-size: 2rem;
   }
 
   .lede {
-    margin-left: 0;
     max-width: none;
   }
 }
