@@ -1,121 +1,64 @@
-/* Latest — section + card row. */
+/* Latest — see Latest.tsx. The row rules (.row and what is inside it) are
+   shared with the Writing page through FeedRow.tsx. */
 
 .section {
-  padding-block: clamp(3rem, 8vw, 5rem) clamp(2rem, 5vw, 3rem);
+  padding-block: 3rem 1rem;
 }
 
-.rowWrap {
-  position: relative;
+.list {
+  margin: 0;
 }
 
-.scroller {
-  --gap: clamp(1.25rem, 3vw, 2rem);
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  /* Room above and below for the hover lift, glow and focus ring. */
-  padding-block: 2.5rem;
-  scrollbar-width: thin;
-  scrollbar-color: var(--link) var(--bg-2);
-  -webkit-overflow-scrolling: touch;
+/* One row: the date in the margin column from 900px, stacked below that. */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25rem 1.5rem;
+  padding-block: 1.25rem;
 }
 
-.scroller::-webkit-scrollbar {
-  height: 6px;
+.row + .row {
+  border-top: 1px solid var(--border);
 }
 
-.scroller::-webkit-scrollbar-track {
-  background: var(--bg-2);
-  border-radius: 10px;
+.date {
+  color: var(--fg-muted);
+  line-height: 1.6;
 }
 
-.scroller::-webkit-scrollbar-thumb {
-  background: var(--link);
-  border-radius: 10px;
+.body {
+  min-width: 0;
 }
 
-.scroller::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+.title {
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0;
 }
 
-.canDrag {
-  cursor: grab;
+/* One visual line: the text is already cut at ~160 characters (feedText.ts),
+   the ellipsis handles the rest. */
+.excerpt {
+  max-width: 38rem;
+  margin-top: 0.35rem;
+  font-size: var(--text-base);
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.dragging {
-  cursor: grabbing;
-  user-select: none;
-  scroll-snap-type: none !important;
-}
-
-.dragging * {
-  pointer-events: none;
-}
-
-/* Static row: centered when it fits, a snapping swipe row when it does not. */
-.static {
-  scroll-snap-type: x proximity;
-  scroll-padding-inline: var(--gutter);
-}
-
-.static .cell {
-  scroll-snap-align: start;
-}
-
-/* Marquee: soft edges so cards slide in and out of view. On wide screens the
-   left fade is longer, so cards dissolve before they pass under the fixed
-   left bar (email + socials). */
-.marquee {
-  --fade-l: 1.5rem;
-  --fade-r: 1.5rem;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 var(--fade-l), #000 calc(100% - var(--fade-r)), transparent);
-  /* A card that receives keyboard focus scrolls clear of the faded edges. */
-  scroll-padding-inline: calc(var(--fade-l) + 0.5rem) calc(var(--fade-r) + 0.5rem);
+.source {
+  font-style: italic;
 }
 
 @media (min-width: 900px) {
-  .marquee {
-    --fade-l: 7rem;
-    --fade-r: 3rem;
-  }
-}
-
-.track {
-  display: flex;
-  width: max-content;
-  min-width: 100%;
-}
-
-/* Leading pad under the left fade (LatestRow reads it to wrap seamlessly). */
-.marquee .track {
-  padding-left: var(--fade-l);
-}
-
-.set {
-  display: flex;
-  flex: none;
-  margin: 0;
-  padding: 0;
-}
-
-.static .set {
-  margin-inline: auto;
-  padding-inline: max(0px, calc(var(--gutter) - var(--gap) / 2));
-}
-
-.cell {
-  display: flex;
-  flex: none;
-  margin-inline: calc(var(--gap) / 2);
-}
-
-@media (max-width: 768px) {
-  .scroller {
-    padding-block: 2rem;
+  .row {
+    grid-template-columns: var(--margin-col) minmax(0, 1fr);
   }
 
-  .cell {
-    --card-w: min(21rem, 80vw);
+  .date {
+    padding-top: 0.2rem;
   }
 }

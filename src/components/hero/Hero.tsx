@@ -3,11 +3,15 @@
    and the figure ("Fig. 1": the torus knot).
 
    Server component. Every word comes from home.hero in src/content/home.ts
-   and site in src/content/site.ts.
+   and site in src/content/site.ts. The figure box holds HeroFigure: the
+   static SVG knot in the server HTML, and the three.js canvas (loaded on
+   the client, after the page is interactive) fading in over it.
    --------------------------------------------------------------------------- */
 
 import { home } from "@/content/home";
 import { getSocialLinks, site } from "@/content/site";
+import HeroFigure from "./HeroFigure";
+import TorusKnotSvg from "./TorusKnotSvg";
 import styles from "./Hero.module.css";
 
 /** The lede with the words in home.hero.ledeLinks turned into links. */
@@ -55,7 +59,9 @@ export default function Hero() {
         </ul>
       </div>
       <figure className={styles.figure}>
-        <div className={styles.canvas} aria-hidden="true" />
+        <div className={styles.canvas} aria-hidden="true">
+          <HeroFigure fallback={<TorusKnotSvg className={styles.fallbackSvg} />} />
+        </div>
         <figcaption className={styles.caption}>{hero.figureCaption}</figcaption>
       </figure>
     </section>

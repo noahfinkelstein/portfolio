@@ -1,3 +1,8 @@
+/* ---------------------------------------------------------------------------
+   NOT FOUND — the 404 page for every route: the title, one line, and a
+   plain link home. Left aligned like every other page; no big number.
+   --------------------------------------------------------------------------- */
+
 import type { Metadata } from "next";
 import PageTitle from "@/components/layout/PageTitle";
 import styles from "./not-found.module.css";
@@ -12,16 +17,15 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <div className={styles.root}>
-      <p className={styles.code} aria-hidden="true">
-        404
-      </p>
-      <PageTitle title="Page not found" size="lg" lede="That address does not exist." />
-      <p className={styles.home}>
-        {/* A plain <a>, not next/link: this root not-found boundary is part of
-            every route's tree, and a client Link here pulled the home page's
-            chunk group (GSAP, ScrollTrigger) into /blog and /experience. */}
-        <a href="/">← Back to the home page</a>
-      </p>
+      <PageTitle title="Page not found" lede="That address does not exist." />
+      <div className="container">
+        <p className={styles.home}>
+          {/* A plain <a>, not next/link: this root not-found boundary is part of
+              every route's tree, and a client Link here pulled the home page's
+              chunk group (three.js) into /blog and /experience. */}
+          <a href="/">Back to the home page</a>
+        </p>
+      </div>
     </div>
   );
 }

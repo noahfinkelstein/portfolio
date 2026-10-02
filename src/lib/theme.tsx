@@ -5,7 +5,7 @@
 
    Colors are CSS custom properties in src/app/globals.css, one block per
    `html[data-theme="<id>"]`. This file switches between them and lets canvas
-   code (three.js, matter-js) read the resolved values.
+   code (three.js) read the resolved values.
 
    React:
      const { theme, setTheme, themes, meta, tokens } = useTheme();

@@ -1,35 +1,10 @@
-.root {
-  min-height: 80vh;
-  min-height: 80svh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-top: var(--nav-h);
-  text-align: center;
-}
+/* Not found — see not-found.tsx. */
 
-.code {
-  font-family: var(--font-display), "Arial Black", sans-serif;
-  font-size: clamp(5rem, 22vmin, 12rem);
-  line-height: 1;
-  color: transparent;
-  -webkit-text-stroke: 1px var(--fg);
-  text-shadow: 0.05em 0.1em 0 var(--accent-2);
-  margin-bottom: -4rem;
+.root {
+  min-height: 60svh;
+  padding-bottom: 3rem;
 }
 
 .home {
-  font-family: var(--font-caps), sans-serif;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.home a {
-  color: var(--fg);
-  text-decoration: none;
-}
-
-.home a:hover,
-.home a:focus-visible {
-  color: var(--accent-text);
+  max-width: 38rem;
 }

@@ -1,40 +1,53 @@
+/* Blog post — see page.tsx. Header, then prose at reading width (38rem). */
+
 .article {
-  max-width: calc(42rem + 2 * var(--gutter-x));
-  margin: 0 auto;
-  padding: calc(var(--nav-h) + 4rem) var(--gutter-x) 2rem;
+  padding-top: calc(var(--nav-h) + 3.5rem);
+  padding-bottom: 3rem;
 }
 
 .header {
+  max-width: 44rem;
   margin-bottom: 2.5rem;
 }
 
+/* The date, then the tags, on one line. */
 .meta {
-  font-family: var(--font-mono), monospace;
-  font-size: 0.8rem;
-  color: var(--accent-text);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  color: var(--fg-muted);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
 }
 
 .title {
   margin-top: 0.75rem;
-  font-family: var(--font-caps), "Arial Black", sans-serif;
-  font-weight: var(--caps-weight);
-  font-size: clamp(2rem, 6vw, 3.25rem);
+  font-size: var(--text-2xl);
+  font-weight: 400;
+  letter-spacing: -0.015em;
   line-height: 1.05;
-  letter-spacing: var(--caps-tracking);
-  text-transform: uppercase;
-  text-shadow: 0.05em 0.1em 0 var(--accent-2);
+  color: var(--fg);
 }
 
 .summary {
+  max-width: 38rem;
   margin-top: 1rem;
-  font-size: 1.2rem;
+  font-size: var(--text-md);
   color: var(--fg-muted);
 }
 
-/* Markdown body */
+/* --- Markdown body ----------------------------------------------------------- */
+
 .prose {
-  font-size: 1.15rem;
-  line-height: 1.7;
+  max-width: 38rem;
+  font-size: var(--text-base);
+  line-height: 1.6;
 }
 
 .prose p,
@@ -42,23 +55,27 @@
 .prose ol,
 .prose blockquote,
 .prose pre,
-.prose table {
+.prose table,
+.prose figure {
   margin: 0 0 1.25rem;
 }
 
 .prose h2 {
-  margin: 2.75rem 0 1rem;
-  font-family: var(--font-caps), sans-serif;
-  font-weight: 800;
-  font-size: 1.4rem;
-  text-transform: uppercase;
+  margin: 2.5rem 0 0.75rem;
+  font-size: var(--text-lg);
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 .prose h3 {
-  margin: 2rem 0 0.75rem;
-  font-family: var(--font-caps), sans-serif;
-  font-weight: 700;
-  font-size: 1.15rem;
+  margin: 2rem 0 0.5rem;
+  font-size: var(--text-md);
+  font-weight: 500;
+}
+
+.prose h4 {
+  margin: 1.5rem 0 0.5rem;
+  font-weight: 500;
 }
 
 .prose ul,
@@ -67,87 +84,86 @@
 }
 
 .prose li {
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.35rem;
 }
 
 .prose li::marker {
-  color: var(--accent-text);
-}
-
-.prose a {
-  color: var(--accent-text);
-}
-
-.prose blockquote {
-  padding: 0.75rem 1.25rem;
-  border-left: 3px solid var(--accent);
-  background: var(--bg-2);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   color: var(--fg-muted);
 }
 
-.prose img {
+.prose strong {
+  font-weight: 500;
+}
+
+.prose blockquote {
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--border);
+  color: var(--fg-muted);
+}
+
+.prose img,
+.prose video {
   margin: 2rem 0;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
 }
 
 .prose code {
-  font-family: var(--font-mono), monospace;
-  font-size: 0.85em;
-  padding: 0.12em 0.35em;
-  border-radius: 4px;
-  background: var(--bg-3);
+  font-family: var(--font-mono), ui-monospace, Menlo, monospace;
+  font-size: 0.875em;
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius);
+  background: var(--bg-2);
 }
 
 .prose pre {
-  font-family: var(--font-mono), monospace;
-  font-size: 0.85rem;
+  font-family: var(--font-mono), ui-monospace, Menlo, monospace;
+  font-size: var(--text-sm);
   line-height: 1.6;
   padding: 1rem 1.25rem;
   overflow-x: auto;
   background: var(--bg-2);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
 }
 
 .prose pre code {
   padding: 0;
-  background: none;
   font-size: inherit;
+  background: none;
+  border-radius: 0;
 }
 
 .prose table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 1rem;
+  font-size: var(--text-sm);
+}
+
+.prose th {
+  font-weight: 500;
 }
 
 .prose th,
 .prose td {
   padding: 0.5rem 0.75rem 0.5rem 0;
   text-align: left;
+  vertical-align: top;
   border-bottom: 1px solid var(--border);
 }
 
 .prose hr {
+  margin: 2.5rem 0;
   border: 0;
   border-top: 1px solid var(--border);
-  margin: 2.5rem 0;
 }
 
 .back {
   margin-top: 3rem;
-  font-family: var(--font-caps), sans-serif;
-  font-weight: 800;
-  text-transform: uppercase;
 }
 
-.back a {
-  color: var(--fg);
-  text-decoration: none;
-}
-
-.back a:hover,
-.back a:focus-visible {
-  color: var(--accent-text);
+@media print {
+  .article {
+    padding-top: 0;
+  }
 }

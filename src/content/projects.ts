@@ -13,9 +13,9 @@
                not ("Co-founded with Rohan Vittal"). Leave it out otherwise.
      blurb     what it does, then the one interesting thing about how. Two or
                three sentences. Lead with the thing, not with why it matters.
-     stack     tools, shown as tag pills
+     stack     tools, shown as a plain list under the blurb
      links     omit when there is nothing public to point at. A dead link is
-               worse than no link. The first one becomes the card's button.
+               worse than no link. The title (and the media) link to the first one.
      media     a real screenshot or screen recording. Omit it and the row
                shows a plain title tile instead. Never a mock-up.
      featured  true = shown in "Projects" on the home page (the first three)

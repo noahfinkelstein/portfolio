@@ -1,8 +1,8 @@
 /* ---------------------------------------------------------------------------
    EXPERIENCE — the roles on /experience (the printable CV) and in the
-   "My Journey" timeline on the home page, which shows the date, role, org
-   and first bullet. Newest first. A role whose `role` is listed in
-   `currently` in home.ts gets a "Now" marker.
+   Experience list on the home page, which shows the date, role, org and
+   first bullet. Newest first. A role whose `role` is listed in `currently`
+   in home.ts and whose date ends with "–" is dated "… – now".
 
    To add a role, copy a block and edit it. Fields:
      date    the date column. Keep it short; ~13 characters fit before wrapping.
@@ -11,7 +11,7 @@
      place   city, or leave it out
      bullets what you actually did. Two or three is plenty; the first one is
              the one shown on the home page.
-     stack   tools, shown as tag pills (printed as "A · B"). Omit to hide.
+     stack   tools, listed under the bullets on /experience. Omit to hide.
    --------------------------------------------------------------------------- */
 
 export type Role = {

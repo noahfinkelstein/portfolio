@@ -6,8 +6,8 @@
      const pageVisible = usePageVisible();      // false in a hidden tab
      const active = useActive(ref);             // inView && pageVisible
 
-   Use `useActive` to start/stop a three.js or matter-js loop, and
-   `useInView(ref, { once: true })` for play-once reveals.
+   Use `useActive` to start/stop the hero's three.js loop or a project video,
+   and `useInView` on its own when only the viewport matters.
    --------------------------------------------------------------------------- */
 
 import { useEffect, useState, useSyncExternalStore, type RefObject } from "react";

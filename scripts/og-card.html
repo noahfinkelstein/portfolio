@@ -2,14 +2,18 @@
   Source for the link-preview image at src/app/opengraph-image.png (1200x630):
   what shows up when someone pastes the site into Slack, iMessage or a tweet.
 
-  It mirrors the v3 hero in the Night theme (tokens from src/app/globals.css,
-  words from src/content/home.ts). Edit the text below, then run
+  It mirrors the v4 hero in the Night theme (tokens from src/app/globals.css,
+  words from src/content/home.ts): the name and two lines in STIX Two Text,
+  the domain in JetBrains Mono, the torus knot in amber. Edit the text below,
+  then run
 
       sh scripts/og-image.sh
 
   which renders this file with headless Chrome and overwrites the PNG. Or open
   it in a browser and screenshot the card at exactly 1200x630. The torus knot
-  on the right is drawn by the small script at the bottom.
+  on the right is drawn by the small script at the bottom (the same
+  projection the hero's no-WebGL fallback uses). Keep
+  src/app/opengraph-image.alt.txt in step with the words here.
 -->
 <!doctype html>
 <html lang="en">
@@ -17,62 +21,47 @@
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Fenix&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
 <style>
-  @font-face {
-    font-family: "BBH Sans Hegarty";
-    src: url("../src/app/fonts/BBHSansHegarty-Regular.woff2") format("woff2");
-    font-weight: 400;
-    font-display: block;
-  }
-  html, body { margin: 0; padding: 0; background: #0a0a0f; }
+  html, body { margin: 0; padding: 0; background: #0a0f1e; }
   #card {
     position: relative;
     width: 1200px; height: 630px; overflow: hidden;
     box-sizing: border-box;
-    background: #0a0a0f;
-    color: #f5f5fa;
+    background: #0a0f1e;
+    color: #ebe5d6;
     padding: 0 96px;
     display: flex; flex-direction: column; justify-content: center;
-    font-family: Fenix, Georgia, serif;
+    font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
+    -webkit-font-smoothing: antialiased;
   }
-  /* The theme's soft glow, top-left, as on the site. */
+  /* The Night theme's soft amber glow, top right, as on the site. */
   #card::before {
     content: ""; position: absolute; inset: 0;
-    background: radial-gradient(700px 700px at 12% -10%, rgba(124, 92, 255, 0.28), transparent 62%);
+    background: radial-gradient(1120px 800px at 80% -20%, rgba(226, 178, 63, 0.13), transparent 60%);
   }
-  .text { position: relative; z-index: 2; max-width: 760px; }
-  .kicker {
-    font-family: Montserrat, "Arial Black", sans-serif; font-weight: 900;
-    text-transform: uppercase; letter-spacing: 0.14em;
-    font-size: 19px; color: #a08bff; margin: 0 0 26px;
-  }
+  .text { position: relative; z-index: 2; max-width: 700px; }
   h1 {
-    font-family: "BBH Sans Hegarty", "Arial Black", Arial, sans-serif;
-    font-weight: 400; font-size: 112px; line-height: 0.95;
-    letter-spacing: 0.005em; margin: 0 0 30px;
+    font-weight: 500; font-size: 96px; line-height: 1;
+    letter-spacing: -0.015em; margin: 0 0 32px;
   }
-  .degree { font-size: 40px; line-height: 1.2; margin: 0 0 14px; }
-  .degree .brown { color: #facc15; }
-  .roles { font-size: 27px; line-height: 1.35; color: #9a9ab0; margin: 0; }
-  .roles b { font-weight: 400; color: #f5f5fa; }
-  .roles .org { color: #a08bff; }
+  .lede { font-size: 34px; line-height: 1.25; margin: 0 0 14px; color: #ebe5d6; }
+  .roles { font-size: 27px; line-height: 1.35; margin: 0; color: #a3aabb; }
   .dom {
-    position: absolute; z-index: 2; bottom: 52px; right: 96px;
-    font-family: "JetBrains Mono", Menlo, monospace; font-size: 22px;
-    color: #a08bff; letter-spacing: 0.01em;
+    position: absolute; z-index: 2; bottom: 52px; left: 96px;
+    font-family: "JetBrains Mono", Menlo, monospace; font-size: 21px;
+    color: #a3aabb; letter-spacing: 0;
   }
   /* The torus knot (see the script). */
-  #knot { position: absolute; z-index: 1; right: -60px; top: -10px; width: 580px; height: 580px; opacity: 0.65; }
+  #knot { position: absolute; z-index: 1; right: -110px; top: 10px; width: 600px; height: 600px; opacity: 0.85; }
 </style>
 </head>
 <body>
 <div id="card">
   <div class="text">
-    <p class="kicker">Hello, I am Noah</p>
     <h1>Noah Finkelstein</h1>
-    <p class="degree">Math–CS &amp; Physics <span class="brown">@ Brown University</span></p>
-    <p class="roles"><b>Co-Founder</b> <span class="org">@ CourseTrees</span>&nbsp;&nbsp;·&nbsp;&nbsp;ML Research <span class="org">@ Brown</span></p>
+    <p class="lede">Mathematics–computer science and physics at Brown University.</p>
+    <p class="roles">Co-founder of CourseTrees. Machine learning research.</p>
   </div>
   <svg id="knot" viewBox="-1.5 -1.5 3 3" aria-hidden="true"></svg>
   <div class="dom">noahfinkelstein.com</div>
@@ -103,10 +92,10 @@
       var el = document.createElementNS(ns, "polyline");
       el.setAttribute("points", pts.join(" "));
       el.setAttribute("fill", "none");
-      el.setAttribute("stroke", si % 2 ? "#a996ff" : "#7c5cff");
+      el.setAttribute("stroke", "#e2b23f");
       el.setAttribute("stroke-width", si === 1 ? "0.016" : "0.009");
       el.setAttribute("stroke-linejoin", "round");
-      el.setAttribute("opacity", si === 1 ? "0.95" : "0.6");
+      el.setAttribute("opacity", si === 1 ? "0.95" : "0.55");
       svg.appendChild(el);
     });
     // A few "points" along the main strand, like the particle field.
@@ -116,7 +105,7 @@
       var v = rot([w * Math.cos(p * t), w * Math.sin(p * t), r * Math.sin(q * t)]);
       var c = document.createElementNS(ns, "circle");
       c.setAttribute("cx", v[0].toFixed(4)); c.setAttribute("cy", (-v[1]).toFixed(4));
-      c.setAttribute("r", "0.014"); c.setAttribute("fill", "#f5f5fa"); c.setAttribute("opacity", "0.9");
+      c.setAttribute("r", "0.014"); c.setAttribute("fill", "#f3dc96"); c.setAttribute("opacity", "0.9");
       svg.appendChild(c);
     }
   })();

@@ -4,9 +4,9 @@
      const reduced = useReducedMotion();   // React; false during SSR
      prefersReducedMotion()                // anywhere on the client
 
-   With reduced motion on, the site shows no scramble, no loader, a static
-   torus, no marquee autoplay and no physics toss. CSS transitions and
-   animations are also cut globally in globals.css.
+   With reduced motion on, the hero's torus knot is one static frame and
+   the project videos stay on their posters. CSS transitions and animations
+   are also cut globally in globals.css.
    --------------------------------------------------------------------------- */
 
 import { useSyncExternalStore } from "react";

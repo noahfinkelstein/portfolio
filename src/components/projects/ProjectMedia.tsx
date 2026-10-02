@@ -1,7 +1,6 @@
 /* ---------------------------------------------------------------------------
-   ProjectMedia — the 16:10 rounded media frame on a project card, with a
-   1.05 zoom on hover (and while anything in the card has keyboard focus).
-   Real media only:
+   ProjectMedia — the 16:10 media frame in a project row: --radius corners,
+   a 1px --border, --bg-2 behind. Real media only:
 
      video  the poster as a next/image (responsive, lazy unless `priority`)
             with a muted <video> loop layered on top. ProjectVideo plays it
@@ -11,16 +10,15 @@
             is actually playing, so a slow or failed load still shows the
             poster.
      image  next/image with the file's own width/height.
-     none   a themed tile: the project title in heavy caps over an
-            accent gradient, a faint grid and a little noise. Never a fake
-            screenshot.
+     none   a plain tile: the project title in the serif on --bg-2. Never a
+            fake screenshot.
 
    The frame reserves its aspect ratio up front, so nothing shifts as media
-   loads.
+   loads. Nothing moves on hover.
 
    Props:
      project    the Project (uses project.media and project.title)
-     priority?  eager-load the still (first card above the fold)
+     priority?  eager-load the still (first row above the fold)
      sizes?     next/image sizes hint
      className? extra class on the frame
    --------------------------------------------------------------------------- */
@@ -37,15 +35,9 @@ export type ProjectMediaProps = {
   className?: string;
 };
 
-/** The card's media column is at most ~34rem wide; full width when stacked. */
-const DEFAULT_SIZES = "(max-width: 1024px) 100vw, 576px";
-
-/** A stable 0–3 per project, so neighbouring fallback tiles differ a little. */
-function variantFor(slug: string): number {
-  let h = 0;
-  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0;
-  return h % 4;
-}
+/** The row's media column is about half of a 68rem column from 900px; full
+ *  width when stacked. */
+const DEFAULT_SIZES = "(max-width: 899px) 100vw, 520px";
 
 export default function ProjectMedia({
   project,
@@ -59,17 +51,15 @@ export default function ProjectMedia({
   if (media?.type === "image") {
     return (
       <div className={frameClass}>
-        <div className={styles.zoom}>
-          <Image
-            className={styles.media}
-            src={media.src}
-            alt={media.alt}
-            width={media.width}
-            height={media.height}
-            sizes={sizes}
-            priority={priority}
-          />
-        </div>
+        <Image
+          className={styles.media}
+          src={media.src}
+          alt={media.alt}
+          width={media.width}
+          height={media.height}
+          sizes={sizes}
+          priority={priority}
+        />
       </div>
     );
   }
@@ -77,29 +67,23 @@ export default function ProjectMedia({
   if (media?.type === "video") {
     return (
       <div className={frameClass}>
-        <div className={styles.zoom}>
-          <Image
-            className={styles.media}
-            src={media.poster}
-            alt={media.alt}
-            width={media.width}
-            height={media.height}
-            sizes={sizes}
-            priority={priority}
-          />
-          <ProjectVideo className={styles.video} src={media.src} srcWebm={media.srcWebm} />
-        </div>
+        <Image
+          className={styles.media}
+          src={media.poster}
+          alt={media.alt}
+          width={media.width}
+          height={media.height}
+          sizes={sizes}
+          priority={priority}
+        />
+        <ProjectVideo className={styles.video} src={media.src} srcWebm={media.srcWebm} />
       </div>
     );
   }
 
   return (
-    <div className={[frameClass, styles.fallbackFrame].join(" ")}>
-      <div
-        className={[styles.zoom, styles.fallback].join(" ")}
-        data-variant={variantFor(project.slug)}
-        aria-hidden="true"
-      >
+    <div className={frameClass}>
+      <div className={styles.fallback} aria-hidden="true">
         <span className={styles.fallbackTitle}>{project.title}</span>
       </div>
     </div>

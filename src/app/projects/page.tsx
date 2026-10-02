@@ -1,18 +1,14 @@
 /* ---------------------------------------------------------------------------
    PROJECTS — "/projects"
 
-   The big page title with its offset
-   shadow (just "Projects": it matches the nav and the home page's "All
-   projects" link, and this page shows every visible project), then every
-   visible project from
-   src/content/projects.ts as a zig-zag card, the first with its media on
-   the right, alternating from there. Hidden ones (hidden: true) never
-   render. "← Home" at the bottom.
+   PageTitle "Projects", then every visible project from
+   src/content/projects.ts as a ProjectCard row, in file order. Hidden ones
+   (hidden: true) never render. The rows carry h2 headings here, under the
+   page's h1.
    --------------------------------------------------------------------------- */
 
 import type { Metadata } from "next";
 import PageTitle from "@/components/layout/PageTitle";
-import PageSelect from "@/components/layout/PageSelect";
 import ProjectCard from "@/components/projects/ProjectCard";
 import { getProjects } from "@/content/projects";
 import styles from "./page.module.css";
@@ -28,19 +24,11 @@ export default function ProjectsPage() {
   return (
     <div className={styles.page}>
       <PageTitle title="Projects" />
-      <div className={styles.list}>
+      <div className={["container", styles.list].join(" ")}>
         {projects.map((project, i) => (
-          <ProjectCard
-            key={project.slug}
-            project={project}
-            index={i}
-            reverse={i % 2 === 0}
-            headingLevel={2}
-            priority={i === 0}
-          />
+          <ProjectCard key={project.slug} project={project} headingLevel={2} priority={i === 0} />
         ))}
       </div>
-      <PageSelect back={{ href: "/", label: "Home" }} />
     </div>
   );
 }

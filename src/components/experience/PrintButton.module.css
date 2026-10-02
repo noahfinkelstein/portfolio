@@ -1,24 +1,23 @@
+/* PrintButton — see PrintButton.tsx. */
+
 .button {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.6rem 1rem;
-  border: 2px solid var(--fg);
+  min-height: 2.25rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
   color: var(--fg);
-  font-family: var(--font-caps), "Arial Black", sans-serif;
-  font-weight: var(--caps-weight);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   transition:
-    background-color var(--dur) var(--ease-out),
-    color var(--dur) var(--ease-out);
+    background-color var(--dur) ease,
+    border-color var(--dur) ease;
 }
 
 .button:hover,
 .button:focus-visible {
-  background: var(--fg);
-  color: var(--bg);
+  background: var(--bg-3);
+  border-color: var(--fg-muted);
 }
 
 @media print {

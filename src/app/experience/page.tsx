@@ -1,20 +1,25 @@
 /* ---------------------------------------------------------------------------
    EXPERIENCE — "/experience", the printable CV.
 
+   PageTitle "Experience" with the contact line (name, email, place) and the
+   print button, then three sections: "Research and work" (every role, all
+   bullets, as RoleList rows), "Education" (the same margin-column rows),
+   and "Tools" (SkillChips). Server component, no motion.
+
    Data: src/content/experience.ts (roles, education), src/content/home.ts
    (`currently` marks ongoing roles), src/content/skills.ts (Tools).
 
-   On screen it matches the home page's journey: a timeline rail with a node
-   per role, cards with the accent edge, tools as coloured pills. In print
-   (Cmd-P) it becomes a plain black-on-white CV: no nav, footer, rail, cards
-   or colour, tools as text.
+   Print (Cmd-P): black on white with no chrome. The name becomes the
+   headline, the rows tighten, and the chips and the course lists become
+   plain text separated by commas. Nothing a CV needs is hidden.
    --------------------------------------------------------------------------- */
 
 import type { Metadata } from "next";
 import PageTitle from "@/components/layout/PageTitle";
 import PrintButton from "@/components/experience/PrintButton";
+import RoleList from "@/components/experience/RoleList";
+import SkillChips from "@/components/experience/SkillChips";
 import { experience, education } from "@/content/experience";
-import { home } from "@/content/home";
 import { site } from "@/content/site";
 import { getResolvedSkills } from "@/lib/icons";
 import styles from "./page.module.css";
@@ -24,112 +29,61 @@ export const metadata: Metadata = {
   description: "Research, work, and education — Noah Finkelstein, Brown University.",
 };
 
-/** A tool keeps the same pill colour everywhere on the page (1–6). */
-function tagIndex(name: string): number {
-  let h = 0;
-  for (const ch of name.toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return (h % 6) + 1;
-}
-
-function Pills({ items, label }: { items: string[]; label: string }) {
+/** A labelled, comma-less wrapped list (coursework, activities). */
+function Listing({ label, items }: { label: string; items: string[] }) {
   return (
-    <ul role="list" className={styles.pills} aria-label={label}>
-      {items.map((item) => (
-        <li key={item} className={styles.pill} data-tag={tagIndex(item)}>
-          {item}
-        </li>
-      ))}
-    </ul>
+    <div className={styles.listing}>
+      <p className={styles.label}>{label}</p>
+      <ul role="list" className={styles.inline} aria-label={label}>
+        {items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
 export default function ExperiencePage() {
-  const current = new Set(home.currently);
   const skills = getResolvedSkills();
 
   return (
     <div className={styles.cv}>
       <PageTitle title="Experience" size="lg">
         {/* The contact line lives here (not in PageTitle's `lede`) so print can
-            set the name as the CV's headline, flush left with everything else. */}
+            set the name as the CV's headline. */}
         <p className={styles.contact}>
           <span className={styles.name}>{site.name}</span>
-          <span className={styles.nameSep}> · </span>
-          <a href={`mailto:${site.email}`}>{site.email}</a> · {site.location}
+          <a href={`mailto:${site.email}`}>{site.email}</a>
+          <span>{site.location}</span>
         </p>
         <div className={styles.actions}>
           <PrintButton />
         </div>
       </PageTitle>
 
-      <div className={styles.wrap}>
+      <div className={`container ${styles.wrap}`}>
         <section className={styles.section} aria-labelledby="work">
           <h2 id="work" className={styles.heading}>
             Research and work
           </h2>
-          <ol role="list" className={styles.timeline}>
-            {experience.map((role) => {
-              const isNow = current.has(role.role);
-              return (
-                <li key={role.role + role.date} className={[styles.record, isNow ? styles.now : ""].join(" ")}>
-                  <p className={styles.date}>
-                    <span>{role.date}</span>
-                    {isNow ? <span className={styles.nowTag}>Now</span> : null}
-                  </p>
-                  <article className={styles.card}>
-                    <h3 className={styles.title}>{role.role}</h3>
-                    <p className={styles.org}>
-                      {role.orgHref ? <a href={role.orgHref}>{role.org}</a> : role.org}
-                      {role.place ? <span className={styles.place}>, {role.place}</span> : null}
-                    </p>
-                    <ul className={styles.bullets}>
-                      {role.bullets.map((b) => (
-                        <li key={b}>{b}</li>
-                      ))}
-                    </ul>
-                    {role.stack ? <Pills items={role.stack} label={`Tools used as ${role.role}`} /> : null}
-                  </article>
-                </li>
-              );
-            })}
-          </ol>
+          <RoleList roles={experience} full />
         </section>
 
         <section className={styles.section} aria-labelledby="education">
           <h2 id="education" className={styles.heading}>
             Education
           </h2>
-          <ol role="list" className={styles.timeline}>
+          <ol role="list" className={styles.schools}>
             {education.map((school) => (
-              <li key={school.school} className={styles.record}>
-                <p className={styles.date}>
-                  <span>{school.date}</span>
-                </p>
-                <article className={styles.card}>
-                  <h3 className={styles.title}>{school.school}</h3>
-                  <p className={styles.org}>{school.degree}</p>
+              <li key={school.school} className={styles.row}>
+                <p className={`mono ${styles.date}`}>{school.date}</p>
+                <div className={styles.body}>
+                  <h3 className={styles.school}>{school.school}</h3>
+                  <p className={styles.degree}>{school.degree}</p>
                   {school.note ? <p className={styles.note}>{school.note}</p> : null}
-                  {school.coursework ? (
-                    <div className={styles.listing}>
-                      <h4 className={styles.label}>Coursework</h4>
-                      <ul role="list" className={styles.inline}>
-                        {school.coursework.map((c) => (
-                          <li key={c}>{c}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {school.activities ? (
-                    <div className={styles.listing}>
-                      <h4 className={styles.label}>Activities</h4>
-                      <ul role="list" className={styles.inline}>
-                        {school.activities.map((a) => (
-                          <li key={a}>{a}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </article>
+                  {school.coursework ? <Listing label="Coursework" items={school.coursework} /> : null}
+                  {school.activities ? <Listing label="Activities" items={school.activities} /> : null}
+                </div>
               </li>
             ))}
           </ol>
@@ -139,16 +93,7 @@ export default function ExperiencePage() {
           <h2 id="tools" className={styles.heading}>
             Tools
           </h2>
-          <ul role="list" className={styles.tools}>
-            {skills.map((s) => (
-              <li key={s.slug} className={styles.tool}>
-                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                  <path d={s.path} fill="currentColor" />
-                </svg>
-                <span>{s.name}</span>
-              </li>
-            ))}
-          </ul>
+          <SkillChips skills={skills} />
         </section>
       </div>
     </div>

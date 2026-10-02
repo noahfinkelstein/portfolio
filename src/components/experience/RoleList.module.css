@@ -1,0 +1,164 @@
+/* RoleList — see RoleList.tsx. [ --margin-col | 1fr ] from 700px; stacked
+   below. Rows are separated by a hairline. The print rules at the bottom
+   keep every row on one page and tighten the spacing for a CV. */
+
+.list {
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.35rem 1.5rem;
+  padding-block: 1.25rem;
+}
+
+.row + .row {
+  border-top: 1px solid var(--border);
+}
+
+.date {
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+}
+
+.body {
+  min-width: 0;
+  max-width: 38rem;
+}
+
+.role {
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--fg);
+}
+
+.org {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin-top: 0.2rem;
+  font-size: var(--text-base);
+  color: var(--fg-muted);
+}
+
+.org a {
+  color: inherit;
+}
+
+.org a:hover {
+  color: var(--accent-text);
+}
+
+.place {
+  color: var(--fg-muted);
+}
+
+/* The role's tools on the full CV: a small wrapped mono list. */
+.stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0.6rem 0 0;
+  color: var(--fg-muted);
+}
+
+.summary {
+  margin-top: 0.6rem;
+  font-size: var(--text-base);
+  color: var(--fg);
+}
+
+.bullets {
+  margin: 0.6rem 0 0;
+  padding-left: 1.5rem;
+  font-size: var(--text-base);
+  color: var(--fg);
+}
+
+.bullets li + li {
+  margin-top: 0.35rem;
+}
+
+.bullets li::marker {
+  color: var(--fg-muted);
+}
+
+@media (min-width: 700px) {
+  .row {
+    grid-template-columns: var(--margin-col) minmax(0, 1fr);
+  }
+
+  /* Sit the small mono date on the role's first line. */
+  .date {
+    padding-top: 0.3rem;
+  }
+}
+
+@media print {
+  .row {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: 0 1rem;
+    padding-block: 0.45rem;
+    break-inside: avoid;
+  }
+
+  .row + .row {
+    border-top: 0;
+  }
+
+  .date {
+    padding-top: 0.15rem;
+    font-size: 8.5pt;
+    color: #000;
+  }
+
+  .body {
+    max-width: none;
+  }
+
+  .role {
+    font-size: 10.5pt;
+  }
+
+  .org {
+    margin-top: 0;
+    font-size: 10pt;
+    color: #000;
+  }
+
+  .summary,
+  .bullets {
+    margin-top: 0.2rem;
+    font-size: 10pt;
+  }
+
+  .bullets {
+    padding-left: 1.1rem;
+  }
+
+  .bullets li + li {
+    margin-top: 0.1rem;
+  }
+
+  .bullets li::marker {
+    color: #000;
+  }
+
+  .stack {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 9pt;
+    color: #000;
+  }
+
+  .stack li {
+    display: inline;
+  }
+
+  .stack li:not(:last-child)::after {
+    content: ", ";
+  }
+}
