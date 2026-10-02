@@ -28,3 +28,6 @@ next-env.d.ts
 .gstack/
 .vercel
 .env*
+
+# agent worktrees
+.claude/worktrees/
