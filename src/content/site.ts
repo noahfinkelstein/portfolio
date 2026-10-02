@@ -87,11 +87,6 @@ export const site = {
     { label: "LinkedIn", href: "https://www.linkedin.com/in/noah-finkelstein", icon: "linkedin" },
   ] as readonly SocialLink[],
 
-  /** Footer line under the signature: a link to this site's source. */
-  credit: {
-    text: "Source on GitHub",
-    href: "https://github.com/noahfinkelstein/portfolio",
-  },
 
   themes,
   defaultTheme,
