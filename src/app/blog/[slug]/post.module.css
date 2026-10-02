@@ -1,7 +1,7 @@
 /* Blog post — see page.tsx. Header, then prose at reading width (38rem). */
 
 .article {
-  padding-top: calc(var(--nav-h) + 3.5rem);
+  padding-top: 3.5rem;
   padding-bottom: 3rem;
 }
 

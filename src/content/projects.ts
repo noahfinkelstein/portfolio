@@ -1,24 +1,27 @@
 /* ---------------------------------------------------------------------------
-   PROJECTS — /projects, and the first three `featured` ones on the home page.
-   Newest first. Adding a project is one block.
+   PROJECTS — /projects ("Work"), and the first three `featured` ones in the
+   home page's "Work" section. Newest first. Adding a project is one block.
 
    Fields:
      slug      short id, lowercase-with-dashes. Media lives at
                public/projects/<slug>/...
      title     the project's name
-     date      shown small next to the status. About 13 characters fit.
-     status    one or two words next to the date: "Live", "Open source",
-               "Unreleased", "Course project". Be honest.
-     kind      one line under the title that adds something the status does
-               not ("Co-founded with Rohan Vittal"). Leave it out otherwise.
+     date      shown in the margin column, in the mono. About 13 characters fit.
+     status    one or two words under the date: "Live", "Open source",
+               "Unreleased", "Course project". Shown lowercase and italic.
+               Be honest.
      blurb     what it does, then the one interesting thing about how. Two or
                three sentences. Lead with the thing, not with why it matters.
-     stack     tools, shown as a plain list under the blurb
+     stack     tools. Rendered at the end of the blurb as one italic clause,
+               "Built with A, B and C." Leave it out and the clause is too.
      links     omit when there is nothing public to point at. A dead link is
                worse than no link. The title (and the media) link to the first one.
-     media     a real screenshot or screen recording. Omit it and the row
-               shows a plain title tile instead. Never a mock-up.
-     featured  true = shown in "Projects" on the home page (the first three)
+     media     a real screenshot or screen recording, with its real pixel
+               width/height (for a video, the poster's): the figure keeps that
+               aspect ratio, nothing is cropped. `caption` is optional and is
+               set under the figure. Omit media and the row has no figure.
+               Never a mock-up.
+     featured  true = shown in "Work" on the home page (the first three)
      hidden    true = kept here, never rendered anywhere
    --------------------------------------------------------------------------- */
 
@@ -34,15 +37,21 @@ export type ProjectMedia =
       /** Still frame shown before the video plays and for reduced motion. */
       poster: string;
       alt: string;
+      /** The poster's pixel size. */
       width: number;
       height: number;
+      /** Optional line set under the figure. */
+      caption?: string;
     }
   | {
       type: "image";
       src: string;
       alt: string;
+      /** The file's pixel size. */
       width: number;
       height: number;
+      /** Optional line set under the figure. */
+      caption?: string;
     };
 
 export type Project = {
@@ -50,7 +59,6 @@ export type Project = {
   title: string;
   date: string;
   status: string;
-  kind?: string;
   blurb: string;
   stack?: string[];
   links?: ProjectLink[];
@@ -65,9 +73,8 @@ export const projects: Project[] = [
     date: "Apr 2026 – now",
     title: "CourseTrees",
     status: "Live",
-    kind: "Co-founded with Rohan Vittal",
     blurb:
-      "A course catalog is a few thousand paragraphs with the prerequisites buried in the prose, which makes it a graph pretending to be a list. CourseTrees parses the prose back into edges and lets you walk the result: click a course and see what it needs and what it opens up, next to grade distributions, ratings, and degree requirements. Live across 150 universities. The layout is a force simulation written by hand and run in a web worker, because no off-the-shelf layout stayed readable at catalog scale.",
+      "A course catalog is a few thousand paragraphs with the prerequisites buried in the prose, which makes it a graph pretending to be a list. CourseTrees parses the prose back into edges and lets you walk the result: click a course and see what it needs and what it opens up, next to grade distributions, ratings, and degree requirements. Live across 150 universities. The layout is a force simulation written by hand and run in a web worker, because no off-the-shelf layout stayed readable at catalog scale. Co-founded with Rohan Vittal.",
     stack: ["Next.js", "TypeScript", "Cytoscape", "Python", "PostgreSQL", "Supabase"],
     links: [{ label: "coursetrees.com", href: "https://coursetrees.com" }],
     media: {
@@ -85,7 +92,6 @@ export const projects: Project[] = [
     date: "Aug 2026",
     title: "The Sopranos CLI",
     status: "Open source",
-    kind: "A terminal toy that is also its own Homebrew tap",
     blurb:
       "Prints a quote from The Sopranos next to an ASCII portrait of whoever said it. POSIX sh and awk, no dependencies, and the repository doubles as its own Homebrew tap. The portraits are hex-digit pixel grids rendered at runtime as grayscale Unicode half-blocks, two pixels per terminal cell, downsampled to whatever size your terminal happens to be.",
     stack: ["sh", "awk"],
@@ -106,7 +112,6 @@ export const projects: Project[] = [
     date: "Jul–Aug 2026",
     title: "BrownSync",
     status: "Live",
-    kind: "A live map of what is happening on campus",
     blurb:
       "A live map of what is happening at Brown right now: events, club meetings, classes in session, athletics. It pulls from LiveWhale, an athletics calendar feed, campus news, and OpenStreetMap onto a 2.5D MapLibre map locked to College Hill. The TypeScript app and the Python ingestion pipeline share no code at all — they stay compatible by implementing one written data contract twice, as Zod schemas on one side and Pydantic models on the other.",
     stack: ["TypeScript", "MapLibre", "Python", "Zod", "Pydantic"],
@@ -126,7 +131,6 @@ export const projects: Project[] = [
     date: "Jul 2026",
     title: "brown3d",
     status: "Open source",
-    kind: "Campus and downtown Providence, in three.js",
     blurb:
       "Walk around Brown’s campus and downtown Providence in a browser. The 281 building footprints come from Brown’s public ArcGIS layers, extruded to heights read off USGS one-metre lidar and draped over terrain from the same survey; a Python pipeline turns 80 raw layers plus OpenStreetMap into the runtime assets. 272 buildings get a real lidar height, three are estimated from floor area, six fall back to a default, and the pipeline writes down which got which rather than hiding the difference.",
     stack: ["TypeScript", "three.js", "Vite", "Python"],
@@ -146,7 +150,6 @@ export const projects: Project[] = [
     date: "Jul 2026",
     title: "Campus Clash",
     status: "Unreleased",
-    kind: "An iOS app of daily minigames for your campus",
     blurb:
       "Students at the same school compete on the same daily minigames — sudoku, memory, archery, hoops — on a leaderboard gated by university email. The two arcade games are SpriteKit. The Firestore rules and Cloud Functions for scoring and weekly tournaments are written but not yet wired up, so for now it all runs on local state.",
     stack: ["Swift", "SwiftUI", "SpriteKit", "Firebase"],
@@ -158,7 +161,7 @@ export const projects: Project[] = [
     status: "Course project",
     blurb:
       "A sharded key-value store in C++: a shard controller that assigns key ranges to servers, and a client that routes each operation to whichever server currently owns that key. There is one reader-writer lock per hash bucket, and multi-key operations sort and deduplicate their bucket indices before taking any of them, so two concurrent MultiPuts cannot deadlock against each other.",
-    stack: ["C++", "Concurrency"],
+    stack: ["C++"],
     media: {
       type: "video",
       src: "/projects/kvstore/loop-control-plane.mp4",
@@ -173,7 +176,6 @@ export const projects: Project[] = [
     date: "Fall 2025",
     title: "BetaGo",
     status: "Course project",
-    kind: "A Go agent for the 9×9 board",
     blurb:
       "A Go agent for the 9×9 board, written to compare greedy, minimax, alpha-beta, iterative deepening, and Monte Carlo tree search under a fixed per-move time budget. The winner was not the interesting-sounding one: alpha-beta at depth 3, with a small learned value network standing in for the stone-count heuristic, took 293 of 300 games from the greedy baseline and 99 of 100 from depth-2 alpha-beta, while MCTS never beat alpha-beta at any depth I tried.",
     stack: ["Python", "PyTorch"],
@@ -210,7 +212,7 @@ export function getProjects(): Project[] {
   return projects.filter((p) => !p.hidden);
 }
 
-/** The home page's "Projects": featured and visible, in file order. */
+/** The home page's "Work": featured and visible, in file order. */
 export function getFeaturedProjects(limit = 3): Project[] {
   return getProjects()
     .filter((p) => p.featured)

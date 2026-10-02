@@ -20,6 +20,12 @@
   border-color: var(--fg-muted);
 }
 
+/* Without JavaScript the button could not print anything: hidden, like the
+   theme toggle (html[data-js] is set by the inline head script). */
+:global(html:not([data-js])) .button {
+  display: none;
+}
+
 @media print {
   .button {
     display: none;

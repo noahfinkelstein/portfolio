@@ -1,6 +1,9 @@
 /* ---------------------------------------------------------------------------
    FEED — blog posts, LinkedIn posts and press merged into one list, newest
-   first. Used by "Latest" on the home page and by the Writing page (/blog).
+   first, filtered by kind. The home page's "Writing" section asks for blog
+   posts, the Writing page (/blog) for blog and LinkedIn posts, and the CV's
+   "Press" section for press. Press items come from src/content/press.ts:
+   the outlet becomes `source`, the note the excerpt.
 
    SERVER ONLY (it reads content/blog/ from disk). Call it in a server
    component and pass the result down: every FeedItem is plain serializable
@@ -10,7 +13,7 @@
 import "server-only";
 import { getAllPosts } from "@/lib/blog";
 import { linkedinPosts, linkedinEmbedUrl, splitLinkedInText } from "@/content/linkedin";
-import { featured } from "@/content/featured";
+import { press } from "@/content/press";
 
 type FeedBase = {
   /** Stable key: "blog:<slug>", "linkedin:<id>", "press:<href>". */
@@ -23,13 +26,12 @@ type FeedBase = {
   href: string;
   /** Internal link (Next <Link>) vs external (opens in a new tab). */
   external: boolean;
-  image?: string;
 };
 
 export type FeedItem =
   | (FeedBase & { kind: "blog"; slug: string; tags: string[] })
   | (FeedBase & { kind: "linkedin"; id: string; embedUrl: string })
-  | (FeedBase & { kind: "press"; source?: string });
+  | (FeedBase & { kind: "press"; source: string });
 
 export type FeedKind = FeedItem["kind"];
 
@@ -64,24 +66,22 @@ export function getFeed(options: { kinds?: FeedKind[]; limit?: number } = {}): F
         excerpt: post.text,
         href: post.url,
         external: true,
-        image: post.image,
         embedUrl: linkedinEmbedUrl(post),
       });
     }
   }
 
   if (kinds.has("press")) {
-    for (const item of featured) {
+    for (const item of press) {
       items.push({
         kind: "press",
-        key: `press:${item.href}`,
+        key: `press:${item.url}`,
         date: item.date,
         title: item.title,
-        excerpt: item.description,
-        href: item.href,
+        excerpt: item.note ?? "",
+        href: item.url,
         external: true,
-        image: item.image,
-        source: item.source,
+        source: item.outlet,
       });
     }
   }

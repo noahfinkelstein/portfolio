@@ -1,8 +1,9 @@
 "use client";
 
 /* ---------------------------------------------------------------------------
-   PrintButton — "Print / save as PDF" on /experience. A small bordered
-   button that calls window.print(); hidden in print (data-print-hide).
+   PrintButton — "Print / save as PDF" on /cv. A small bordered
+   button that calls window.print(); hidden in print (data-print-hide) and
+   when scripts do not run (it could not work).
    Client component only for the click handler.
 
    Props:

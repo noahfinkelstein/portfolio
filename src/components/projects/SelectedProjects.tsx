@@ -1,11 +1,11 @@
 /* ---------------------------------------------------------------------------
-   SelectedProjects — the home page's "Projects" section: a SectionHeader,
-   the featured projects as ProjectCard rows, and a plain "All projects" link
-   to /projects. Server component, no motion.
+   SelectedProjects — the home page's "Work" section (id "work"): a
+   SectionHeader, the featured projects as ProjectCard rows, and a plain
+   "All work" link to /projects. Server component, no motion.
 
    Props:
      projects  Project[] to show (the page passes getFeaturedProjects())
-     title?    section heading text (default: home.sections.selectedProjects)
+     title?    section heading text (default: home.sections.work)
    --------------------------------------------------------------------------- */
 
 import Link from "next/link";
@@ -20,15 +20,15 @@ export type SelectedProjectsProps = {
   title?: string;
 };
 
-const HEADING_ID = "projects-heading";
+const HEADING_ID = "work-heading";
 
 export default function SelectedProjects({
   projects,
-  title = home.sections.selectedProjects,
+  title = home.sections.work,
 }: SelectedProjectsProps) {
   if (projects.length === 0) return null;
   return (
-    <section id="projects" className={styles.section} aria-labelledby={HEADING_ID}>
+    <section id="work" className={styles.section} aria-labelledby={HEADING_ID}>
       <SectionHeader text={title} id={HEADING_ID} />
       <div className="container">
         <div className={styles.list}>
@@ -37,7 +37,7 @@ export default function SelectedProjects({
           ))}
         </div>
         <p className={styles.more}>
-          <Link href="/projects">All projects</Link>
+          <Link href="/projects">All work</Link>
         </p>
       </div>
     </section>

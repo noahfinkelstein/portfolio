@@ -1,8 +1,8 @@
 /* ---------------------------------------------------------------------------
    feedText — what a feed item says in a list row: the title, where it lives
    said in words ("On LinkedIn", the press outlet; nothing for a blog post),
-   and a one-line excerpt. Shared by Latest (home) and WritingList (/blog)
-   through FeedRow. Plain functions, no Node APIs.
+   and a one-line excerpt. Shared by Latest (the home page's "Writing") and
+   WritingList (/blog) through FeedRow. Plain functions, no Node APIs.
    --------------------------------------------------------------------------- */
 
 import type { FeedItem } from "@/lib/feed";
@@ -41,7 +41,7 @@ export function feedRowText(item: FeedItem): FeedRowText {
     return { title: item.title, source: "On LinkedIn", excerpt: oneLine(body) };
   }
   if (item.kind === "press") {
-    return { title: item.title, source: item.source ?? "", excerpt: oneLine(item.excerpt) };
+    return { title: item.title, source: item.source, excerpt: oneLine(item.excerpt) };
   }
   return { title: item.title, source: "", excerpt: oneLine(item.excerpt) };
 }

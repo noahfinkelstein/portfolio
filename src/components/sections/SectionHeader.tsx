@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------------------
-   SectionHeader — the heading at the top of every home page section
-   (Projects, Latest, About, Experience): a sentence-case serif h2 above a
-   hairline. Server component, no motion.
+   SectionHeader — the heading at the top of a home page section (Work,
+   Writing): a sentence-case serif h2 under a hairline. Server component,
+   no motion.
 
    Props:
      text        the heading

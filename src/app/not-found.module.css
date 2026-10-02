@@ -1,7 +1,8 @@
 /* Not found — see not-found.tsx. */
 
+/* No min-height: <main> already grows to fill the body's 100dvh column, so
+   the colophon sits at the foot of the viewport without adding a scroll. */
 .root {
-  min-height: 60svh;
   padding-bottom: 3rem;
 }
 

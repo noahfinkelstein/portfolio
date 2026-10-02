@@ -1,10 +1,11 @@
 "use client";
 
 /* ---------------------------------------------------------------------------
-   HeroFigure — what goes inside the hero's figure box: the static SVG knot
-   (passed in as `fallback` by Hero.tsx, so it stays a server component and
-   is in the server-rendered HTML) and, once it has loaded and drawn its
-   first frame, the three.js canvas fading in over it. The only client file
+   HeroFigure — what goes inside the box of the hero's knot figure
+   ("Fig. 1"): the static SVG trefoil (passed in as `fallback` by Hero.tsx,
+   so it stays a server component and is in the server-rendered HTML) and,
+   once it has loaded and drawn its first frame, the three.js ink figure
+   fading in over it while the SVG fades out. The only client file
    Hero.tsx touches: it holds the next/dynamic() call so Hero itself stays a
    server component.
 

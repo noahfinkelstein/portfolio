@@ -2,7 +2,7 @@
    WritingList — the list on the Writing page (/blog): blog posts and
    LinkedIn posts, newest first, grouped by year. Each year is a heading
    over rows of [date | title link + summary] (FeedRow, the same rows as
-   "Latest" on the home page). LinkedIn posts link to the original; nothing
+   the "Writing" section on the home page). LinkedIn posts link to the original; nothing
    is ever requested from linkedin.com.
 
    Server component: no state, no JavaScript needed to read it. With no

@@ -3,27 +3,30 @@
 /* ---------------------------------------------------------------------------
    THEME — the runtime side of the theme system.
 
-   Colors are CSS custom properties in src/app/globals.css, one block per
-   `html[data-theme="<id>"]`. This file switches between them and lets canvas
-   code (three.js) read the resolved values.
+   Two themes, paper and night (src/content/site.ts). Colours are CSS custom
+   properties in src/app/globals.css: paper on :root, night on
+   `html[data-theme="night"]`. This file switches between them and lets
+   canvas code (three.js) read the resolved values.
 
-   React:
-     const { theme, setTheme, themes, meta, tokens } = useTheme();
-       tokens is null during SSR and the first client render, then the
-       resolved ThemeTokens; it updates whenever the theme changes.
-
-   Anything else (a render loop, a class):
+   API (plain functions; the theme toggle and the hero canvas use them):
      readThemeTokens()                    → ThemeTokens for the current theme
+     toggleTheme()                        → paper ⇄ night, saved
+     setTheme(id, { persist? })           → a specific theme
+     getCurrentTheme(), getThemeMeta(id)  → the theme on <html>, its entry
      const off = onThemeChange(({ theme, tokens }) => { ... });   off() to stop
        (it is a window CustomEvent "themechange"; detail = ThemeChangeDetail)
+   ThemeProvider (mounted once in the root layout) keeps tabs in sync.
+
+   Until a visitor picks a theme, ThemeProvider follows the system's
+   prefers-color-scheme as it changes; a pick is saved and wins from then on.
 
    Tokens read here must be authored as plain hex or a number in globals.css —
    getComputedStyle returns a custom property's text, so color-mix() would
    come back unresolved.
    --------------------------------------------------------------------------- */
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
-import { defaultTheme, isThemeId, themes, type ThemeId, type ThemeMeta } from "@/content/site";
+import { useEffect } from "react";
+import { darkTheme, defaultTheme, isThemeId, themes, type ThemeId, type ThemeMeta } from "@/content/site";
 import { THEME_STORAGE_KEY } from "@/lib/theme-script";
 
 export { THEME_STORAGE_KEY };
@@ -37,23 +40,12 @@ export type ThemeTokens = {
   bg3: string;
   fg: string;
   fgMuted: string;
-  link: string;
   accent: string;
   /** Accent that passes 4.5:1 as text on --bg and --bg-2. */
   accentText: string;
-  /** Offset-shadow color behind big titles. */
-  accent2: string;
-  highlight: string;
   border: string;
-  /** 3D scene colors (hero torus field). */
-  scenePoint: string;
-  sceneLine: string;
-  sceneRing: string;
+  /** The hero knot's ink. */
   sceneWire: string;
-  /** Overall canvas opacity, 0–1. */
-  sceneOpacity: number;
-  /** Tag pill base colors 1–6 (border; background is 15% of it). */
-  tags: string[];
 };
 
 export type ThemeChangeDetail = { theme: ThemeId; tokens: ThemeTokens };
@@ -82,7 +74,6 @@ export function readThemeTokens(): ThemeTokens {
   const theme = getCurrentTheme();
   const style = getComputedStyle(document.documentElement);
   const v = (name: string) => style.getPropertyValue(name).trim();
-  const opacity = parseFloat(v("--scene-opacity"));
   return {
     theme,
     isDark: getThemeMeta(theme).dark,
@@ -91,18 +82,10 @@ export function readThemeTokens(): ThemeTokens {
     bg3: v("--bg-3"),
     fg: v("--fg"),
     fgMuted: v("--fg-muted"),
-    link: v("--link"),
     accent: v("--accent"),
     accentText: v("--accent-text"),
-    accent2: v("--accent-2"),
-    highlight: v("--highlight"),
     border: v("--border"),
-    scenePoint: v("--scene-point"),
-    sceneLine: v("--scene-line"),
-    sceneRing: v("--scene-ring"),
     sceneWire: v("--scene-wire"),
-    sceneOpacity: Number.isFinite(opacity) ? opacity : 0.6,
-    tags: [1, 2, 3, 4, 5, 6].map((i) => v(`--tag-${i}`)),
   };
 }
 
@@ -144,34 +127,25 @@ export function setTheme(id: ThemeId, options: { persist?: boolean } = {}): void
   window.dispatchEvent(new CustomEvent(THEME_EVENT, { detail }));
 }
 
-/* --- React ------------------------------------------------------------------ */
-
-function subscribe(callback: () => void): () => void {
-  window.addEventListener(THEME_EVENT, callback);
-  return () => window.removeEventListener(THEME_EVENT, callback);
+/** Switch paper ⇄ night (whichever is not showing) and save the choice. */
+export function toggleTheme(): void {
+  setTheme(getThemeMeta(getCurrentTheme()).dark ? defaultTheme : darkTheme);
 }
 
-export function useTheme(): {
-  theme: ThemeId;
-  setTheme: (id: ThemeId) => void;
-  themes: readonly ThemeMeta[];
-  meta: ThemeMeta;
-  tokens: ThemeTokens | null;
-} {
-  const theme = useSyncExternalStore(subscribe, getCurrentTheme, () => defaultTheme);
-  const [tokens, setTokens] = useState<ThemeTokens | null>(null);
+/* --- React ------------------------------------------------------------------ */
 
-  useEffect(() => {
-    setTokens(readThemeTokens());
-  }, [theme]);
-
-  const set = useCallback((id: ThemeId) => setTheme(id), []);
-  return { theme, setTheme: set, themes, meta: getThemeMeta(theme), tokens };
+function hasSavedTheme(): boolean {
+  try {
+    return isThemeId(localStorage.getItem(THEME_STORAGE_KEY));
+  } catch {
+    return false;
+  }
 }
 
 /**
- * Mounted once in the root layout. Keeps tabs in sync: switching the theme in
- * one tab switches it in the others.
+ * Mounted once in the root layout. Keeps tabs in sync (switching the theme in
+ * one tab switches it in the others) and, until the visitor has picked a
+ * theme, follows the system's light/dark setting when it changes.
  */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -180,8 +154,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setTheme(event.newValue, { persist: false });
       }
     };
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    const onScheme = () => {
+      if (!hasSavedTheme()) setTheme(mql.matches ? darkTheme : defaultTheme, { persist: false });
+    };
     window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    mql.addEventListener("change", onScheme);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      mql.removeEventListener("change", onScheme);
+    };
   }, []);
 
   return <>{children}</>;

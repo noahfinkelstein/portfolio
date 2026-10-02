@@ -1,6 +1,6 @@
 /* ---------------------------------------------------------------------------
-   LINKEDIN — your LinkedIn posts, shown in "Latest" on the home page and on
-   the Writing page (/blog) next to blog posts.
+   LINKEDIN — your LinkedIn posts, shown on the Writing page (/blog) next to
+   blog posts.
 
    The posts are cached in src/content/linkedin-posts.json so the site never
    calls LinkedIn at build or view time. Each entry:

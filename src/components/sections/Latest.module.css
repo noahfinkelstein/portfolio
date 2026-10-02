@@ -1,5 +1,5 @@
 /* Latest — see Latest.tsx. The row rules (.row and what is inside it) are
-   shared with the Writing page through FeedRow.tsx. */
+   shared with the Writing page (/blog) through FeedRow.tsx. */
 
 .section {
   padding-block: 3rem 1rem;

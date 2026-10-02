@@ -1,56 +1,71 @@
 /* ---------------------------------------------------------------------------
-   TorusKnotSvg — a static (2,3) torus knot as inline SVG: the hero figure
-   before the canvas is ready, and all of it when WebGL is unavailable or
-   JavaScript is off. Server component (Hero.tsx renders it and hands it to
-   HeroFigure as a child), so the markup is in the server-rendered HTML and
-   the geometry is computed once, at build time.
+   TorusKnotSvg — the hero figure as a static ink drawing: the trefoil, a
+   (2,3) torus knot, in inline SVG. It is the figure before the canvas is
+   ready, and all of it when WebGL is unavailable or JavaScript is off.
+   Server component (Hero.tsx renders it and hands it to HeroFigure as a
+   child), so the markup is in the server-rendered HTML and the geometry is
+   computed once, at build time.
 
-   Four parallel strands around the knot's tube, tilted and projected
-   orthographically (the same projection as scripts/og-card.html), plus a
-   ring of dots along the main strand like the canvas's points. Strokes are
-   --scene-wire, dots --scene-point, the whole thing at --scene-opacity, so
-   it follows the theme.
+   The curve and the viewing angle come from knot.ts, the same ones the
+   three.js scene uses, projected orthographically. It is drawn as solid
+   strokes in --scene-wire with a small gap on each side wherever a strand
+   passes beneath another, like a knot diagram in print: a sample of the
+   curve is left out when another part of the curve, far away along the
+   string, passes within GAP of it on the page and nearer the viewer. The
+   strand is then drawn as the runs of samples that remain.
 
    Props:
      className   class for the <svg> (the owner positions and sizes it)
    --------------------------------------------------------------------------- */
 
-const P = 2;
-const Q = 3;
-const R = 0.78;
-const STEPS = 320;
-const DOTS = 90;
-const TILT_X = 0.9;
-const TILT_Y = 0.55;
-/** Tube radii of the strands; the second one is the main strand. */
-const STRANDS = [0.26, 0.3, 0.34, 0.38];
-const MAIN = 1;
+import { KNOT_INK, KNOT_SHAPE, KNOT_VIEW, viewPoint, type Vec3 } from "./knot";
 
-/** Tilt about x, then y, and drop z (orthographic). Returns [x, -y] for SVG. */
-function project(x: number, y: number, z: number): [string, string] {
-  const y1 = y * Math.cos(TILT_X) - z * Math.sin(TILT_X);
-  const z1 = y * Math.sin(TILT_X) + z * Math.cos(TILT_X);
-  const x2 = x * Math.cos(TILT_Y) + z1 * Math.sin(TILT_Y);
-  return [x2.toFixed(3), (-y1).toFixed(3)];
-}
+/** Samples along the curve. */
+const STEPS = 720;
+/** Stroke width, in knot units (the canvas's ink tube is this wide). */
+const STROKE = 2 * KNOT_INK.inkRadius;
+/** Half-width of the break around an over-strand, to the end of the stroke. */
+const GAP = KNOT_INK.gapRadius + KNOT_INK.inkRadius;
+/** Samples closer than this along the curve are the same strand, not a crossing. */
+const SAME_STRAND = STEPS / 12;
 
-function knotPoint(t: number, r: number): [string, string] {
-  const w = R + r * Math.cos(Q * t);
-  return project(w * Math.cos(P * t), w * Math.sin(P * t), r * Math.sin(Q * t));
-}
+const points: Vec3[] = Array.from({ length: STEPS }, (_, i) => viewPoint((i / STEPS) * Math.PI * 2));
 
-const strands: string[] = STRANDS.map((r) => {
-  const points: string[] = [];
-  for (let i = 0; i <= STEPS; i++) {
-    const [x, y] = knotPoint((i / STEPS) * Math.PI * 2, r);
-    points.push(`${x},${y}`);
-  }
-  return points.join(" ");
-});
-
-const dots: Array<[string, string]> = Array.from({ length: DOTS }, (_, i) =>
-  knotPoint((i / DOTS) * Math.PI * 2, STRANDS[MAIN]),
+const hidden: boolean[] = points.map(([x, y, z], i) =>
+  points.some(([ox, oy, oz], j) => {
+    const apart = Math.abs(i - j);
+    if (Math.min(apart, STEPS - apart) <= SAME_STRAND) return false;
+    return oz > z && Math.hypot(ox - x, oy - y) < GAP;
+  }),
 );
+
+/** The visible runs of the closed curve, as SVG polyline point lists. */
+function visibleRuns(): string[] {
+  const format = (i: number) => `${points[i][0].toFixed(3)},${(-points[i][1]).toFixed(3)}`;
+  const start = hidden.findIndex((h, i) => h && !hidden[(i + 1) % STEPS]);
+  if (start === -1) {
+    /* No crossings found: one closed loop. */
+    return [[...points.keys(), 0].map(format).join(" ")];
+  }
+  const runs: string[] = [];
+  let run: string[] = [];
+  for (let k = 1; k <= STEPS; k++) {
+    const i = (start + k) % STEPS;
+    if (hidden[i]) {
+      if (run.length > 1) runs.push(run.join(" "));
+      run = [];
+    } else {
+      run.push(format(i));
+    }
+  }
+  if (run.length > 1) runs.push(run.join(" "));
+  return runs;
+}
+
+const runs = visibleRuns();
+
+const HALF = (KNOT_SHAPE.R + KNOT_SHAPE.A + KNOT_INK.gapRadius) / KNOT_VIEW.fill;
+const VIEW_BOX = `${-HALF} ${-HALF} ${2 * HALF} ${2 * HALF}`;
 
 export type TorusKnotSvgProps = {
   className?: string;
@@ -60,24 +75,14 @@ export default function TorusKnotSvg({ className }: TorusKnotSvgProps) {
   return (
     <svg
       className={className}
-      viewBox="-1.5 -1.5 3 3"
+      viewBox={VIEW_BOX}
       preserveAspectRatio="xMidYMid meet"
       aria-hidden="true"
       focusable="false"
     >
-      <g fill="none" stroke="var(--scene-wire)" strokeLinejoin="round" opacity="var(--scene-opacity)">
-        {strands.map((points, i) => (
-          <polyline
-            key={i}
-            points={points}
-            strokeWidth={i === MAIN ? 0.016 : 0.009}
-            opacity={i === MAIN ? 0.95 : 0.6}
-          />
-        ))}
-      </g>
-      <g fill="var(--scene-point)" opacity="var(--scene-opacity)">
-        {dots.map(([cx, cy], i) => (
-          <circle key={i} cx={cx} cy={cy} r="0.014" />
+      <g fill="none" stroke="var(--scene-wire)" strokeWidth={STROKE} strokeLinecap="round" strokeLinejoin="round">
+        {runs.map((run, i) => (
+          <polyline key={i} points={run} />
         ))}
       </g>
     </svg>

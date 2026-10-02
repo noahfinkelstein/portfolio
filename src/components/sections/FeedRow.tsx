@@ -1,6 +1,6 @@
 /* ---------------------------------------------------------------------------
-   FeedRow — one row of a feed list (Latest on the home page, the year groups
-   on the Writing page): the date in the margin column, the title as a link,
+   FeedRow — one row of a feed list (the home page's "Writing" section, the
+   year groups on the Writing page): the date in the margin column, the title as a link,
    then one line that says where the item lives when it is not here ("On
    LinkedIn", the outlet) and the start of its description. External items
    open in a new tab and say so to screen readers.

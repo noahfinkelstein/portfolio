@@ -1,7 +1,8 @@
 # noahfinkelstein.com
 
-A personal site: a torus-knot figure in the hero, projects with real screen
-recordings, writing, and a printable CV, in four colour themes.
+A personal site set like a short paper: a trefoil-knot figure in the front
+matter, projects with real screen recordings, writing, and a printable CV, in
+a light theme (paper) and a dark one (night).
 
 Next.js 15 (App Router), React 19, TypeScript, plain CSS Modules. three.js
 draws the knot and loads lazily, only on the home page, pausing when it is off
@@ -21,13 +22,13 @@ normal way to update the site; you should rarely need to open a component.
 
 | To change | Edit |
 | --- | --- |
-| Name, email, nav, profile links, résumé switch, theme list | `src/content/site.ts` |
-| The hero lede, the figure caption, section headings, About text, portrait | `src/content/home.ts` |
-| Projects (rows, media, which three are on the home page) | `src/content/projects.ts` |
-| Jobs, research, education (home list and `/experience`) | `src/content/experience.ts` |
-| Tool logos under Experience and in the CV | `src/content/skills.ts` |
-| Press and features in "Latest" | `src/content/featured.ts` |
-| LinkedIn posts in "Latest" and on `/blog` | `npm run linkedin` (writes `src/content/linkedin-posts.json`) |
+| Name, email, running head links, profile links, theme list | `src/content/site.ts` |
+| The lede, the Fig. 1 caption, section headings (Work, Writing), the intro paragraphs, the portrait (Fig. 2) | `src/content/home.ts` |
+| Projects (rows, media, which three are in "Work" on the home page) | `src/content/projects.ts` |
+| Jobs, research, education (the CV at `/cv`) | `src/content/experience.ts` |
+| The CV's "Technical" section | `src/content/skills.ts` |
+| The CV's "Press" section | `src/content/press.ts` |
+| LinkedIn posts on `/blog` | `npm run linkedin` (writes `src/content/linkedin-posts.json`) |
 | A blog post | add a file to `content/blog/` |
 | Theme colours and shared tokens (type scale, spacing, widths) | `src/app/globals.css` |
 | Fonts | `src/app/layout.tsx` (top of the file) |
@@ -44,27 +45,30 @@ Add one block to `projects` in `src/content/projects.ts` (newest first):
   title: "My Project",
   date: "Oct 2026",
   status: "Live",                  // one or two words: Live, Open source, Unreleased, Course project
-  kind: "Built with a friend",     // optional line that adds something the status does not
   blurb: "What it does, then the one interesting thing about how.",
-  stack: ["TypeScript", "Python"], // plain list under the blurb
+  stack: ["TypeScript", "Python"], // ends the blurb as "Built with TypeScript and Python."
   links: [{ label: "GitHub", href: "https://github.com/..." }], // first = where the title links
   media: {
     type: "video",
     src: "/projects/my-project/loop.mp4",
     poster: "/projects/my-project/loop-poster.webp",
     alt: "What the recording shows.",
-    width: 1600,
+    width: 1600,                   // the poster's real pixel size
     height: 1000,
+    caption: "Optional line under the figure.",
   },
-  featured: true,                  // one of the three on the home page
+  featured: true,                  // one of the three in "Work" on the home page
 },
 ```
 
+- Each row has the date and the status (set lowercase and italic) in the
+  margin column, then the title, the blurb and the figure.
 - Leave out `links` when there is nothing public; the title is then plain text.
-- Leave out `media` and the row shows a plain title tile. Never use a
-  mock-up. A still works too: `{ type: "image", src, alt, width, height }`.
-- The frame is 16:10 and crops to fill, so 1600×1000 recordings fit exactly.
-  Videos are muted loops that play only while on screen (never with reduced
+- Leave out `media` and the row has no figure. Never use a mock-up. A still
+  works too: `{ type: "image", src, alt, width, height }`.
+- Nothing is cropped: each figure keeps the aspect ratio of its `width` and
+  `height`, so give the file's real pixel size
+  (`sips -g pixelWidth -g pixelHeight file.webp`). Videos are muted loops that play only while on screen (never with reduced
   motion; the poster shows instead). Encode them as H.264 MP4, `yuv420p`,
   limited range, with `+faststart`, and keep each under about 3 MB:
 
@@ -76,23 +80,22 @@ Add one block to `projects` in `src/content/projects.ts` (newest first):
   A WebM (`srcWebm`) is optional and only worth it when it is smaller. Avoid
   full-range (`yuvj420p` / `pc`) files: in testing, Chrome intermittently
   failed to decode a full-range VP9 loop, and the row fell back to the poster.
-- `featured: true` puts a project in "Projects" on the home page (the first
+- `featured: true` puts a project in "Work" on the home page (the first
   three featured, in file order). `hidden: true` keeps it in the file but off
   the site.
 
 ### Adding a skill
 
-One line in `src/content/skills.ts`:
+`src/content/skills.ts` is a list of categories, each one row of the CV's
+"Technical" section: the label in the margin column, the items after it as one
+sentence ("Python, TypeScript, C++, R and Swift.").
 
 ```ts
-{ name: "Rust", icon: "rust" },
+{ label: "Languages", items: ["Python", "TypeScript", "C++", "R", "Swift", "Rust"] },
 ```
 
-`icon` is a [Simple Icons](https://simpleicons.org) slug (lowercase, "." is
-"dot", "+" is "plus": `nextdotjs`, `cplusplus`). A slug that does not exist
-fails the build, so a typo cannot ship. Logos use their brand colour unless it
-is too faint on the theme; `color: "#hex"` overrides it. Only list tools that
-appear in `experience.ts` or `projects.ts`.
+Add a tool to the right `items` list, or a new block for a new category. Only
+list tools that appear in `experience.ts` or `projects.ts`.
 
 ### Adding a LinkedIn post
 
@@ -106,29 +109,26 @@ npm run linkedin -- remove 7234...
 `add` fetches the post's public embed page once and stores the text, the date
 (decoded from the post id) and the preview image. The image is downloaded to
 `public/linkedin/<id>.jpg`, because LinkedIn's image links expire; commit it
-with the JSON. The site itself never calls LinkedIn. Posts show in "Latest" on
-the home page and on `/blog`, linking out to LinkedIn. Run
+with the JSON. The site itself never calls LinkedIn. Posts show on `/blog`
+next to the blog posts, linking out to LinkedIn. Run
 `node scripts/linkedin.mjs help` for every option.
-
-"Latest" appears on the home page once there are three or more items (blog
-posts, LinkedIn posts and press together); fewer than that and the section is
-left out, while `/blog` still lists everything.
 
 ### Adding a press item
 
-One block in `src/content/featured.ts`:
+One block in `src/content/press.ts`:
 
 ```ts
 {
+  outlet: "WPRI 12",
   title: "What the piece was called",
   date: "2026-05-01",
-  description: "One or two sentences on what it covered.",
-  href: "https://the-outlet.com/the-piece",
-  source: "WPRI 12",                         // optional
+  url: "https://the-outlet.com/the-piece",
+  note: "One sentence on what it covered.",   // optional
 },
 ```
 
-It joins blog and LinkedIn posts in "Latest", sorted by date.
+Press shows only in the CV's "Press" section, newest first; the section is
+left out while the list is empty.
 
 ### Writing a post
 
@@ -145,31 +145,33 @@ tags: [math, code]
 Markdown from here down.
 ```
 
-It appears on `/blog` (and in "Latest") automatically, newest first. Files
-whose names start with `_` are ignored, so `content/blog/_template.mdx` is a
-scratch copy you can work from. While there are no posts at all, "Writing"
-is left out of the nav.
+It appears on `/blog` and in the "Writing" section of the home page
+automatically, newest first. Files whose names start with `_` are ignored, so
+`content/blog/_template.mdx` is a scratch copy you can work from. While there
+are no posts at all, "Writing" is left out of the running head and the home
+page.
 
 ### Themes
 
-There are four: Night (the default), Cyan, Terminal and Paper. The switcher is
-in the nav (and in the phone menu); the choice is saved in `localStorage` and
-applied by a small inline script before the first paint, so there is no
-flash. The knot, the scrollbar and every colour re-tint live when it changes.
+There are two: Paper (off-white page, dark ink, oxblood links) and Night
+(navy page, amber accent). Paper is the default and what the page shows
+without JavaScript; a first-time visitor whose system prefers dark gets Night.
+The running head ends with a text button that reads "Dark" on Paper and
+"Light" on Night. A choice is saved in `localStorage` and applied by a small
+inline script before the first paint, so there is no flash; until a visitor
+picks, the site follows the system setting. The knot and every colour re-tint
+live when it changes.
 
-To add a theme:
+The colours are in `src/app/globals.css`: Paper on `:root,
+html[data-theme="paper"]`, Night on `html[data-theme="night"]`. Tokens that
+canvas code reads (`--bg` to `--border`, `--scene-wire`) must stay plain hex.
+Text colours (`--fg`, `--fg-muted`, `--accent-text`) need 4.5:1 contrast on
+`--bg`, `--bg-2` and `--bg-3`; use `--accent` for fills and lines only.
+`--scene-wire` is the knot's ink. The theme ids are in `src/content/site.ts`
+(`themes`, `defaultTheme`, `darkTheme`); each theme's `label` is the word the
+button shows when it offers that theme.
 
-1. In `src/app/globals.css`, copy a whole `html[data-theme="…"]` block, give
-   it the new id and set every token. Tokens that canvas code reads (`--bg`
-   to `--border`, `--scene-*`) must stay plain hex. Text colours (`--fg`,
-   `--fg-muted`, `--accent-text`) need 4.5:1 contrast on `--bg`, `--bg-2`
-   and `--bg-3`; use `--accent` for fills and lines only.
-2. In `src/content/site.ts`, add the id to `ThemeId` and a `themes` entry with
-   its label and two swatch colours (keep them in sync with the CSS).
-
-To change the default, set `defaultTheme` in `site.ts`.
-
-### The About portrait
+### The portrait (Fig. 2)
 
 ```bash
 python3 -m pip install --user Pillow   # once
@@ -191,7 +193,7 @@ Both SIL Open Font License, loaded in `src/app/layout.tsx` through
 | Face | Used for |
 | --- | --- |
 | STIX Two Text (with italic) | everything: display, body, navigation |
-| JetBrains Mono | dates, years, tag lists, code |
+| JetBrains Mono | dates, years, the CV's margin labels, code |
 
 STIX is the typeface of mathematics journals, which is the point.
 
@@ -200,23 +202,23 @@ STIX is the typeface of mathematics journals, which is the point.
 ```
 src/
   app/
-    layout.tsx          fonts, no-flash theme script, navbar, footer, metadata
-    globals.css         theme tokens (4 themes), type scale, reset, focus, print
-    page.tsx            home: hero, projects, latest, about, experience
-    projects/           all projects
+    layout.tsx          fonts, no-flash theme script, running head, footer, metadata
+    globals.css         theme tokens (paper, night), type scale, reset, focus, print
+    page.tsx            home: front matter (hero), Work, Writing
+    projects/           Work: every project
     blog/               Writing (blog + LinkedIn) and blog/[slug] posts
-    experience/         the printable CV
+    cv/                 the printable CV
     not-found.tsx       404
   components/
-    hero/               the name, the lede, and the three.js torus knot (Fig. 1)
-    sections/           section headers, "Latest", the Writing list
-    projects/           project row, media frame and video loop, stack list
-    about/              About
-    experience/         the experience list, tool chips, print button
-    layout/             navbar, footer, page title
-    ThemeSwitcher.tsx
+    hero/               the front matter: name, lede, intro, links, portrait
+                        (Fig. 2) and the three.js trefoil (Fig. 1)
+    sections/           section headers, the home Writing list, the /blog list
+    projects/           project row, media figure and video loop
+    experience/         the CV's role rows and print button
+    layout/             running head, colophon footer, page title
+    ThemeToggle.tsx     the Dark / Light button
   content/              ← everything you edit
-  lib/                  theme, feed/blog/icons (server-only), hooks
+  lib/                  theme, feed/blog (server-only), hooks
 content/blog/           posts (MDX)
 public/projects/<slug>/ project videos and posters
 public/linkedin/        LinkedIn preview images (created by npm run linkedin)
@@ -261,11 +263,12 @@ canonical URLs are right.
 
 ## Notes
 
-- No résumé is published at the moment. To add one, put the PDF at
-  `public/resume.pdf` and set `resume.enabled: true` in `src/content/site.ts`;
-  a "Résumé" link then appears in the nav before Contact.
-- `/experience` is styled to print, so `Cmd-P` (or its "Print / save as PDF"
-  button) gives a black-on-white CV without the nav or footer.
+- The running head is Work (`/#work`), Writing (`/blog`, only when there are
+  posts) and CV (`/cv`), then the theme button. It sits at the top of the
+  page, not fixed, and wraps under the name on narrow screens.
+- `/cv` is styled to print, so `Cmd-P` (or its "Print / save as PDF" button)
+  gives a black-on-white CV without the running head, footer or theme button.
+  `/experience` redirects there.
 - `src/app/opengraph-image.png` is the link preview people see when they share
   the site. Its source is `scripts/og-card.html`: edit that, then
   `sh scripts/og-image.sh` renders it with headless Chrome and overwrites the
@@ -274,7 +277,7 @@ canonical URLs are right.
 - `src/app/favicon.ico` is a rasterised copy of `src/app/icon.svg` for browsers
   and crawlers that still ask for `/favicon.ico`. Regenerate it with
   `python3 scripts/favicon.py` after changing the SVG.
-- `/photos` from an earlier version redirects to the home page
+- `/photos` redirects to the home page and `/experience` to `/cv`
   (`next.config.mjs`). The same file sets the security headers and a one-day
   browser cache for the videos and photos under `public/`.
 - `src/app/layout.tsx` emits schema.org Person structured data (name, domain,
@@ -284,5 +287,5 @@ canonical URLs are right.
 
 ## Licences
 
-The fonts are SIL Open Font License (STIX Two Text, JetBrains Mono). Brand
-logos come from Simple Icons (CC0). Everything else here is mine.
+The fonts are SIL Open Font License (STIX Two Text, JetBrains Mono).
+Everything else here is mine.

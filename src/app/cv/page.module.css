@@ -1,7 +1,7 @@
-/* /experience — see page.tsx. On screen: the title, the contact line, then
-   the sections with their rows (RoleList.module.css styles the role rows;
-   the education rows below use the same margin column). In print: a plain
-   black-on-white CV (the rules at the bottom). */
+/* /cv — see page.tsx. On screen: the title, the contact line, then the
+   sections with their rows (RoleList.module.css styles the role rows; the
+   education, technical and press rows below use the same margin column).
+   In print: a plain black-on-white CV (the rules at the bottom). */
 
 /* The contact line under the title: name, email, place, with gaps. */
 .contact {
@@ -41,9 +41,9 @@
   color: var(--fg);
 }
 
-/* --- Education rows (same shape as RoleList) ------------------------------- */
+/* --- Education, technical and press rows (same shape as RoleList) ---------- */
 
-.schools {
+.rows {
   margin: 0;
 }
 
@@ -67,18 +67,34 @@
 .body {
   min-width: 0;
   max-width: 38rem;
+  margin: 0;
 }
 
-.school {
+.title {
   font-size: var(--text-md);
   font-weight: 500;
   line-height: 1.25;
   color: var(--fg);
 }
 
-.degree {
+.degree,
+.outlet {
   margin-top: 0.2rem;
   color: var(--fg-muted);
+}
+
+.outlet {
+  font-style: italic;
+}
+
+/* Technical: a label and one sentence, so the rows sit closer together. */
+.compact {
+  padding-block: 0.85rem;
+}
+
+.items {
+  font-size: var(--text-base);
+  color: var(--fg);
 }
 
 .note {
@@ -110,6 +126,10 @@
 
   .date {
     padding-top: 0.3rem;
+  }
+
+  .compact .date {
+    padding-top: 0.25rem;
   }
 }
 
@@ -185,12 +205,22 @@
     max-width: none;
   }
 
-  .school {
+  .title {
     font-size: 10.5pt;
   }
 
-  .degree {
+  .degree,
+  .outlet {
     margin-top: 0;
+    color: #000;
+  }
+
+  .compact {
+    padding-block: 0.2rem;
+  }
+
+  .items {
+    font-size: 10pt;
     color: #000;
   }
 

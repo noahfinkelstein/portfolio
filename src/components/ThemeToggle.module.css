@@ -1,0 +1,37 @@
+/* Theme toggle — see ThemeToggle.tsx. A button that reads as a link. */
+
+.toggle {
+  display: none;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  line-height: inherit;
+  color: var(--accent-text);
+  /* Like the running head's links: no resting underline, one on hover. */
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color var(--dur) ease;
+}
+
+.toggle:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Only when scripts run: without them the button could not do anything. */
+:global(html[data-js]) .toggle {
+  display: inline;
+}
+
+/* Show the word for the theme that is NOT showing. Paper is the default. */
+.toLight {
+  display: none;
+}
+
+:global(html[data-theme="night"]) .toDark {
+  display: none;
+}
+
+:global(html[data-theme="night"]) .toLight {
+  display: inline;
+}

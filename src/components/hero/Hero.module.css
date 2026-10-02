@@ -1,21 +1,22 @@
-/* Hero — see Hero.tsx. Two columns from 900px: text left, the figure right.
-   Inside the figure box (.canvas) sit the static SVG knot (.fallback) and
-   the three.js host (.field) with its canvas (.scene), both filling the box;
-   the canvas fades in over the SVG, which fades out, once the scene has
-   drawn its first frame (HeroFigure.tsx). */
+/* Hero — see Hero.tsx. The front matter: one text column (name, lede,
+   paragraphs, links, the small portrait), and from 900px the knot figure in
+   a second column to its right. Inside the knot's box (.canvas) sit the
+   static SVG knot (.fallback) and the three.js host (.field) with its canvas
+   (.scene), both filling the box; the canvas fades in over the SVG, which
+   fades out, once the scene has drawn its first frame (HeroFigure.tsx).
+   Figures have square corners, like printed plates. */
 
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 2.5rem;
-  align-items: center;
-  padding-top: calc(var(--nav-h) + 3rem);
-  padding-bottom: 3rem;
-  min-height: 70svh;
+  align-items: start;
+  padding-block: 3rem 3.5rem;
 }
 
 .text {
-  max-width: 34rem;
+  min-width: 0;
+  max-width: 36rem;
 }
 
 .name {
@@ -27,10 +28,20 @@
 
 .lede {
   margin-top: 1.25rem;
-  max-width: 32rem;
   font-size: var(--text-md);
   line-height: 1.45;
   color: var(--fg);
+}
+
+.para {
+  margin-top: 1em;
+  font-size: var(--text-base);
+  line-height: 1.55;
+  color: var(--fg);
+}
+
+.lede + .para {
+  margin-top: 1.5rem;
 }
 
 .links {
@@ -41,6 +52,39 @@
   font-size: var(--text-base);
 }
 
+/* Fig. 2: a small plate under the text, its caption under it. */
+.portrait {
+  margin: 2.25rem 0 0;
+}
+
+.portraitFrame {
+  width: 9rem;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+}
+
+.portraitPhoto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portrait .caption {
+  max-width: 18rem;
+}
+
+.caption {
+  margin-top: 0.75rem;
+  font-size: var(--text-sm);
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--fg-muted);
+  max-width: 34rem;
+}
+
+/* Fig. 1: the knot. */
 .figure {
   margin: 0;
   min-width: 0;
@@ -50,7 +94,6 @@
   position: relative;
   aspect-ratio: 4 / 3;
   width: 100%;
-  border-radius: var(--radius);
 }
 
 /* The static knot: in the server HTML, the whole figure without WebGL. */
@@ -58,7 +101,7 @@
   position: absolute;
   inset: 0;
   opacity: 1;
-  transition: opacity 0.9s var(--ease);
+  transition: opacity 0.6s var(--ease);
 }
 
 .fallbackSvg {
@@ -71,7 +114,7 @@
 }
 
 /* The three.js host and its canvas. The scene sets the canvas's opacity
-   inline, 0 to --scene-opacity over its fade-in. */
+   inline, 0 to 1 over its fade-in. */
 .field {
   position: absolute;
   inset: 0;
@@ -84,28 +127,33 @@
   opacity: 0;
 }
 
+/* Reduced motion: the canvas appears at once, so the SVG leaves at once. */
+@media (prefers-reduced-motion: reduce) {
+  .fallback {
+    transition: none;
+  }
+}
+
 @media print {
   .fallbackOut {
     opacity: 1;
   }
-}
 
-.caption {
-  margin-top: 0.75rem;
-  font-size: var(--text-sm);
-  font-style: italic;
-  color: var(--fg-muted);
-  max-width: 34rem;
+  /* Keep the knot's box and its caption on one page: split by a page break,
+     the absolutely placed SVG would land over the caption. */
+  .figure {
+    break-inside: avoid;
+  }
 }
 
 @media (min-width: 900px) {
   .hero {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 6fr);
+    grid-template-columns: minmax(0, 36rem) minmax(0, 1fr);
     gap: 4rem;
-    min-height: calc(100svh - 2rem);
+    padding-block: 4rem 4.5rem;
   }
 
   .canvas {
-    aspect-ratio: 5 / 4;
+    aspect-ratio: 1 / 1;
   }
 }

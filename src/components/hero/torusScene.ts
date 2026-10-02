@@ -5,34 +5,52 @@
    or the page's first-load JS.
 
    What is on screen
-     - A (2,3) torus knot, TorusKnotGeometry(3.5, 3.5 × 0.32, 180, 28), as a
-       faint wireframe in --scene-wire, scaled to fit its box.
-     - 150 of its vertices, sampled evenly along the knot and at a seeded
-       random angle around the tube, as round glowing points in --scene-point.
+     - The trefoil, a (2,3) torus knot, drawn like a figure in a printed
+       paper: one thin solid tube (TubeGeometry along the knot curve) in
+       --scene-wire, flat colour, full opacity, depth-tested.
+     - Breaks at the crossings, as in a knot diagram: a wider, invisible
+       "gap" tube around the same curve is drawn first into the depth buffer
+       only (no colour, back faces only). Where one strand passes over
+       another, the over-strand's gap tube sits in front of the under-strand,
+       so the under-strand's ink fails the depth test there and leaves a
+       short transparent gap on either side of the over-strand.
+
+   How it sits
+     - The knot lies flat around its own vertical axis, like a ring on a
+       turntable seen from high above: the axis is tipped well toward the
+       viewer (KNOT_VIEW.tilt) so the three crossings read as in a diagram,
+       with a little depth left. At rest it holds the angle KNOT_VIEW.turn,
+       one lobe up.
+     - The curve and the angle live in knot.ts; TorusKnotSvg.tsx draws the
+       same curve from the same angle, so the static figure and the canvas
+       line up when one fades into the other.
 
    Motion
-     - A slow two-axis spin (0.35 rad/s on y, 0.55 × that on x).
-     - A tilt that eases toward the cursor (±0.5 rad; the owner passes a
-       normalised pointer, -1…1 on each axis, 0 = over the knot's centre).
-     - A slow sine bob.
-     - One 900 ms fade-in, the first time a frame is drawn.
+     - One slow turn about that vertical axis (0.12 rad/s). Because the
+       trefoil is symmetric about it, every angle is as legible as the rest
+       angle.
+     - A lean toward the pointer while it is over the figure (at most
+       0.3 rad in any direction), easing back to upright when it leaves. The owner passes a
+       normalised pointer (-1…1 on each axis about the figure's centre) and
+       resets it to 0, 0 on leave; touch is ignored by the owner.
+     - One 600 ms fade-in, the first time a frame is drawn.
 
    The canvas is created here, inside the host the owner passes, and is sized
    by resize(width, height): the owner measures its box (ResizeObserver) and
-   the scene fits the knot to it. Colours come from the theme tokens
-   (--scene-*) and update live through setTheme().
+   the scene fits the knot to it. The ink colour comes from the theme token
+   --scene-wire and updates live through setTheme().
 
    Cost control: the device pixel ratio is capped at 1.5; the renderer asks
    for the low-power GPU; shaders are compiled asynchronously before the
    first frame; the owner stops the loop when the figure is off screen or the
-   tab is hidden (setActive); reduced motion draws single static frames on
-   demand (theme change, resize) and never starts the loop.
+   tab is hidden (setActive); reduced motion draws single static frames at
+   the rest angle on demand (theme change, resize) and never starts the loop.
 
    Owner API
      new TorusScene(host, { tokens, reducedMotion, canvasClassName?, onReady?, onLost? })
      prepare()                  compile, draw frame one, start if active
      resize(width, height)      the host's size in CSS px
-     setPointer(nx, ny)         normalised cursor, -1…1
+     setPointer(nx, ny)         normalised pointer, -1…1 (0, 0 = no lean)
      setActive(bool)            in view and the tab is visible
      setTheme(tokens)           re-tint
      setReducedMotion(bool)     switch between loop and static frame
@@ -41,42 +59,24 @@
 
 import * as THREE from "three";
 import type { ThemeTokens } from "@/lib/theme";
+import { KNOT_INK, KNOT_SHAPE, KNOT_VIEW, knotPoint } from "./knot";
 
 /* --- Tuning ------------------------------------------------------------------ */
 
 export const CONFIG = {
-  knot: { radius: 3.5, tube: 3.5 * 0.32, tubularSegments: 180, radialSegments: 28 },
+  tubularSegments: 480,
+  radialSegments: 10,
 
   /** Camera. */
-  fov: 45,
-  distance: 10,
+  fov: 35,
+  distance: 14,
 
   /** Motion. */
-  spin: 0.35,
-  spinXRatio: 0.55,
-  tilt: 0.5,
-  /** Share of the remaining tilt closed per 60 Hz frame. */
-  tiltEase: 0.05,
-  /** Bob amplitude, as a share of the knot's bounding radius. */
-  bob: 0.03,
-
-  /** Sampled points. The seed keeps the sample the same on every visit. */
-  points: 150,
-  seed: 0.19144689152017236,
-
-  /** Look. */
-  wireOpacity: 0.14,
-  pointOpacity: 0.95,
-  /** Sprite size (px) of a point per px of knot radius, clamped. */
-  pointPxPerRadius: 0.05,
-  pointPxMin: 7,
-  pointPxMax: 16,
-  fadeInMs: 900,
-
-  /** The knot's bounding radius as a share of the box's smaller half-side. */
-  fill: 0.8,
-  /** Resting angle for the first and the static frame. */
-  restRotation: { x: 0.9, y: 0.55 },
+  turnSpeed: 0.12,
+  lean: 0.3,
+  /** Share of the remaining lean closed per 60 Hz frame. */
+  leanEase: 0.06,
+  fadeInMs: 600,
 
   maxPixelRatio: 1.5,
 } as const;
@@ -94,42 +94,19 @@ export type TorusSceneOptions = {
 
 /* --- Helpers ----------------------------------------------------------------- */
 
-function mulberry32(seed: number): () => number {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
-const POINT_VERTEX = /* glsl */ `
-  uniform float uSize;
-  uniform float uPixelRatio;
-  uniform float uDistance;
-  void main() {
-    vec4 mv = modelViewMatrix * vec4(position, 1.0);
-    gl_Position = projectionMatrix * mv;
-    gl_PointSize = uSize * uPixelRatio * uDistance / -mv.z;
+/** The knot curve as a three.js Curve (t in 0…1), for TubeGeometry. */
+class KnotCurve extends THREE.Curve<THREE.Vector3> {
+  constructor() {
+    super();
   }
-`;
 
-const POINT_FRAGMENT = /* glsl */ `
-  uniform vec3 uColor;
-  uniform float uOpacity;
-  void main() {
-    float d = length(gl_PointCoord - 0.5) * 2.0;
-    float core = 1.0 - smoothstep(0.34, 0.44, d);
-    float halo = 1.0 - smoothstep(0.0, 1.0, d);
-    float a = max(core, halo * halo * 0.5) * uOpacity;
-    if (a < 0.01) discard;
-    gl_FragColor = vec4(uColor, a);
+  getPoint(t: number, target = new THREE.Vector3()): THREE.Vector3 {
+    const [x, y, z] = knotPoint(t * Math.PI * 2);
+    return target.set(x, y, z);
   }
-`;
+}
 
 /* --- Scene ------------------------------------------------------------------- */
 
@@ -141,34 +118,32 @@ export class TorusScene {
   private camera: THREE.PerspectiveCamera;
 
   private root = new THREE.Group(); // scale to fit the box
-  private tiltGroup = new THREE.Group(); // cursor tilt + bob
-  private spinGroup = new THREE.Group(); // constant two-axis spin
+  private leanGroup = new THREE.Group(); // lean toward the pointer
+  private viewGroup = new THREE.Group(); // fixed tilt toward the viewer
+  private turnGroup = new THREE.Group(); // the slow turn about the knot's axis
 
-  private knotGeometry: THREE.TorusKnotGeometry;
-  private wireMaterial: THREE.MeshBasicMaterial;
-  private pointsGeometry = new THREE.BufferGeometry();
-  private pointsMaterial: THREE.ShaderMaterial;
-  private boundRadius = 1;
+  private inkGeometry: THREE.TubeGeometry;
+  private gapGeometry: THREE.TubeGeometry;
+  private inkMaterial: THREE.MeshBasicMaterial;
+  private gapMaterial: THREE.MeshBasicMaterial;
+  private boundRadius: number;
 
-  private tokens: ThemeTokens;
   private reduced: boolean;
   private onReady?: () => void;
   private onLost?: () => void;
 
   /* Animated state. */
-  private time = 0;
   private lastNow = 0;
   private pointer = { nx: 0, ny: 0 };
   private fade = 0;
   private running = false;
-  private active = true;
+  private active = false;
   private ready = false;
   private announced = false;
   private disposed = false;
   private lastOpacity = -1;
 
   constructor(host: HTMLElement, options: TorusSceneOptions) {
-    this.tokens = options.tokens;
     this.reduced = options.reducedMotion;
     this.onReady = options.onReady;
     this.onLost = options.onLost;
@@ -197,60 +172,38 @@ export class TorusScene {
     this.camera = new THREE.PerspectiveCamera(CONFIG.fov, 1, 0.1, 100);
     this.camera.position.set(0, 0, CONFIG.distance);
 
-    /* The knot, as a wireframe. */
-    const { radius, tube, tubularSegments, radialSegments } = CONFIG.knot;
-    this.knotGeometry = new THREE.TorusKnotGeometry(radius, tube, tubularSegments, radialSegments);
-    this.knotGeometry.computeBoundingSphere();
-    this.boundRadius = this.knotGeometry.boundingSphere?.radius ?? radius + tube;
-    this.wireMaterial = new THREE.MeshBasicMaterial({
-      wireframe: true,
-      transparent: true,
-      opacity: CONFIG.wireOpacity,
-      depthTest: false,
-      depthWrite: false,
+    /* The gap tube: depth only, back faces only, drawn before the ink. Its
+       back faces lie behind its own strand's ink (so that strand shows) but
+       in front of any strand passing well beneath it (so that one is cut). */
+    const curve = new KnotCurve();
+    const { tubularSegments, radialSegments } = CONFIG;
+    this.gapGeometry = new THREE.TubeGeometry(curve, tubularSegments, KNOT_INK.gapRadius, radialSegments, true);
+    this.gapMaterial = new THREE.MeshBasicMaterial({
+      colorWrite: false,
+      side: THREE.BackSide,
     });
-    const wire = new THREE.Mesh(this.knotGeometry, this.wireMaterial);
-    wire.renderOrder = 0;
-    this.spinGroup.add(wire);
+    const gap = new THREE.Mesh(this.gapGeometry, this.gapMaterial);
+    gap.renderOrder = 0;
 
-    /* Sampled vertices: evenly along the knot, seeded random around the tube. */
-    const random = mulberry32(Math.floor(CONFIG.seed * 2 ** 32));
-    const position = this.knotGeometry.getAttribute("position");
-    const pointPositions = new Float32Array(CONFIG.points * 3);
-    for (let k = 0; k < CONFIG.points; k++) {
-      const i = Math.floor(((k + random()) / CONFIG.points) * tubularSegments);
-      const j = Math.floor(random() * radialSegments);
-      const index = i * (radialSegments + 1) + j;
-      pointPositions[k * 3] = position.getX(index);
-      pointPositions[k * 3 + 1] = position.getY(index);
-      pointPositions[k * 3 + 2] = position.getZ(index);
-    }
-    this.pointsGeometry.setAttribute("position", new THREE.BufferAttribute(pointPositions, 3));
-    this.pointsMaterial = new THREE.ShaderMaterial({
-      vertexShader: POINT_VERTEX,
-      fragmentShader: POINT_FRAGMENT,
-      uniforms: {
-        uColor: { value: new THREE.Color() },
-        uOpacity: { value: CONFIG.pointOpacity },
-        uSize: { value: CONFIG.pointPxMin },
-        uPixelRatio: { value: this.renderer.getPixelRatio() },
-        uDistance: { value: CONFIG.distance },
-      },
-      transparent: true,
-      depthTest: false,
-      depthWrite: false,
-    });
-    const points = new THREE.Points(this.pointsGeometry, this.pointsMaterial);
-    points.frustumCulled = false;
-    points.renderOrder = 1;
-    this.spinGroup.add(points);
+    /* The ink: a thin solid tube in flat colour. */
+    this.inkGeometry = new THREE.TubeGeometry(curve, tubularSegments, KNOT_INK.inkRadius, radialSegments, true);
+    this.inkMaterial = new THREE.MeshBasicMaterial();
+    const ink = new THREE.Mesh(this.inkGeometry, this.inkMaterial);
+    ink.renderOrder = 1;
 
-    this.tiltGroup.add(this.spinGroup);
-    this.root.add(this.tiltGroup);
+    this.turnGroup.add(gap, ink);
+    this.viewGroup.add(this.turnGroup);
+    this.leanGroup.add(this.viewGroup);
+    this.root.add(this.leanGroup);
     this.scene.add(this.root);
-    this.spinGroup.rotation.set(CONFIG.restRotation.x, CONFIG.restRotation.y, 0);
+    this.viewGroup.rotation.x = KNOT_VIEW.tilt;
+    this.turnGroup.rotation.y = KNOT_VIEW.turn;
 
-    this.applyTheme(this.tokens);
+    /* Every point of the curve lies within R + A of the axis origin, which is
+       also the centre every rotation turns about. */
+    this.boundRadius = KNOT_SHAPE.R + KNOT_SHAPE.A + KNOT_INK.gapRadius;
+
+    this.applyTheme(options.tokens);
     this.resize(host.clientWidth || 1, host.clientHeight || 1);
 
     canvas.addEventListener("webglcontextlost", this.handleContextLost);
@@ -276,7 +229,13 @@ export class TorusScene {
 
   /** Compile the shaders off the main thread where supported, then draw frame one. */
   async prepare(): Promise<void> {
-    await this.renderer.compileAsync(this.scene, this.camera);
+    try {
+      await this.renderer.compileAsync(this.scene, this.camera);
+    } catch (error) {
+      /* Disposed (context released) while compiling: nothing to report. */
+      if (this.disposed) return;
+      throw error;
+    }
     if (this.disposed) return;
     this.ready = true;
     if (this.reduced) this.fade = 1;
@@ -286,12 +245,11 @@ export class TorusScene {
 
   /** The host's size changed (or first layout). CSS px. */
   resize(width: number, height: number): void {
+    if (this.disposed) return;
     const w = Math.max(1, Math.round(width));
     const h = Math.max(1, Math.round(height));
-    const pixelRatio = Math.min(window.devicePixelRatio || 1, CONFIG.maxPixelRatio);
-    this.renderer.setPixelRatio(pixelRatio);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, CONFIG.maxPixelRatio));
     this.renderer.setSize(w, h, false);
-    this.pointsMaterial.uniforms.uPixelRatio.value = pixelRatio;
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
 
@@ -299,27 +257,28 @@ export class TorusScene {
        at the knot's own depth. */
     const halfH = CONFIG.distance * Math.tan(THREE.MathUtils.degToRad(CONFIG.fov / 2));
     const halfW = halfH * this.camera.aspect;
-    const fitUnits = CONFIG.fill * Math.min(halfW, halfH);
-    this.root.scale.setScalar(fitUnits / this.boundRadius);
-    const radiusPx = fitUnits * (h / (2 * halfH));
-    this.pointsMaterial.uniforms.uSize.value = clamp(
-      radiusPx * CONFIG.pointPxPerRadius,
-      CONFIG.pointPxMin,
-      CONFIG.pointPxMax,
-    );
+    this.root.scale.setScalar((KNOT_VIEW.fill * Math.min(halfW, halfH)) / this.boundRadius);
     this.redrawIfIdle();
   }
 
-  /** Normalised cursor: -1…1 on each axis, 0 over the knot's centre. */
+  /** Normalised pointer: -1…1 on each axis, 0 over the figure's centre or off it.
+   *  The pair is clamped to length 1, so a corner leans no further than an
+   *  edge (CONFIG.lean is the true maximum). */
   setPointer(nx: number, ny: number): void {
-    this.pointer.nx = clamp(nx, -1, 1);
-    this.pointer.ny = clamp(ny, -1, 1);
+    let x = Number.isFinite(nx) ? clamp(nx, -1, 1) : 0;
+    let y = Number.isFinite(ny) ? clamp(ny, -1, 1) : 0;
+    const length = Math.hypot(x, y);
+    if (length > 1) {
+      x /= length;
+      y /= length;
+    }
+    this.pointer.nx = x;
+    this.pointer.ny = y;
   }
 
   setTheme(tokens: ThemeTokens): void {
-    this.tokens = tokens;
+    if (this.disposed) return;
     this.applyTheme(tokens);
-    this.lastOpacity = -1;
     this.redrawIfIdle();
   }
 
@@ -331,14 +290,13 @@ export class TorusScene {
   }
 
   setReducedMotion(reduced: boolean): void {
-    if (reduced === this.reduced) return;
+    if (reduced === this.reduced || this.disposed) return;
     this.reduced = reduced;
     if (reduced) {
       this.stop();
       this.fade = 1;
-      this.tiltGroup.rotation.set(0, 0, 0);
-      this.tiltGroup.position.y = 0;
-      this.spinGroup.rotation.set(CONFIG.restRotation.x, CONFIG.restRotation.y, 0);
+      this.leanGroup.rotation.set(0, 0, 0);
+      this.turnGroup.rotation.y = KNOT_VIEW.turn;
       this.redrawIfIdle();
     } else {
       this.wake();
@@ -351,10 +309,10 @@ export class TorusScene {
     this.stop();
     this.canvas.removeEventListener("webglcontextlost", this.handleContextLost);
     this.canvas.removeEventListener("webglcontextrestored", this.handleContextRestored);
-    this.knotGeometry.dispose();
-    this.wireMaterial.dispose();
-    this.pointsGeometry.dispose();
-    this.pointsMaterial.dispose();
+    this.inkGeometry.dispose();
+    this.gapGeometry.dispose();
+    this.inkMaterial.dispose();
+    this.gapMaterial.dispose();
     this.renderer.dispose();
     this.renderer.forceContextLoss();
     this.canvas.remove();
@@ -389,23 +347,22 @@ export class TorusScene {
 
   /** Advance by dt ms (0 = lay out the current state) and render. */
   private draw(dt: number): void {
-    const animate = !this.reduced && dt > 0;
-    if (animate) {
-      this.time += dt;
-      const seconds = dt / 1000;
+    if (!this.reduced && dt > 0) {
       this.fade = Math.min(1, this.fade + dt / CONFIG.fadeInMs);
 
-      this.spinGroup.rotation.x += seconds * CONFIG.spin * CONFIG.spinXRatio;
-      this.spinGroup.rotation.y += seconds * CONFIG.spin;
+      /* Wrap the turn so the angle never grows without bound. */
+      const turn = this.turnGroup.rotation.y + (dt / 1000) * CONFIG.turnSpeed;
+      this.turnGroup.rotation.y = turn % (Math.PI * 2);
 
-      const k = 1 - Math.pow(1 - CONFIG.tiltEase, dt / (1000 / 60));
-      const tilt = this.tiltGroup.rotation;
-      tilt.x += (this.pointer.ny * CONFIG.tilt - tilt.x) * k;
-      tilt.y += (this.pointer.nx * CONFIG.tilt - tilt.y) * k;
-      this.tiltGroup.position.y = Math.sin(this.time / 1000) * CONFIG.bob * this.boundRadius;
+      /* Lean: pointer to the right turns the knot's face right, pointer
+         below tips it down, toward the pointer either way. */
+      const k = 1 - Math.pow(1 - CONFIG.leanEase, dt / (1000 / 60));
+      const lean = this.leanGroup.rotation;
+      lean.x += (this.pointer.ny * CONFIG.lean - lean.x) * k;
+      lean.y += (this.pointer.nx * CONFIG.lean - lean.y) * k;
     }
 
-    const opacity = Math.round(this.fade * this.tokens.sceneOpacity * 1000) / 1000;
+    const opacity = Math.round(this.fade * 1000) / 1000;
     if (opacity !== this.lastOpacity) {
       this.lastOpacity = opacity;
       this.canvas.style.opacity = String(opacity);
@@ -420,7 +377,7 @@ export class TorusScene {
   }
 
   private applyTheme(tokens: ThemeTokens): void {
-    this.wireMaterial.color.set(tokens.sceneWire);
-    (this.pointsMaterial.uniforms.uColor.value as THREE.Color).set(tokens.scenePoint);
+    /* Plain hex in globals.css; a missing token falls back to the text colour. */
+    this.inkMaterial.color.set(tokens.sceneWire || tokens.fg || "#1b1a17");
   }
 }

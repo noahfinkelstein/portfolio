@@ -22,7 +22,7 @@ export default function NotFound() {
         <p className={styles.home}>
           {/* A plain <a>, not next/link: this root not-found boundary is part of
               every route's tree, and a client Link here pulled the home page's
-              chunk group (three.js) into /blog and /experience. */}
+              chunk group (three.js) into /blog and /cv. */}
           <a href="/">Back to the home page</a>
         </p>
       </div>

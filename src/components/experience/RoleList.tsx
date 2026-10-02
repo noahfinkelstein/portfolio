@@ -1,13 +1,12 @@
 /* ---------------------------------------------------------------------------
    RoleList — the roles from src/content/experience.ts as rows with the date
-   in the margin column: [ date | role, org, bullets ]. Used by the home
-   page's Experience section (first bullet only) and by /experience (every
-   bullet). Server component, no motion.
+   in the margin column: [ date | role, org, bullets ]. Used by the CV
+   (/cv) with every bullet. Server component, no motion.
+
+   Each row lists every bullet, then the role's tools in a small mono line.
 
    Props:
      roles  Role[] from src/content/experience.ts
-     full   true renders every bullet as a list and the role's tools under
-            them; false (default) renders the first bullet as one paragraph
    A role whose `role` is listed in home.currently and whose date ends with
    "–" is dated "<date> now" (e.g. "Apr 2026 – now"); there is no badge.
    --------------------------------------------------------------------------- */
@@ -18,7 +17,6 @@ import styles from "./RoleList.module.css";
 
 export type RoleListProps = {
   roles: Role[];
-  full?: boolean;
 };
 
 const current = new Set(home.currently);
@@ -30,7 +28,7 @@ export function displayDate(role: Pick<Role, "date" | "role">): string {
   return date;
 }
 
-export default function RoleList({ roles, full = false }: RoleListProps) {
+export default function RoleList({ roles }: RoleListProps) {
   return (
     <ol role="list" className={styles.list}>
       {roles.map((role) => (
@@ -48,16 +46,14 @@ export default function RoleList({ roles, full = false }: RoleListProps) {
               )}
               {role.place ? <span className={styles.place}>{role.place}</span> : null}
             </p>
-            {full ? (
+            {role.bullets.length > 0 ? (
               <ul className={styles.bullets}>
                 {role.bullets.map((bullet) => (
                   <li key={bullet}>{bullet}</li>
                 ))}
               </ul>
-            ) : role.bullets[0] ? (
-              <p className={styles.summary}>{role.bullets[0]}</p>
             ) : null}
-            {full && role.stack && role.stack.length > 0 ? (
+            {role.stack && role.stack.length > 0 ? (
               <ul role="list" className={`mono ${styles.stack}`} aria-label={`Tools used as ${role.role}`}>
                 {role.stack.map((tool) => (
                   <li key={tool}>{tool}</li>

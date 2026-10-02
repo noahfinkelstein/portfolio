@@ -1,7 +1,7 @@
 /* PageTitle — see PageTitle.tsx. */
 
 .root {
-  padding-top: calc(var(--nav-h) + 3.5rem);
+  padding-top: 3.5rem;
   padding-bottom: 2.5rem;
 }
 

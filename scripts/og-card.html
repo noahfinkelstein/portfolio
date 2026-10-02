@@ -2,17 +2,18 @@
   Source for the link-preview image at src/app/opengraph-image.png (1200x630):
   what shows up when someone pastes the site into Slack, iMessage or a tweet.
 
-  It mirrors the v4 hero in the Night theme (tokens from src/app/globals.css,
-  words from src/content/home.ts): the name and two lines in STIX Two Text,
-  the domain in JetBrains Mono, the torus knot in amber. Edit the text below,
-  then run
+  It is set like the site's front page in the Paper theme (colours from the
+  paper tokens in src/app/globals.css, words from src/content/home.ts): the
+  name and two lines in STIX Two Text, the domain in JetBrains Mono, and the
+  trefoil drawn as ink strokes on the right. Edit the text below, then run
 
       sh scripts/og-image.sh
 
   which renders this file with headless Chrome and overwrites the PNG. Or open
-  it in a browser and screenshot the card at exactly 1200x630. The torus knot
-  on the right is drawn by the small script at the bottom (the same
-  projection the hero's no-WebGL fallback uses). Keep
+  it in a browser and screenshot the card at exactly 1200x630. The knot is
+  drawn by the small script at the bottom, with the same curve, viewing angle
+  and breaks at the crossings as the hero's static figure
+  (src/components/hero/knot.ts and TorusKnotSvg.tsx). Keep
   src/app/opengraph-image.alt.txt in step with the words here.
 -->
 <!doctype html>
@@ -23,37 +24,35 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
 <style>
-  html, body { margin: 0; padding: 0; background: #0a0f1e; }
+  /* Paper theme: --bg, --fg, --fg-muted, --border, --scene-wire. */
+  html, body { margin: 0; padding: 0; background: #fbfaf7; }
   #card {
     position: relative;
     width: 1200px; height: 630px; overflow: hidden;
     box-sizing: border-box;
-    background: #0a0f1e;
-    color: #ebe5d6;
+    background: #fbfaf7;
+    color: #1b1a17;
     padding: 0 96px;
     display: flex; flex-direction: column; justify-content: center;
     font-family: "STIX Two Text", Georgia, "Times New Roman", serif;
     -webkit-font-smoothing: antialiased;
   }
-  /* The Night theme's soft amber glow, top right, as on the site. */
-  #card::before {
-    content: ""; position: absolute; inset: 0;
-    background: radial-gradient(1120px 800px at 80% -20%, rgba(226, 178, 63, 0.13), transparent 60%);
-  }
-  .text { position: relative; z-index: 2; max-width: 700px; }
+  .text { position: relative; z-index: 2; max-width: 660px; }
   h1 {
     font-weight: 500; font-size: 96px; line-height: 1;
     letter-spacing: -0.015em; margin: 0 0 32px;
   }
-  .lede { font-size: 34px; line-height: 1.25; margin: 0 0 14px; color: #ebe5d6; }
-  .roles { font-size: 27px; line-height: 1.35; margin: 0; color: #a3aabb; }
+  .lede { font-size: 34px; line-height: 1.25; margin: 0 0 14px; color: #1b1a17; }
+  .roles { font-size: 27px; line-height: 1.35; margin: 0; color: #5c5a54; }
+  /* The domain sits on a hairline across the text measure, like a running foot. */
   .dom {
-    position: absolute; z-index: 2; bottom: 52px; left: 96px;
+    position: absolute; z-index: 2; bottom: 48px; left: 96px; right: 96px;
+    padding-top: 14px; border-top: 1px solid #e4e0d6;
     font-family: "JetBrains Mono", Menlo, monospace; font-size: 21px;
-    color: #a3aabb; letter-spacing: 0;
+    color: #5c5a54; letter-spacing: 0;
   }
-  /* The torus knot (see the script). */
-  #knot { position: absolute; z-index: 1; right: -110px; top: 10px; width: 600px; height: 600px; opacity: 0.85; }
+  /* The trefoil (see the script). */
+  #knot { position: absolute; z-index: 1; right: 64px; top: 70px; width: 400px; height: 400px; }
 </style>
 </head>
 <body>
@@ -63,51 +62,70 @@
     <p class="lede">Mathematics–computer science and physics at Brown University.</p>
     <p class="roles">Co-founder of CourseTrees. Machine learning research.</p>
   </div>
-  <svg id="knot" viewBox="-1.5 -1.5 3 3" aria-hidden="true"></svg>
+  <svg id="knot" aria-hidden="true"></svg>
   <div class="dom">noahfinkelstein.com</div>
 </div>
 <script>
-  // A (2,3) torus knot like the hero's wireframe: four parallel strands,
-  // rotated a little and projected orthographically.
+  // The (2,3) torus knot, turned and tilted as in knot.ts, projected
+  // orthographically and drawn as solid ink strokes. A sample is left out
+  // where another part of the curve passes over it, nearer the viewer, so
+  // the under-strand breaks at each crossing as in a printed knot diagram.
   (function () {
     var svg = document.getElementById("knot");
     var ns = "http://www.w3.org/2000/svg";
-    var p = 2, q = 3, R = 0.78, N = 720;
-    var ax = 0.9, ay = 0.55; // tilt
-    function rot(v) {
-      var x = v[0], y = v[1], z = v[2];
-      var y1 = y * Math.cos(ax) - z * Math.sin(ax), z1 = y * Math.sin(ax) + z * Math.cos(ax);
-      var x2 = x * Math.cos(ay) + z1 * Math.sin(ay), z2 = -x * Math.sin(ay) + z1 * Math.cos(ay);
-      return [x2, y1, z2];
+    var P = 2, Q = 3, R = 2, A = 0.9;          // KNOT_SHAPE
+    var TILT = 1.2, TURN = Math.PI / 2, FILL = 0.86; // KNOT_VIEW
+    var INK = 0.026, GAP_R = 0.095;            // KNOT_INK
+    var STEPS = 720, GAP = GAP_R + INK, SAME = STEPS / 12;
+
+    function viewPoint(t) {
+      var r = R + A * Math.cos(Q * t);
+      var x = r * Math.cos(P * t), y = A * Math.sin(Q * t), z = r * Math.sin(P * t);
+      var x1 = x * Math.cos(TURN) + z * Math.sin(TURN);
+      var z1 = -x * Math.sin(TURN) + z * Math.cos(TURN);
+      return [x1, y * Math.cos(TILT) - z1 * Math.sin(TILT), y * Math.sin(TILT) + z1 * Math.cos(TILT)];
     }
-    var strands = [0.26, 0.30, 0.34, 0.38];
-    strands.forEach(function (r, si) {
-      var pts = [];
-      for (var i = 0; i <= N; i++) {
-        var t = (i / N) * Math.PI * 2;
-        var w = R + r * Math.cos(q * t);
-        var v = rot([w * Math.cos(p * t), w * Math.sin(p * t), r * Math.sin(q * t)]);
-        pts.push(v[0].toFixed(4) + "," + (-v[1]).toFixed(4));
-      }
-      var el = document.createElementNS(ns, "polyline");
-      el.setAttribute("points", pts.join(" "));
-      el.setAttribute("fill", "none");
-      el.setAttribute("stroke", "#e2b23f");
-      el.setAttribute("stroke-width", si === 1 ? "0.016" : "0.009");
-      el.setAttribute("stroke-linejoin", "round");
-      el.setAttribute("opacity", si === 1 ? "0.95" : "0.55");
-      svg.appendChild(el);
+
+    var pts = [];
+    for (var i = 0; i < STEPS; i++) pts.push(viewPoint((i / STEPS) * Math.PI * 2));
+    var hidden = pts.map(function (a, i) {
+      return pts.some(function (b, j) {
+        var apart = Math.abs(i - j);
+        if (Math.min(apart, STEPS - apart) <= SAME) return false;
+        return b[2] > a[2] && Math.hypot(b[0] - a[0], b[1] - a[1]) < GAP;
+      });
     });
-    // A few "points" along the main strand, like the particle field.
-    for (var i = 0; i < 90; i++) {
-      var t = (i / 90) * Math.PI * 2, r = 0.30;
-      var w = R + r * Math.cos(q * t);
-      var v = rot([w * Math.cos(p * t), w * Math.sin(p * t), r * Math.sin(q * t)]);
-      var c = document.createElementNS(ns, "circle");
-      c.setAttribute("cx", v[0].toFixed(4)); c.setAttribute("cy", (-v[1]).toFixed(4));
-      c.setAttribute("r", "0.014"); c.setAttribute("fill", "#f3dc96"); c.setAttribute("opacity", "0.9");
-      svg.appendChild(c);
+
+    var half = (R + A + GAP_R) / FILL;
+    svg.setAttribute("viewBox", [-half, -half, 2 * half, 2 * half].join(" "));
+    var g = document.createElementNS(ns, "g");
+    g.setAttribute("fill", "none");
+    g.setAttribute("stroke", "#1b1a17");
+    g.setAttribute("stroke-width", String(2 * INK * 1.4));
+    g.setAttribute("stroke-linecap", "round");
+    g.setAttribute("stroke-linejoin", "round");
+    svg.appendChild(g);
+
+    function fmt(i) { return pts[i][0].toFixed(3) + "," + (-pts[i][1]).toFixed(3); }
+    function line(run) {
+      if (run.length < 2) return;
+      var el = document.createElementNS(ns, "polyline");
+      el.setAttribute("points", run.join(" "));
+      g.appendChild(el);
     }
+    var start = hidden.findIndex(function (h, i) { return h && !hidden[(i + 1) % STEPS]; });
+    if (start === -1) {
+      var all = pts.map(function (_, i) { return fmt(i); });
+      all.push(fmt(0));
+      line(all);
+      return;
+    }
+    var run = [];
+    for (var k = 1; k <= STEPS; k++) {
+      var idx = (start + k) % STEPS;
+      if (hidden[idx]) { line(run); run = []; } else run.push(fmt(idx));
+    }
+    line(run);
   })();
 </script>
 </body>

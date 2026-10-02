@@ -1,91 +1,93 @@
 /* ---------------------------------------------------------------------------
-   ProjectMedia — the 16:10 media frame in a project row: --radius corners,
-   a 1px --border, --bg-2 behind. Real media only:
+   ProjectMedia — the figure under a project's text: the media at its own
+   aspect ratio (from the width/height in the data, so nothing is cropped and
+   the space is reserved before anything loads), square corners, a 1px
+   --border, --bg-2 behind. Real media only:
 
      video  the poster as a next/image (responsive, lazy unless `priority`)
-            with a muted <video> loop layered on top. ProjectVideo plays it
-            only while it is on screen in a visible tab, pauses it otherwise,
-            and never plays it for reduced motion, so those visitors (and
-            no-JS visitors) see the poster. The video fades in only once it
-            is actually playing, so a slow or failed load still shows the
-            poster.
+            with a muted <video> loop laid exactly over it. ProjectVideo
+            plays it only while it is on screen in a visible tab, pauses it
+            otherwise, and never plays it for reduced motion, so those
+            visitors (and no-JS visitors) see the poster. The video fades in
+            only once it is actually playing, so a slow or failed load still
+            shows the poster.
      image  next/image with the file's own width/height.
-     none   a plain tile: the project title in the serif on --bg-2. Never a
-            fake screenshot.
+     none   renders nothing.
 
-   The frame reserves its aspect ratio up front, so nothing shifts as media
-   loads. Nothing moves on hover.
+   When the media has a `caption`, it is set under the frame in --text-sm
+   italic. Nothing moves on hover.
 
    Props:
-     project    the Project (uses project.media and project.title)
+     media      the project's ProjectMedia (or undefined)
+     link?      lays an empty link over the frame for pointer users (hidden
+                from keyboards and screen readers, which have the title link;
+                the image stays outside it, so its alt text is still read)
      priority?  eager-load the still (first row above the fold)
      sizes?     next/image sizes hint
-     className? extra class on the frame
+     className? extra class on the <figure>
    --------------------------------------------------------------------------- */
 
 import Image from "next/image";
-import type { Project } from "@/content/projects";
+import type { ProjectLink, ProjectMedia as Media } from "@/content/projects";
 import ProjectVideo from "./ProjectVideo";
 import styles from "./ProjectMedia.module.css";
 
 export type ProjectMediaProps = {
-  project: Project;
+  media?: Media;
+  link?: ProjectLink;
   priority?: boolean;
   sizes?: string;
   className?: string;
 };
 
-/** The row's media column is about half of a 68rem column from 900px; full
- *  width when stacked. */
-const DEFAULT_SIZES = "(max-width: 899px) 100vw, 520px";
+/** The figure is the main column's width up to 40rem; full width when the
+ *  row stacks. */
+const DEFAULT_SIZES = "(max-width: 699px) 100vw, 640px";
+
+function isExternal(href: string): boolean {
+  return /^(https?:)?\/\//i.test(href) || href.startsWith("mailto:");
+}
 
 export default function ProjectMedia({
-  project,
+  media,
+  link,
   priority = false,
   sizes = DEFAULT_SIZES,
   className,
 }: ProjectMediaProps) {
-  const media = project.media;
-  const frameClass = [styles.frame, className].filter(Boolean).join(" ");
+  if (!media) return null;
 
-  if (media?.type === "image") {
-    return (
-      <div className={frameClass}>
-        <Image
-          className={styles.media}
-          src={media.src}
-          alt={media.alt}
-          width={media.width}
-          height={media.height}
-          sizes={sizes}
-          priority={priority}
-        />
-      </div>
-    );
-  }
-
-  if (media?.type === "video") {
-    return (
-      <div className={frameClass}>
-        <Image
-          className={styles.media}
-          src={media.poster}
-          alt={media.alt}
-          width={media.width}
-          height={media.height}
-          sizes={sizes}
-          priority={priority}
-        />
-        <ProjectVideo className={styles.video} src={media.src} srcWebm={media.srcWebm} />
-      </div>
-    );
-  }
+  const still = media.type === "video" ? media.poster : media.src;
 
   return (
-    <div className={frameClass}>
-      <div className={styles.fallback} aria-hidden="true">
-        <span className={styles.fallbackTitle}>{project.title}</span>
+    <figure className={[styles.figure, className].filter(Boolean).join(" ")}>
+      <div className={styles.frame}>
+        <Image
+          className={styles.still}
+          src={still}
+          alt={media.alt}
+          width={media.width}
+          height={media.height}
+          sizes={sizes}
+          priority={priority}
+        />
+        {media.type === "video" ? (
+          <ProjectVideo className={styles.video} src={media.src} srcWebm={media.srcWebm} />
+        ) : null}
+        {link ? (
+          /* An empty layer over the frame for pointer users. Hidden from
+             keyboards and screen readers (they have the title link), and a
+             sibling of the image, not its parent, so the alt text is read. */
+          <a
+            className={styles.link}
+            href={link.href}
+            tabIndex={-1}
+            aria-hidden="true"
+            {...(isExternal(link.href) ? { target: "_blank", rel: "noopener" } : {})}
+          />
+        ) : null}
       </div>
-    </div>
+      {media.caption ? <figcaption className={styles.caption}>{media.caption}</figcaption> : null}
+    </figure>
   );
 }

@@ -1,7 +1,6 @@
 /* ---------------------------------------------------------------------------
-   EXPERIENCE — the roles on /experience (the printable CV) and in the
-   Experience list on the home page, which shows the date, role, org and
-   first bullet. Newest first. A role whose `role` is listed in `currently`
+   EXPERIENCE — the roles in "Research and work" on the CV (/cv), newest
+   first, every bullet shown. A role whose `role` is listed in `currently`
    in home.ts and whose date ends with "–" is dated "… – now".
 
    To add a role, copy a block and edit it. Fields:
@@ -9,9 +8,8 @@
      role    your title
      org     employer or lab. Use `orgHref` to link it.
      place   city, or leave it out
-     bullets what you actually did. Two or three is plenty; the first one is
-             the one shown on the home page.
-     stack   tools, listed under the bullets on /experience. Omit to hide.
+     bullets what you actually did. Two or three is plenty.
+     stack   tools, listed under the bullets on /cv. Omit to hide.
    --------------------------------------------------------------------------- */
 
 export type Role = {
@@ -83,7 +81,7 @@ export const experience: Role[] = [
 ];
 
 /* ---------------------------------------------------------------------------
-   EDUCATION — shown under the roles on /experience.
+   EDUCATION — shown under the roles on the CV (/cv).
    --------------------------------------------------------------------------- */
 
 export type School = {

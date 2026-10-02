@@ -1,6 +1,6 @@
 /* ---------------------------------------------------------------------------
-   PageTitle — the <h1> at the top of an inner page (Projects, Writing,
-   Experience, 404), left aligned, with room above it for the fixed navbar.
+   PageTitle — the <h1> at the top of an inner page (Work, Writing, CV,
+   404), left aligned, under the running head.
 
    Props:
      title     the heading text

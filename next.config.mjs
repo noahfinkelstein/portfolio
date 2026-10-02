@@ -28,8 +28,10 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      // The photos page was retired in v3; old links land on the home page.
+      // Old links to /photos land on the home page.
       { source: "/photos", destination: "/", permanent: true },
+      // The CV lives at /cv; old links to /experience land there.
+      { source: "/experience", destination: "/cv", permanent: true },
     ];
   },
 };

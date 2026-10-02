@@ -1,12 +1,14 @@
 /* ---------------------------------------------------------------------------
    Wraps every page: fonts, the no-flash theme script, the site chrome
-   (navbar, footer) and the metadata search engines read.
+   (the running head and the colophon footer) and the metadata search
+   engines read. The page is paper (the default theme) until the head script
+   says otherwise.
 
    FONTS (SIL Open Font License, self-hosted at build time by next/font)
      --font-serif  STIX Two Text — the typeface of mathematics journals.
                    Display, body and UI, in one family (regular, medium,
                    italic).
-     --font-mono   JetBrains Mono — dates, years, tag lists and code, where
+     --font-mono   JetBrains Mono — dates, years, data and code, where
                    figures should align.
    --------------------------------------------------------------------------- */
 
@@ -56,7 +58,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  colorScheme: "dark light",
+  colorScheme: "light dark",
 };
 
 /*
@@ -79,7 +81,7 @@ const personJsonLd = JSON.stringify({
 }).replace(/</g, "\\u003c");
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // "Writing" only shows in the nav once there is something to read.
+  // "Writing" only shows in the running head once there is something to read.
   const hasWriting = getPostSlugs().length > 0;
 
   return (

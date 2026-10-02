@@ -11,18 +11,18 @@
       "port": 3000
     },
     {
-      "name": "portfolio-v4-check",
+      "name": "portfolio-v5",
       "runtimeExecutable": "npx",
       "runtimeArgs": [
         "next",
         "start",
         "-p",
-        "3417"
+        "3430"
       ],
       "env": {
-        "NEXT_DIST_DIR": ".next-check"
+        "NEXT_DIST_DIR": ".next-v5"
       },
-      "port": 3417
+      "port": 3430
     }
   ]
 }

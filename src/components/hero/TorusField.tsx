@@ -1,9 +1,9 @@
 "use client";
 
 /* ---------------------------------------------------------------------------
-   TorusField — the hero figure's three.js torus knot, drawn on a canvas that
-   fills the host box this component renders. In flow: not fixed, not
-   portalled.
+   TorusField — the hero figure's three.js trefoil, drawn as an ink figure on
+   a canvas that fills the host box this component renders. In flow: not
+   fixed, not portalled.
 
    Loaded by HeroFigure.tsx with next/dynamic({ ssr: false }): this file and
    three.js arrive after the page is interactive, so the hero text and the
@@ -22,10 +22,11 @@
      - The loop runs only while the host is near the viewport and the tab is
        visible (useActive); reduced motion draws one static frame, redrawn
        on theme change and resize.
-     - Theme changes re-tint it live (onThemeChange).
-     - The cursor tilts the knot: the pointer is normalised to -1…1 about the
-       host's centre, over half the viewport, so the knot leans toward the
-       cursor wherever it is on the page.
+     - Theme changes re-tint it live (onThemeChange; it reads --scene-wire).
+     - The knot leans toward the pointer only while the pointer is over this
+       host: pointermove on the host gives a position normalised to -1…1
+       about the host's centre, pointerleave sets it back to 0, 0 and the
+       knot eases upright. Touch never steers it.
      - No WebGL: the scene constructor throws, nothing is drawn and onLost
        fires, so the SVG fallback stays.
    --------------------------------------------------------------------------- */
@@ -92,17 +93,19 @@ export default function TorusField({ className, canvasClassName, onReady, onLost
       window.addEventListener("resize", measure);
     }
 
-    /* Cursor to tilt (mouse only; touch should not steer it). */
-    const onPointer = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse") return;
+    /* Pointer lean, scoped to the figure. Touch should not steer it. */
+    const onPointerMove = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
       const rect = host.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const halfW = Math.max(1, window.innerWidth / 2);
-      const halfH = Math.max(1, window.innerHeight / 2);
-      scene.setPointer((event.clientX - cx) / halfW, (event.clientY - cy) / halfH);
+      if (rect.width < 1 || rect.height < 1) return;
+      scene.setPointer(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        ((event.clientY - rect.top) / rect.height) * 2 - 1,
+      );
     };
-    window.addEventListener("pointermove", onPointer, { passive: true });
+    const onPointerLeave = () => scene.setPointer(0, 0);
+    host.addEventListener("pointermove", onPointerMove, { passive: true });
+    host.addEventListener("pointerleave", onPointerLeave);
 
     const offTheme = onThemeChange(({ tokens }) => scene.setTheme(tokens));
 
@@ -115,7 +118,8 @@ export default function TorusField({ className, canvasClassName, onReady, onLost
     return () => {
       observer?.disconnect();
       window.removeEventListener("resize", measure);
-      window.removeEventListener("pointermove", onPointer);
+      host.removeEventListener("pointermove", onPointerMove);
+      host.removeEventListener("pointerleave", onPointerLeave);
       motion.removeEventListener("change", onMotion);
       cancelAnimationFrame(resizeFrame);
       offTheme();
