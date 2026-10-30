@@ -70,12 +70,12 @@ export type Project = {
 export const projects: Project[] = [
   {
     slug: "coursetrees",
-    date: "Apr 2026 – now",
+    date: "Jun 2026 – now",
     title: "CourseTrees",
     status: "Live",
     blurb:
-      "A course catalog is a few thousand paragraphs with the prerequisites buried in the prose, which makes it a graph pretending to be a list. CourseTrees parses the prose back into edges and lets you walk the result: click a course and see what it needs and what it opens up, next to grade distributions, ratings, and degree requirements. Live across 150 universities. The layout is a force simulation written by hand and run in a web worker, because no off-the-shelf layout stayed readable at catalog scale. Co-founded with Rohan Vittal.",
-    stack: ["Next.js", "TypeScript", "Cytoscape", "Python", "PostgreSQL", "Supabase"],
+      "A course catalog is a few thousand paragraphs with the prerequisites buried in the prose, which makes it a graph pretending to be a list. CourseTrees parses the prose back into edges and lets you walk the result: click a course and see what it needs and what it opens up, next to grade distributions, ratings, and degree requirements. The web and iOS platform has 450 registered users across 23 universities and received a $2,500 non-dilutive Expand Grant from Brown’s Nelson Center for Entrepreneurship. AI advising uses Redis-backed rate limiting, response caching, and spend controls. The layout is a force simulation written by hand and run in a web worker, because no off-the-shelf layout stayed readable at catalog scale. Co-founded with Rohan Vittal.",
+    stack: ["Next.js", "React", "TypeScript", "Cytoscape", "Python", "PostgreSQL", "Supabase", "Redis"],
     links: [{ label: "coursetrees.com", href: "https://coursetrees.com" }],
     media: {
       type: "video",
@@ -160,8 +160,8 @@ export const projects: Project[] = [
     title: "Distributed key-value store",
     status: "Course project",
     blurb:
-      "A sharded key-value store in C++: a shard controller that assigns key ranges to servers, and a client that routes each operation to whichever server currently owns that key. There is one reader-writer lock per hash bucket, and multi-key operations sort and deduplicate their bucket indices before taking any of them, so two concurrent MultiPuts cannot deadlock against each other.",
-    stack: ["C++"],
+      "A sharded key-value store in C and C++ with dynamic key-range routing: a shard controller assigns key ranges to servers, and a client routes each operation to whichever server currently owns that key. There is one reader-writer lock per hash bucket, and multi-key operations sort and deduplicate their bucket indices before taking any of them, so two concurrent MultiPuts cannot deadlock against each other.",
+    stack: ["C", "C++"],
     media: {
       type: "video",
       src: "/projects/kvstore/loop-control-plane.mp4",
@@ -177,8 +177,28 @@ export const projects: Project[] = [
     title: "BetaGo",
     status: "Course project",
     blurb:
-      "A Go agent for the 9×9 board, written to compare greedy, minimax, alpha-beta, iterative deepening, and Monte Carlo tree search under a fixed per-move time budget. The winner was not the interesting-sounding one: alpha-beta at depth 3, with a small learned value network standing in for the stone-count heuristic, took 293 of 300 games from the greedy baseline and 99 of 100 from depth-2 alpha-beta, while MCTS never beat alpha-beta at any depth I tried.",
+      "A Go/Baduk agent for the 9×9 board, written to compare greedy, minimax, alpha-beta, iterative deepening, and Monte Carlo tree search under a fixed per-move time budget. The winner was not the interesting-sounding one: alpha-beta at depth 3, with a small learned value network standing in for the stone-count heuristic, won 293/300 games against the greedy baseline and 99/100 against depth-2 alpha-beta in project evaluations, while MCTS never beat alpha-beta at any depth I tried.",
     stack: ["Python", "PyTorch"],
+  },
+
+  {
+    slug: "finkos",
+    date: "",
+    title: "FinkOS",
+    status: "Systems project",
+    blurb:
+      "An operating-system kernel written from scratch in C and Assembly, tested using QEMU, and running on the Raspberry Pi 3 Model B+/B.",
+    stack: ["C", "Assembly"],
+  },
+  {
+    slug: "cupid-on-thayer",
+    date: "",
+    title: "Cupid On Thayer",
+    status: "Web app",
+    blurb:
+      "A matchmaking site for Brown University students, with 65 signups.",
+    stack: ["TypeScript", "MySQL"],
+    links: [{ label: "cupidonthayer.com", href: "https://www.cupidonthayer.com" }],
   },
 
   /* -------------------------------------------------------------------------

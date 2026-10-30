@@ -19,7 +19,7 @@ export const home = {
      * Plain prose; links are added in Hero.tsx for the words in `ledeLinks`.
      */
     lede:
-      "Mathematics–computer science and physics at Brown University. Co-founder of CourseTrees, and machine learning research in the Bari–Hazeltine group.",
+      "Mathematics–computer science at Brown University. Co-founder and CEO of CourseTrees, and Campus Lead for the OpenAI Student Collective.",
     /** Words in the lede that become links (exact match). */
     ledeLinks: { CourseTrees: "https://coursetrees.com" } as Record<string, string>,
     /** The figure caption under the knot. Keep it true. */
@@ -36,7 +36,7 @@ export const home = {
   about: {
     /* Each string is one paragraph, shown under the lede in the hero. */
     intro: [
-      "I am an undergraduate at Brown, class of 2028, studying mathematics–computer science and physics. Most of what I work on ends up somewhere between the two: machine learning that has to respect a differential equation, statistics on data that was never collected for the question being asked, software for a problem I ran into myself.",
+      "I am an undergraduate at Brown, class of 2028, studying mathematics–computer science. My work spans machine learning, biostatistics, and software for problems I have run into myself: physics-informed neural networks at Prism, Long COVID research at Massachusetts General Hospital, and academic planning with CourseTrees.",
       "Away from that I play chess, which I have been losing at since I was seven and running tournaments for since I was sixteen. I also do astrophotography, which is mostly standing in a field in the cold waiting for a cloud to move. If any of this overlaps with something you are working on, I would like to hear about it.",
     ],
   },
@@ -60,7 +60,7 @@ export const home = {
    * Roles that are ongoing, by their `role` in experience.ts. Their date
    * reads "… – now" on the CV. Only list things that really are.
    */
-  currently: ["Co-Founder and CEO", "Machine Learning Researcher"],
+  currently: ["Co-Founder and CEO", "Campus Lead"],
 };
 
 export type Home = typeof home;

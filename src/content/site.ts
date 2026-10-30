@@ -56,8 +56,8 @@ export const site = {
   /** Browser tab + Google result + link previews. Keep it factual. */
   description:
     "Noah Finkelstein — Brown University undergraduate in mathematics–computer " +
-    "science and physics. Machine learning research, biostatistics, and " +
-    "CourseTrees.",
+    "science. Co-founder and CEO of CourseTrees and Campus Lead for the " +
+    "OpenAI Student Collective.",
 
   /** Your real domain. Used for canonical URLs and link previews. */
   url: "https://noahfinkelstein.com",

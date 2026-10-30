@@ -8,7 +8,7 @@
      items  the tools in it, in the order they should read
 
    To add a tool, put its name in the right `items` list. To add a category,
-   add a block. Only list things that appear in experience.ts or projects.ts.
+   add a block. Keep the list aligned with the current resume.
    --------------------------------------------------------------------------- */
 
 export type SkillCategory = {
@@ -19,18 +19,14 @@ export type SkillCategory = {
 export const skills: SkillCategory[] = [
   {
     label: "Languages",
-    items: ["Python", "TypeScript", "C++", "R", "Swift"],
+    items: ["Python", "C/C++", "Rust", "R", "Java", "Go", "TypeScript", "Swift"],
   },
   {
-    label: "Machine learning and statistics",
-    items: ["PyTorch", "scikit-learn", "Tidyverse"],
+    label: "Frameworks and tools",
+    items: ["AWS", "Docker", "Kubernetes", "CI/CD", "React", "Next.js", "PostgreSQL", "Redis"],
   },
   {
-    label: "Web and data",
-    items: ["React", "Next.js", "three.js", "Vite", "MapLibre", "Cytoscape.js", "Zod", "Pydantic", "PostgreSQL"],
-  },
-  {
-    label: "Tools",
-    items: ["Supabase", "Firebase", "Vercel"],
+    label: "AI and machine learning",
+    items: ["PyTorch", "Keras", "TensorFlow", "scikit-learn", "CNNs", "Transformers", "CUDA"],
   },
 ];

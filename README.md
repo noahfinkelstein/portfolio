@@ -94,8 +94,8 @@ sentence ("Python, TypeScript, C++, R and Swift.").
 { label: "Languages", items: ["Python", "TypeScript", "C++", "R", "Swift", "Rust"] },
 ```
 
-Add a tool to the right `items` list, or a new block for a new category. Only
-list tools that appear in `experience.ts` or `projects.ts`.
+Add a tool to the right `items` list, or a new block for a new category. Keep
+the list aligned with the current resume.
 
 ### Adding a LinkedIn post
 
