@@ -34,7 +34,7 @@ export const experience: Role[] = [
   },
   {
     date: "Jun 2026 –",
-    role: "Co-Founder and CEO",
+    role: "Co-Founder & CEO",
     org: "CourseTrees",
     orgHref: "https://coursetrees.com",
     bullets: [
@@ -51,7 +51,7 @@ export const experience: Role[] = [
     place: "Boston, MA",
     bullets: [
       "Implemented a simulation study evaluating candidate Long COVID Research Index (LCRI) thresholds using LASSO-regularized k-means clustering for NIH RECOVER research; presented findings to senior statisticians.",
-      "Parallelized simulation and analysis workflows and ported portions of an R/Tidyverse pipeline to Python for high-dimensional cohort analysis, reducing the data generation pipeline used to derive the LCRI from 12 hours to 3 hours.",
+      "Parallelized simulation and analysis workflows and ported portions of an R/Tidyverse pipeline to Python to support analysis of high-dimensional cohort data, reducing the data generation pipeline used to derive the LCRI from 12 hours to 3 hours.",
     ],
     stack: ["R", "Python", "scikit-learn"],
   },
@@ -77,23 +77,12 @@ export const experience: Role[] = [
     stack: ["C++"],
   },
   {
-    date: "2023–2025",
-    role: "Camp Specialist",
-    org: "Albemarle Acres, Newton Parks and Recreation",
-    place: "Newton",
-    bullets: [
-      "Taught music, drama, and creative writing to campers aged six to twelve.",
-      "Trained and evaluated counselors-in-training, ran special events, and managed the teaching budget.",
-    ],
-  },
-  {
     date: "Jan 2022 – May 2024",
     role: "Events Coordinator, MHSCL Committee Member, Advisor",
     org: "Massachusetts High School Chess League",
     place: "Boston, MA",
     bullets: [
-      "Co-founded a student-run league of 200+ members across 25+ high schools, sponsored by Chess.com and the Massachusetts Chess Association (MACA).",
-      "Ran tournaments in person and online.",
+      "Co-founded a student-run chess league of 200+ members across 25+ high schools; sponsored by Chess.com and MACA.",
     ],
   },
 ];

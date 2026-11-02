@@ -129,11 +129,11 @@ export const projects: Project[] = [
   {
     slug: "brown3d",
     date: "Jul 2026",
-    title: "brown3d",
+    title: "Brown3D",
     status: "Open source",
     blurb:
-      "Walk around Brown’s campus and downtown Providence in a browser. The 281 building footprints come from Brown’s public ArcGIS layers, extruded to heights read off USGS one-metre lidar and draped over terrain from the same survey; a Python pipeline turns 80 raw layers plus OpenStreetMap into the runtime assets. 272 buildings get a real lidar height, three are estimated from floor area, six fall back to a default, and the pipeline writes down which got which rather than hiding the difference.",
-    stack: ["TypeScript", "three.js", "Vite", "Python"],
+      "A 3D recreation of Brown’s campus using neural radiance fields and lidar data, explorable in a browser. The 281 building footprints come from Brown’s public ArcGIS layers, extruded to heights read off USGS one-metre lidar and draped over terrain from the same survey; a Python pipeline turns 80 raw layers plus OpenStreetMap into the runtime assets. 272 buildings get a real lidar height, three are estimated from floor area, six fall back to a default, and the pipeline writes down which got which rather than hiding the difference.",
+    stack: ["TypeScript", "Three.js", "Vite", "Python"],
     links: [{ label: "GitHub", href: "https://github.com/noahfinkelstein/brown3d" }],
     media: {
       type: "video",

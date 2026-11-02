@@ -60,7 +60,7 @@ export const home = {
    * Roles that are ongoing, by their `role` in experience.ts. Their date
    * reads "… – now" on the CV. Only list things that really are.
    */
-  currently: ["Co-Founder and CEO", "Campus Lead"],
+  currently: ["Co-Founder & CEO", "Campus Lead"],
 };
 
 export type Home = typeof home;
